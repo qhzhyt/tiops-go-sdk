@@ -78,7 +78,10 @@ func (m *DatasetVolume) GetMountPath() string {
 }
 
 type ProjectConfig struct {
-	Volumes              []*DatasetVolume `protobuf:"bytes,1,rep,name=volumes,proto3" json:"volumes,omitempty" bson:"volumes"`
+	UseVolume            bool             `protobuf:"varint,1,opt,name=useVolume,proto3" json:"useVolume,omitempty" bson:"useVolume"`
+	UseGPU               bool             `protobuf:"varint,2,opt,name=useGPU,proto3" json:"useGPU,omitempty" bson:"useGPU"`
+	DatasetVolumes       []*DatasetVolume `protobuf:"bytes,3,rep,name=datasetVolumes,proto3" json:"datasetVolumes,omitempty" bson:"datasetVolumes"`
+	UseAllDatasetVolumes bool             `protobuf:"varint,4,opt,name=useAllDatasetVolumes,proto3" json:"useAllDatasetVolumes,omitempty" bson:"useAllDatasetVolumes"`
 	XXX_NoUnkeyedLiteral struct{}         `json:"-" bson:"-"`
 	XXX_unrecognized     []byte           `json:"-" bson:"-"`
 	XXX_sizecache        int32            `json:"-" bson:"-"`
@@ -117,24 +120,46 @@ func (m *ProjectConfig) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ProjectConfig proto.InternalMessageInfo
 
-func (m *ProjectConfig) GetVolumes() []*DatasetVolume {
+func (m *ProjectConfig) GetUseVolume() bool {
 	if m != nil {
-		return m.Volumes
+		return m.UseVolume
+	}
+	return false
+}
+
+func (m *ProjectConfig) GetUseGPU() bool {
+	if m != nil {
+		return m.UseGPU
+	}
+	return false
+}
+
+func (m *ProjectConfig) GetDatasetVolumes() []*DatasetVolume {
+	if m != nil {
+		return m.DatasetVolumes
 	}
 	return nil
+}
+
+func (m *ProjectConfig) GetUseAllDatasetVolumes() bool {
+	if m != nil {
+		return m.UseAllDatasetVolumes
+	}
+	return false
 }
 
 type ProjectInfo struct {
 	XId                  string         `protobuf:"bytes,1,opt,name=_id,json=Id,proto3" json:"_id,omitempty" bson:"_id"`
 	Name                 string         `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
 	Lang                 string         `protobuf:"bytes,3,opt,name=lang,proto3" json:"lang,omitempty" bson:"lang"`
-	Description          string         `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty" bson:"description"`
-	CreatedBy            string         `protobuf:"bytes,5,opt,name=createdBy,proto3" json:"createdBy,omitempty" bson:"createdBy"`
-	CreatedTime          int64          `protobuf:"varint,6,opt,name=createdTime,proto3" json:"createdTime,omitempty" bson:"createdTime"`
-	UpdatedTime          int64          `protobuf:"varint,7,opt,name=updatedTime,proto3" json:"updatedTime,omitempty" bson:"updatedTime"`
-	Readme               string         `protobuf:"bytes,8,opt,name=readme,proto3" json:"readme,omitempty" bson:"readme"`
-	Actions              []*ActionInfo  `protobuf:"bytes,9,rep,name=actions,proto3" json:"actions,omitempty" bson:"actions"`
-	Config               *ProjectConfig `protobuf:"bytes,10,opt,name=config,proto3" json:"config,omitempty" bson:"config"`
+	Title                string         `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty" bson:"title"`
+	Description          string         `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty" bson:"description"`
+	CreatedBy            string         `protobuf:"bytes,6,opt,name=createdBy,proto3" json:"createdBy,omitempty" bson:"createdBy"`
+	CreatedTime          int64          `protobuf:"varint,7,opt,name=createdTime,proto3" json:"createdTime,omitempty" bson:"createdTime"`
+	UpdatedTime          int64          `protobuf:"varint,8,opt,name=updatedTime,proto3" json:"updatedTime,omitempty" bson:"updatedTime"`
+	Readme               string         `protobuf:"bytes,9,opt,name=readme,proto3" json:"readme,omitempty" bson:"readme"`
+	Actions              []*ActionInfo  `protobuf:"bytes,10,rep,name=actions,proto3" json:"actions,omitempty" bson:"actions"`
+	Config               *ProjectConfig `protobuf:"bytes,11,opt,name=config,proto3" json:"config,omitempty" bson:"config"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-" bson:"-"`
 	XXX_unrecognized     []byte         `json:"-" bson:"-"`
 	XXX_sizecache        int32          `json:"-" bson:"-"`
@@ -190,6 +215,13 @@ func (m *ProjectInfo) GetName() string {
 func (m *ProjectInfo) GetLang() string {
 	if m != nil {
 		return m.Lang
+	}
+	return ""
+}
+
+func (m *ProjectInfo) GetTitle() string {
+	if m != nil {
+		return m.Title
 	}
 	return ""
 }
@@ -252,31 +284,34 @@ func init() {
 func init() { proto.RegisterFile("tiops/common/models/project.proto", fileDescriptor_7ee799472a6c885c) }
 
 var fileDescriptor_7ee799472a6c885c = []byte{
-	// 370 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0xb1, 0x4e, 0xeb, 0x30,
-	0x14, 0x86, 0xaf, 0x9b, 0xde, 0xf4, 0xf6, 0x54, 0xd5, 0xbd, 0xb2, 0x74, 0x91, 0x85, 0x50, 0x14,
-	0x32, 0x75, 0x80, 0x46, 0x82, 0x8d, 0x09, 0x0a, 0x4b, 0xc5, 0x52, 0x45, 0x88, 0xb5, 0x72, 0x63,
-	0x37, 0x04, 0xd5, 0x76, 0x94, 0xb8, 0x48, 0xec, 0x3c, 0x04, 0x62, 0xe0, 0x79, 0x18, 0xfb, 0x08,
-	0xa8, 0xbc, 0x08, 0xb2, 0x9d, 0x96, 0x54, 0xea, 0x66, 0x7f, 0xe7, 0xcb, 0xc9, 0x39, 0xbf, 0xe1,
-	0x58, 0xe7, 0xaa, 0xa8, 0xe2, 0x54, 0x09, 0xa1, 0x64, 0x2c, 0x14, 0xe3, 0x8b, 0x2a, 0x2e, 0x4a,
-	0xf5, 0xc8, 0x53, 0x3d, 0x2c, 0x4a, 0xa5, 0x15, 0xf6, 0x1d, 0x3d, 0x0c, 0xf7, 0xa9, 0x9a, 0x66,
-	0x19, 0x2f, 0x9d, 0xb9, 0xdf, 0xa0, 0xa9, 0xce, 0x95, 0x74, 0x46, 0x74, 0x0b, 0xfd, 0x1b, 0xaa,
-	0x69, 0xc5, 0xf5, 0xbd, 0x5a, 0x2c, 0x05, 0xc7, 0x47, 0xd0, 0x65, 0x0e, 0x8c, 0x19, 0x41, 0x21,
-	0x1a, 0x74, 0x93, 0x1f, 0x60, 0xaa, 0x42, 0x2d, 0xa5, 0x9e, 0x50, 0xfd, 0x40, 0x5a, 0xae, 0xba,
-	0x05, 0xd1, 0x25, 0xf4, 0x27, 0x6e, 0xd2, 0x6b, 0x25, 0xe7, 0x79, 0x86, 0x63, 0xe8, 0x3c, 0xd9,
-	0xb6, 0x15, 0x41, 0xa1, 0x37, 0xe8, 0x9d, 0xfd, 0x1f, 0xba, 0x21, 0x86, 0x3b, 0x3f, 0x4d, 0x36,
-	0x56, 0xb4, 0x6a, 0x41, 0xaf, 0x6e, 0x31, 0x96, 0x73, 0x85, 0x43, 0xf0, 0xa6, 0x79, 0x3d, 0xc7,
-	0xe8, 0xef, 0xdb, 0xcb, 0xbb, 0x07, 0xb3, 0x4a, 0xc9, 0x8b, 0x68, 0x9a, 0xb3, 0x28, 0x69, 0x8d,
-	0x19, 0xc6, 0xd0, 0x96, 0x54, 0xf0, 0x7a, 0x18, 0x7b, 0x36, 0x6c, 0x41, 0x65, 0x46, 0x3c, 0xc7,
-	0xcc, 0x19, 0x87, 0xd0, 0x63, 0xbc, 0x4a, 0xcb, 0xbc, 0x30, 0xdb, 0x93, 0xb6, 0x2d, 0x35, 0x91,
-	0xd9, 0x2d, 0x2d, 0x39, 0xd5, 0x9c, 0x8d, 0x9e, 0xc9, 0x6f, 0xb7, 0xdb, 0x16, 0x98, 0xef, 0xeb,
-	0xcb, 0x5d, 0x2e, 0x38, 0xf1, 0x43, 0x34, 0xf0, 0x92, 0x26, 0x32, 0xc6, 0xb2, 0x60, 0x5b, 0xa3,
-	0xe3, 0x8c, 0x06, 0xc2, 0x07, 0xe0, 0x97, 0x9c, 0x32, 0xc1, 0xc9, 0x1f, 0xdb, 0xbe, 0xbe, 0xe1,
-	0x13, 0xe8, 0xb8, 0x47, 0xa9, 0x48, 0xd7, 0xc6, 0x84, 0x37, 0x31, 0x5d, 0x59, 0x6c, 0xa2, 0x48,
-	0x36, 0x0a, 0x3e, 0x05, 0x3f, 0xb5, 0xf1, 0x12, 0x08, 0x51, 0x33, 0xd3, 0x9d, 0xec, 0x93, 0x5a,
-	0x1a, 0xfd, 0xfb, 0x58, 0x07, 0x68, 0xb5, 0x0e, 0xd0, 0xe7, 0x3a, 0x40, 0xaf, 0x5f, 0xc1, 0xaf,
-	0x99, 0x6f, 0x9f, 0xfe, 0xfc, 0x3b, 0x00, 0x00, 0xff, 0xff, 0xf8, 0xff, 0x6c, 0x68, 0x6b, 0x02,
-	0x00, 0x00,
+	// 429 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x92, 0xc1, 0x8e, 0xd3, 0x30,
+	0x10, 0x86, 0x49, 0xb3, 0x9b, 0x6d, 0xa7, 0x5a, 0x40, 0xd6, 0x82, 0x2c, 0x84, 0xaa, 0x90, 0x53,
+	0x0f, 0xd0, 0x4a, 0xcb, 0x0d, 0x89, 0xc3, 0x96, 0x95, 0x50, 0xc5, 0xa5, 0xb2, 0x80, 0xeb, 0xca,
+	0x1b, 0xcf, 0x16, 0xa3, 0xd8, 0x8e, 0x62, 0xe7, 0xc0, 0x9d, 0x87, 0x40, 0x1c, 0x78, 0x0e, 0x1e,
+	0x81, 0x23, 0x8f, 0x80, 0x8a, 0xc4, 0x73, 0x20, 0xdb, 0xd9, 0x36, 0x5d, 0xf5, 0xe6, 0xf9, 0xe6,
+	0xcf, 0xef, 0xc9, 0xef, 0x81, 0x67, 0x4e, 0x9a, 0xda, 0xce, 0x4b, 0xa3, 0x94, 0xd1, 0x73, 0x65,
+	0x04, 0x56, 0x76, 0x5e, 0x37, 0xe6, 0x33, 0x96, 0x6e, 0x56, 0x37, 0xc6, 0x19, 0x92, 0x45, 0xfa,
+	0x24, 0x3f, 0x24, 0x75, 0x7c, 0xbd, 0xc6, 0x26, 0x2a, 0x0f, 0x2b, 0x78, 0xe9, 0xa4, 0xd1, 0x51,
+	0x51, 0xbc, 0x83, 0xd3, 0x4b, 0xee, 0xb8, 0x45, 0xf7, 0xd1, 0x54, 0xad, 0x42, 0xf2, 0x14, 0x46,
+	0x22, 0x82, 0xa5, 0xa0, 0x49, 0x9e, 0x4c, 0x47, 0x6c, 0x07, 0x7c, 0x57, 0x99, 0x56, 0xbb, 0x15,
+	0x77, 0x9f, 0xe8, 0x20, 0x76, 0xb7, 0xa0, 0xf8, 0x99, 0xc0, 0xe9, 0x2a, 0x8e, 0xfa, 0xc6, 0xe8,
+	0x1b, 0xb9, 0xf6, 0xfa, 0xd6, 0x62, 0xb4, 0x0e, 0x6e, 0x43, 0xb6, 0x03, 0xe4, 0x31, 0x64, 0xad,
+	0xc5, 0xb7, 0xab, 0x0f, 0xc1, 0x6a, 0xc8, 0xba, 0x8a, 0xbc, 0x86, 0xfb, 0xa2, 0x3f, 0x94, 0xa5,
+	0x69, 0x9e, 0x4e, 0xc7, 0xe7, 0x8f, 0x66, 0xf1, 0x17, 0x66, 0x7b, 0x23, 0xb3, 0x3b, 0x62, 0x72,
+	0x0e, 0x67, 0xad, 0xc5, 0x8b, 0xaa, 0xba, 0xdc, 0x37, 0x39, 0x0a, 0x97, 0x1c, 0xec, 0x15, 0xff,
+	0x06, 0x30, 0xee, 0x46, 0x5f, 0xea, 0x1b, 0x43, 0x72, 0x48, 0xaf, 0x64, 0x17, 0xc0, 0xe2, 0xc1,
+	0xf7, 0xaf, 0x3f, 0x52, 0xb8, 0xb6, 0x46, 0xbf, 0x2a, 0xae, 0xa4, 0x28, 0xd8, 0x60, 0x29, 0x08,
+	0x81, 0x23, 0xcd, 0x15, 0x76, 0x29, 0x84, 0xb3, 0x67, 0x15, 0xd7, 0x6b, 0x9a, 0x46, 0xe6, 0xcf,
+	0xe4, 0x0c, 0x8e, 0x9d, 0x74, 0x15, 0x86, 0xeb, 0x47, 0x2c, 0x16, 0x24, 0x87, 0xb1, 0x40, 0x5b,
+	0x36, 0xb2, 0xf6, 0x8f, 0x41, 0x8f, 0x43, 0xaf, 0x8f, 0x7c, 0x74, 0x65, 0x83, 0xdc, 0xa1, 0x58,
+	0x7c, 0xa1, 0x59, 0x8c, 0x7a, 0x0b, 0xfc, 0xf7, 0x5d, 0xf1, 0x5e, 0x2a, 0xa4, 0x27, 0x79, 0x32,
+	0x4d, 0x59, 0x1f, 0x79, 0x45, 0x5b, 0x8b, 0xad, 0x62, 0x18, 0x15, 0x3d, 0xe4, 0xe3, 0x6f, 0x90,
+	0x0b, 0x85, 0x74, 0x14, 0xec, 0xbb, 0x8a, 0x3c, 0x87, 0x93, 0xb8, 0x23, 0x96, 0x42, 0xc8, 0x9d,
+	0xdc, 0xe6, 0x7e, 0x11, 0xb0, 0x0f, 0x88, 0xdd, 0x4a, 0xc8, 0x0b, 0xc8, 0xca, 0xf0, 0xd8, 0x74,
+	0x9c, 0x27, 0xfd, 0x47, 0xda, 0xdb, 0x04, 0xd6, 0x89, 0x16, 0x0f, 0x7f, 0x6d, 0x26, 0xc9, 0xef,
+	0xcd, 0x24, 0xf9, 0xb3, 0x99, 0x24, 0xdf, 0xfe, 0x4e, 0xee, 0x5d, 0x67, 0x61, 0x13, 0x5f, 0xfe,
+	0x0f, 0x00, 0x00, 0xff, 0xff, 0xf6, 0x23, 0x2a, 0xc2, 0xfa, 0x02, 0x00, 0x00,
 }
 
 func (m *DatasetVolume) Marshal() (dAtA []byte, err error) {
@@ -344,10 +379,20 @@ func (m *ProjectConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.Volumes) > 0 {
-		for iNdEx := len(m.Volumes) - 1; iNdEx >= 0; iNdEx-- {
+	if m.UseAllDatasetVolumes {
+		i--
+		if m.UseAllDatasetVolumes {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.DatasetVolumes) > 0 {
+		for iNdEx := len(m.DatasetVolumes) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Volumes[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.DatasetVolumes[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -355,8 +400,28 @@ func (m *ProjectConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 				i = encodeVarintProject(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0xa
+			dAtA[i] = 0x1a
 		}
+	}
+	if m.UseGPU {
+		i--
+		if m.UseGPU {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.UseVolume {
+		i--
+		if m.UseVolume {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -395,7 +460,7 @@ func (m *ProjectInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i = encodeVarintProject(dAtA, i, uint64(size))
 		}
 		i--
-		dAtA[i] = 0x52
+		dAtA[i] = 0x5a
 	}
 	if len(m.Actions) > 0 {
 		for iNdEx := len(m.Actions) - 1; iNdEx >= 0; iNdEx-- {
@@ -408,7 +473,7 @@ func (m *ProjectInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 				i = encodeVarintProject(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x4a
+			dAtA[i] = 0x52
 		}
 	}
 	if len(m.Readme) > 0 {
@@ -416,29 +481,36 @@ func (m *ProjectInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Readme)
 		i = encodeVarintProject(dAtA, i, uint64(len(m.Readme)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x4a
 	}
 	if m.UpdatedTime != 0 {
 		i = encodeVarintProject(dAtA, i, uint64(m.UpdatedTime))
 		i--
-		dAtA[i] = 0x38
+		dAtA[i] = 0x40
 	}
 	if m.CreatedTime != 0 {
 		i = encodeVarintProject(dAtA, i, uint64(m.CreatedTime))
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x38
 	}
 	if len(m.CreatedBy) > 0 {
 		i -= len(m.CreatedBy)
 		copy(dAtA[i:], m.CreatedBy)
 		i = encodeVarintProject(dAtA, i, uint64(len(m.CreatedBy)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x32
 	}
 	if len(m.Description) > 0 {
 		i -= len(m.Description)
 		copy(dAtA[i:], m.Description)
 		i = encodeVarintProject(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintProject(dAtA, i, uint64(len(m.Title)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -503,11 +575,20 @@ func (m *ProjectConfig) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.Volumes) > 0 {
-		for _, e := range m.Volumes {
+	if m.UseVolume {
+		n += 2
+	}
+	if m.UseGPU {
+		n += 2
+	}
+	if len(m.DatasetVolumes) > 0 {
+		for _, e := range m.DatasetVolumes {
 			l = e.Size()
 			n += 1 + l + sovProject(uint64(l))
 		}
+	}
+	if m.UseAllDatasetVolumes {
+		n += 2
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -530,6 +611,10 @@ func (m *ProjectInfo) Size() (n int) {
 		n += 1 + l + sovProject(uint64(l))
 	}
 	l = len(m.Lang)
+	if l > 0 {
+		n += 1 + l + sovProject(uint64(l))
+	}
+	l = len(m.Title)
 	if l > 0 {
 		n += 1 + l + sovProject(uint64(l))
 	}
@@ -718,8 +803,48 @@ func (m *ProjectConfig) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UseVolume", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProject
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.UseVolume = bool(v != 0)
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UseGPU", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProject
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.UseGPU = bool(v != 0)
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Volumes", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field DatasetVolumes", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -746,11 +871,31 @@ func (m *ProjectConfig) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Volumes = append(m.Volumes, &DatasetVolume{})
-			if err := m.Volumes[len(m.Volumes)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.DatasetVolumes = append(m.DatasetVolumes, &DatasetVolume{})
+			if err := m.DatasetVolumes[len(m.DatasetVolumes)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UseAllDatasetVolumes", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProject
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.UseAllDatasetVolumes = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProject(dAtA[iNdEx:])
@@ -900,6 +1045,38 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProject
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProject
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProject
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
 			var stringLen uint64
@@ -930,7 +1107,7 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedBy", wireType)
 			}
@@ -962,7 +1139,7 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.CreatedBy = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
+		case 7:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedTime", wireType)
 			}
@@ -981,7 +1158,7 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 7:
+		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UpdatedTime", wireType)
 			}
@@ -1000,7 +1177,7 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 8:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Readme", wireType)
 			}
@@ -1032,7 +1209,7 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.Readme = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Actions", wireType)
 			}
@@ -1066,7 +1243,7 @@ func (m *ProjectInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 10:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Config", wireType)
 			}

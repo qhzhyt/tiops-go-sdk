@@ -204,6 +204,100 @@ func (x *QueryRequest) GetId() string {
 	return ""
 }
 
+type LogIdRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ModuleName string `protobuf:"bytes,1,opt,name=moduleName,proto3" json:"moduleName,omitempty" bson:"moduleName"`
+}
+
+func (x *LogIdRequest) Reset() {
+	*x = LogIdRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_tiops_common_services_api_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *LogIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogIdRequest) ProtoMessage() {}
+
+func (x *LogIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_tiops_common_services_api_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogIdRequest.ProtoReflect.Descriptor instead.
+func (*LogIdRequest) Descriptor() ([]byte, []int) {
+	return file_tiops_common_services_api_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LogIdRequest) GetModuleName() string {
+	if x != nil {
+		return x.ModuleName
+	}
+	return ""
+}
+
+type LogIdResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	LogId int64 `protobuf:"varint,1,opt,name=logId,proto3" json:"logId,omitempty" bson:"logId"`
+}
+
+func (x *LogIdResponse) Reset() {
+	*x = LogIdResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_tiops_common_services_api_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *LogIdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogIdResponse) ProtoMessage() {}
+
+func (x *LogIdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_tiops_common_services_api_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogIdResponse.ProtoReflect.Descriptor instead.
+func (*LogIdResponse) Descriptor() ([]byte, []int) {
+	return file_tiops_common_services_api_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *LogIdResponse) GetLogId() int64 {
+	if x != nil {
+		return x.LogId
+	}
+	return 0
+}
+
 var File_tiops_common_services_api_proto protoreflect.FileDescriptor
 
 var file_tiops_common_services_api_proto_rawDesc = []byte{
@@ -232,20 +326,30 @@ var file_tiops_common_services_api_proto_rawDesc = []byte{
 	0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x1e,
 	0x0a, 0x0c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e,
-	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x32, 0xc4,
-	0x01, 0x0a, 0x0a, 0x41, 0x50, 0x49, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x32, 0x0a,
-	0x07, 0x50, 0x6f, 0x73, 0x74, 0x4c, 0x6f, 0x67, 0x12, 0x0b, 0x2e, 0x6d, 0x6f, 0x64, 0x65, 0x6c,
-	0x73, 0x2e, 0x4c, 0x6f, 0x67, 0x1a, 0x18, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73,
-	0x2e, 0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x12, 0x3f, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x42,
-	0x79, 0x49, 0x44, 0x12, 0x16, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x6d, 0x6f,
-	0x64, 0x65, 0x6c, 0x73, 0x2e, 0x50, 0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x49, 0x6e, 0x66, 0x6f,
-	0x22, 0x00, 0x12, 0x41, 0x0a, 0x0f, 0x47, 0x65, 0x74, 0x57, 0x6f, 0x72, 0x6b, 0x66, 0x6c, 0x6f,
-	0x77, 0x42, 0x79, 0x49, 0x64, 0x12, 0x16, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73,
-	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e,
-	0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x73, 0x2e, 0x57, 0x6f, 0x72, 0x6b, 0x66, 0x6c, 0x6f, 0x77, 0x49,
-	0x6e, 0x66, 0x6f, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x2e,
+	0x0a, 0x0c, 0x4c, 0x6f, 0x67, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1e,
+	0x0a, 0x0a, 0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0a, 0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x22, 0x25,
+	0x0a, 0x0d, 0x4c, 0x6f, 0x67, 0x49, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x14, 0x0a, 0x05, 0x6c, 0x6f, 0x67, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05,
+	0x6c, 0x6f, 0x67, 0x49, 0x64, 0x32, 0x89, 0x02, 0x0a, 0x0a, 0x41, 0x50, 0x49, 0x53, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x12, 0x32, 0x0a, 0x07, 0x50, 0x6f, 0x73, 0x74, 0x4c, 0x6f, 0x67, 0x12,
+	0x0b, 0x2e, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x73, 0x2e, 0x4c, 0x6f, 0x67, 0x1a, 0x18, 0x2e, 0x73,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3f, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x50,
+	0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x42, 0x79, 0x49, 0x44, 0x12, 0x16, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x13, 0x2e, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x73, 0x2e, 0x50, 0x72, 0x6f, 0x6a,
+	0x65, 0x63, 0x74, 0x49, 0x6e, 0x66, 0x6f, 0x22, 0x00, 0x12, 0x41, 0x0a, 0x0f, 0x47, 0x65, 0x74,
+	0x57, 0x6f, 0x72, 0x6b, 0x66, 0x6c, 0x6f, 0x77, 0x42, 0x79, 0x49, 0x64, 0x12, 0x16, 0x2e, 0x73,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x73, 0x2e, 0x57, 0x6f,
+	0x72, 0x6b, 0x66, 0x6c, 0x6f, 0x77, 0x49, 0x6e, 0x66, 0x6f, 0x22, 0x00, 0x12, 0x43, 0x0a, 0x0e,
+	0x47, 0x65, 0x74, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x4c, 0x6f, 0x67, 0x49, 0x64, 0x12, 0x16,
+	0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x4c, 0x6f, 0x67, 0x49, 0x64, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x73, 0x2e, 0x4c, 0x6f, 0x67, 0x49, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -260,27 +364,31 @@ func file_tiops_common_services_api_proto_rawDescGZIP() []byte {
 	return file_tiops_common_services_api_proto_rawDescData
 }
 
-var file_tiops_common_services_api_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_tiops_common_services_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_tiops_common_services_api_proto_goTypes = []interface{}{
 	(*ObjectResponse)(nil),      // 0: services.ObjectResponse
 	(*ListResponse)(nil),        // 1: services.ListResponse
 	(*QueryRequest)(nil),        // 2: services.QueryRequest
-	(*any.Any)(nil),             // 3: google.protobuf.Any
-	(*models.Log)(nil),          // 4: models.Log
-	(*models.ProjectInfo)(nil),  // 5: models.ProjectInfo
-	(*models.WorkflowInfo)(nil), // 6: models.WorkflowInfo
+	(*LogIdRequest)(nil),        // 3: services.LogIdRequest
+	(*LogIdResponse)(nil),       // 4: services.LogIdResponse
+	(*any.Any)(nil),             // 5: google.protobuf.Any
+	(*models.Log)(nil),          // 6: models.Log
+	(*models.ProjectInfo)(nil),  // 7: models.ProjectInfo
+	(*models.WorkflowInfo)(nil), // 8: models.WorkflowInfo
 }
 var file_tiops_common_services_api_proto_depIdxs = []int32{
-	3, // 0: services.ObjectResponse.data:type_name -> google.protobuf.Any
-	3, // 1: services.ListResponse.data:type_name -> google.protobuf.Any
-	4, // 2: services.APIService.PostLog:input_type -> models.Log
+	5, // 0: services.ObjectResponse.data:type_name -> google.protobuf.Any
+	5, // 1: services.ListResponse.data:type_name -> google.protobuf.Any
+	6, // 2: services.APIService.PostLog:input_type -> models.Log
 	2, // 3: services.APIService.GetProjectByID:input_type -> services.QueryRequest
 	2, // 4: services.APIService.GetWorkflowById:input_type -> services.QueryRequest
-	0, // 5: services.APIService.PostLog:output_type -> services.ObjectResponse
-	5, // 6: services.APIService.GetProjectByID:output_type -> models.ProjectInfo
-	6, // 7: services.APIService.GetWorkflowById:output_type -> models.WorkflowInfo
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
+	3, // 5: services.APIService.GetSystemLogId:input_type -> services.LogIdRequest
+	0, // 6: services.APIService.PostLog:output_type -> services.ObjectResponse
+	7, // 7: services.APIService.GetProjectByID:output_type -> models.ProjectInfo
+	8, // 8: services.APIService.GetWorkflowById:output_type -> models.WorkflowInfo
+	4, // 9: services.APIService.GetSystemLogId:output_type -> services.LogIdResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
@@ -328,6 +436,30 @@ func file_tiops_common_services_api_proto_init() {
 				return nil
 			}
 		}
+		file_tiops_common_services_api_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LogIdRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_tiops_common_services_api_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LogIdResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -335,7 +467,7 @@ func file_tiops_common_services_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_tiops_common_services_api_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -366,6 +498,7 @@ type APIServiceClient interface {
 	GetProjectByID(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*models.ProjectInfo, error)
 	//  rpc GetProjects(QueryRequest) returns(ListResponse){}
 	GetWorkflowById(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*models.WorkflowInfo, error)
+	GetSystemLogId(ctx context.Context, in *LogIdRequest, opts ...grpc.CallOption) (*LogIdResponse, error)
 }
 
 type aPIServiceClient struct {
@@ -403,6 +536,15 @@ func (c *aPIServiceClient) GetWorkflowById(ctx context.Context, in *QueryRequest
 	return out, nil
 }
 
+func (c *aPIServiceClient) GetSystemLogId(ctx context.Context, in *LogIdRequest, opts ...grpc.CallOption) (*LogIdResponse, error) {
+	out := new(LogIdResponse)
+	err := c.cc.Invoke(ctx, "/services.APIService/GetSystemLogId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // APIServiceServer is the server API for APIService service.
 type APIServiceServer interface {
 	// define the interface and data type
@@ -410,6 +552,7 @@ type APIServiceServer interface {
 	GetProjectByID(context.Context, *QueryRequest) (*models.ProjectInfo, error)
 	//  rpc GetProjects(QueryRequest) returns(ListResponse){}
 	GetWorkflowById(context.Context, *QueryRequest) (*models.WorkflowInfo, error)
+	GetSystemLogId(context.Context, *LogIdRequest) (*LogIdResponse, error)
 }
 
 // UnimplementedAPIServiceServer can be embedded to have forward compatible implementations.
@@ -424,6 +567,9 @@ func (*UnimplementedAPIServiceServer) GetProjectByID(context.Context, *QueryRequ
 }
 func (*UnimplementedAPIServiceServer) GetWorkflowById(context.Context, *QueryRequest) (*models.WorkflowInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkflowById not implemented")
+}
+func (*UnimplementedAPIServiceServer) GetSystemLogId(context.Context, *LogIdRequest) (*LogIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSystemLogId not implemented")
 }
 
 func RegisterAPIServiceServer(s *grpc.Server, srv APIServiceServer) {
@@ -484,6 +630,24 @@ func _APIService_GetWorkflowById_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APIService_GetSystemLogId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServiceServer).GetSystemLogId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/services.APIService/GetSystemLogId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServiceServer).GetSystemLogId(ctx, req.(*LogIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _APIService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "services.APIService",
 	HandlerType: (*APIServiceServer)(nil),
@@ -499,6 +663,10 @@ var _APIService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetWorkflowById",
 			Handler:    _APIService_GetWorkflowById_Handler,
+		},
+		{
+			MethodName: "GetSystemLogId",
+			Handler:    _APIService_GetSystemLogId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

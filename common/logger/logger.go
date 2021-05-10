@@ -3,7 +3,6 @@ package logger
 import (
 	"context"
 	"fmt"
-	"go.uber.org/atomic"
 	"path"
 	"runtime"
 	"strings"
@@ -34,7 +33,7 @@ type Logger struct {
 	Type      string
 	Level     models.LogLevel
 	logChan   chan *models.Log
-	currentSn atomic.Int32
+	currentSn int32
 	remote    bool
 	source    string
 	apiClient *tiopsApiClient.APIClient
@@ -83,10 +82,10 @@ func (l *Logger) processLog(_log *models.Log) {
 	if l.remote {
 		_, _ = l.apiClient.PostLog(context.TODO(), _log)
 	}
-	fmt.Println(_log)
+	//fmt.Println(_log)
 }
 
-func (l *Logger) NewLog(msg interface{}, level models.LogLevel) *models.Log {
+func (l *Logger) newLog(msg interface{}, level models.LogLevel) *models.Log {
 	pc, file, line, _ := runtime.Caller(2)
 	module, name := path.Split(runtime.FuncForPC(pc).Name())
 
@@ -105,43 +104,59 @@ func (l *Logger) NewLog(msg interface{}, level models.LogLevel) *models.Log {
 	}
 }
 
+func (l *Logger) NewLog(msg interface{}, level models.LogLevel) *models.Log {
+	return l.newLog(msg, level)
+}
+
+func (l *Logger) NewErrorLog(msg interface{}) *models.Log {
+	return l.newLog(msg, models.LogLevel_ERROR)
+}
+
+func (l *Logger) NewInfoLog(msg interface{}) *models.Log {
+	return l.newLog(msg, models.LogLevel_INFO)
+}
+
+func (l *Logger) Emit(log *models.Log) {
+	l.logChan <- log
+}
+
 func (l *Logger) Debug(msg interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_DEBUG {
-		l.logChan <- l.NewLog(msg, models.LogLevel_DEBUG)
+		l.logChan <- l.newLog(msg, models.LogLevel_DEBUG)
 	}
 }
 
 func (l *Logger) Info(msg interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_INFO {
-		l.logChan <- l.NewLog(msg, models.LogLevel_INFO)
+		l.logChan <- l.newLog(msg, models.LogLevel_INFO)
 	}
 }
 
 func (l *Logger) Warning(msg interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_WARNING {
-		l.logChan <- l.NewLog(msg, models.LogLevel_WARNING)
+		l.logChan <- l.newLog(msg, models.LogLevel_WARNING)
 	}
 }
 
 func (l *Logger) Error(msg interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_ERROR {
-		l.logChan <- l.NewLog(msg, models.LogLevel_ERROR)
+		l.logChan <- l.newLog(msg, models.LogLevel_ERROR)
 	}
 }
 
 func (l *Logger) Critical(msg interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_CRITICAL {
-		l.logChan <- l.NewLog(msg, models.LogLevel_CRITICAL)
+		l.logChan <- l.newLog(msg, models.LogLevel_CRITICAL)
 	}
 }
 
 func (l *Logger) Println(msg interface{}) {
-	_log := l.NewLog(msg, models.LogLevel_DEBUG)
+	_log := l.newLog(msg, models.LogLevel_DEBUG)
 	fmt.Printf("%s", _log.Content)
 	//logger := zap.New(core, zap.AddCaller())
 }

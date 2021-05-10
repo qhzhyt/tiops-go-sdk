@@ -1,8 +1,8 @@
 package config
 
 const (
-	WorkflowEngineLabel           = "workflow-engine"
-	WorkflowEngineImageBase       = "tiops-system/workflow-engine:latest"
+	WorkflowEngineLabel           = "workflow-engines"
+	WorkflowEngineImageBase       = "tiops-system/workflow-engines:latest"
 	WorkflowActionServerImageBase = "tiops-project-images/%s:latest"
 	WorkflowActionServerLabelBase = "workflow-action-server-%s"
 	LogIdEnvName                  = "LOG_ID"
