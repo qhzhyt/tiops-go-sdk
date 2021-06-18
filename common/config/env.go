@@ -7,4 +7,5 @@ var (
 	LogId        = os.Getenv(LogIdEnvName)
 	LogLevel     = os.Getenv(LogLevelEnvName)
 	WorkflowType = os.Getenv(WorkflowTypeEnvName)
+	ExecutionID = os.Getenv(ExecutionIdEnvName)
 )

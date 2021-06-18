@@ -29,6 +29,47 @@ func (c *APIClient) GetWorkflowById(id string) *models.WorkflowInfo {
 	return result
 }
 
+func (c *APIClient) GetWorkflowJobById(id string) *models.WorkflowJob {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.GetWorkflowJobById(ctx, &services.QueryRequest{Id: id})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
+}
+
+func (c *APIClient) CreateOrUpdateWorkflowExecution(execution *models.WorkflowExecution) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.CreateOrUpdateWorkflowExecution(ctx, execution)
+	if err != nil {
+		return false, err
+	}
+	return result.Status == services.Status_Ok, nil
+}
+
+func (c *APIClient) CreateExecutionRecord(record *models.ExecutionRecord) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.CreateExecutionRecord(ctx, record)
+	if err != nil {
+		return false, err
+	}
+	return result.Status == services.Status_Ok, nil
+}
+
+func (c *APIClient)AddProcessRecord(record *models.ProcessRecord) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.AddProcessRecord(ctx, record)
+	if err != nil {
+		return false, err
+	}
+	return result.Status == services.Status_Ok, nil
+}
+
+
 func (c *APIClient) GetProjectByID(id string) *models.ProjectInfo {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()

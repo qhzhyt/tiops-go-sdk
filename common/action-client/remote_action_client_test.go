@@ -11,9 +11,9 @@ func TestNewRemoteActionClient(t *testing.T) {
 
 	res, err := client.CallAction(context.TODO(), &services.ActionRequest{
 		Id:     "",
-		ActionName:   "hello",
+		ActionName:   "echo",
 		Inputs: map[string]*services.ActionData{
-			"name": {Count: 2,
+			"content": {Count: 2,
 				Type: services.DataType_List,
 				ValueType: "str",
 				Data: [][]byte{[]byte("bob"), []byte("jack")},

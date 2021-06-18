@@ -10,6 +10,10 @@ func WorkflowActionServerLabel(name string) string {
 	return fmt.Sprintf(WorkflowActionServerLabelBase, name)
 }
 
+func WorkflowTestJobId(workflowId string) string {
+	return fmt.Sprintf("wf-job-%s-test", workflowId)
+}
+
 func ActionServiceName(name string) string {
 	return fmt.Sprintf(WorkflowActionServerLabelBase, name)
 }

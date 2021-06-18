@@ -72,10 +72,10 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 			}, a.actionOutputsMap[actionName])
 	}
 
-	outputs := ToServiceActionDataMap(result, a.actionInfoMap[actionName].Outputs)
+	outputs := ToServiceActionDataMap(request.Id, result, a.actionInfoMap[actionName].Outputs)
 	a.Logger.Info(outputLog(actionName, outputs))
 
-	return &services.ActionResponse{Outputs: outputs, Done: actionContext.HasDone()}, nil
+	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionContext.HasDone()}, nil
 }
 
 func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (*services.StatusResponse, error) {

@@ -29,7 +29,7 @@ func init() {
 }
 
 type Logger struct {
-	ID        int64
+	ID        string
 	Type      string
 	Level     models.LogLevel
 	logChan   chan *models.Log
@@ -48,14 +48,14 @@ func GetCallerPosition(skip int) (string, int) {
 }
 
 func NewLogger(_type string, level models.LogLevel) *Logger {
-	logger := &Logger{ID: utils.SnowflakeID(), Type: _type, Level: level, logChan: make(chan *models.Log, 1000)}
+	logger := &Logger{ID: fmt.Sprintf("%x", utils.SnowflakeID()), Type: _type, Level: level, logChan: make(chan *models.Log, 1000)}
 	logger.start()
 	return logger
 }
 
 func NewRemoteLogger(_type, id, source string, level models.LogLevel, client *tiopsApiClient.APIClient) *Logger {
 	logger := &Logger{
-		ID:        utils.DecimalToInt64(id),
+		ID:        id,
 		source:    source,
 		Type:      _type,
 		Level:     level,

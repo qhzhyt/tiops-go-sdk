@@ -22,20 +22,84 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+type WorkflowJobType int32
+
+const (
+	WorkflowJobType_Test     WorkflowJobType = 0
+	WorkflowJobType_Once     WorkflowJobType = 1
+	WorkflowJobType_LongTerm WorkflowJobType = 2
+	WorkflowJobType_Crontab  WorkflowJobType = 3
+)
+
+var WorkflowJobType_name = map[int32]string{
+	0: "Test",
+	1: "Once",
+	2: "LongTerm",
+	3: "Crontab",
+}
+
+var WorkflowJobType_value = map[string]int32{
+	"Test":     0,
+	"Once":     1,
+	"LongTerm": 2,
+	"Crontab":  3,
+}
+
+func (x WorkflowJobType) String() string {
+	return proto.EnumName(WorkflowJobType_name, int32(x))
+}
+
+func (WorkflowJobType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_04c94e5c97aaaf4f, []int{0}
+}
+
+type WorkflowJobStatus int32
+
+const (
+	WorkflowJobStatus_Inited     WorkflowJobStatus = 0
+	WorkflowJobStatus_Scheduling WorkflowJobStatus = 1
+	WorkflowJobStatus_Idle       WorkflowJobStatus = 2
+)
+
+var WorkflowJobStatus_name = map[int32]string{
+	0: "Inited",
+	1: "Scheduling",
+	2: "Idle",
+}
+
+var WorkflowJobStatus_value = map[string]int32{
+	"Inited":     0,
+	"Scheduling": 1,
+	"Idle":       2,
+}
+
+func (x WorkflowJobStatus) String() string {
+	return proto.EnumName(WorkflowJobStatus_name, int32(x))
+}
+
+func (WorkflowJobStatus) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_04c94e5c97aaaf4f, []int{1}
+}
+
 type WorkflowJob struct {
-	XId                  string   `protobuf:"bytes,1,opt,name=_id,json=Id,proto3" json:"_id,omitempty" bson:"_id"`
-	WorkflowId           string   `protobuf:"bytes,2,opt,name=workflowId,proto3" json:"workflowId,omitempty" bson:"workflowId"`
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
-	Namespace            string   `protobuf:"bytes,4,opt,name=namespace,proto3" json:"namespace,omitempty" bson:"namespace"`
-	Type                 string   `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty" bson:"type"`
-	LogId                string   `protobuf:"bytes,6,opt,name=logId,proto3" json:"logId,omitempty" bson:"logId"`
-	CreatedBy            string   `protobuf:"bytes,7,opt,name=createdBy,proto3" json:"createdBy,omitempty" bson:"createdBy"`
-	CreatedTime          int64    `protobuf:"varint,8,opt,name=createdTime,proto3" json:"createdTime,omitempty" bson:"createdTime"`
-	StartedTime          int64    `protobuf:"varint,9,opt,name=startedTime,proto3" json:"startedTime,omitempty" bson:"startedTime"`
-	FinishedTime         int64    `protobuf:"varint,10,opt,name=finishedTime,proto3" json:"finishedTime,omitempty" bson:"finishedTime"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-" bson:"-"`
-	XXX_unrecognized     []byte   `json:"-" bson:"-"`
-	XXX_sizecache        int32    `json:"-" bson:"-"`
+	XId                   string            `protobuf:"bytes,1,opt,name=_id,json=Id,proto3" json:"_id,omitempty" bson:"_id"`
+	WorkflowId            string            `protobuf:"bytes,2,opt,name=workflowId,proto3" json:"workflowId,omitempty" bson:"workflowId"`
+	Name                  string            `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	Content               string            `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty" bson:"content"`
+	Type                  WorkflowJobType   `protobuf:"varint,5,opt,name=type,proto3,enum=models.WorkflowJobType" json:"type,omitempty" bson:"type"`
+	CreatedBy             string            `protobuf:"bytes,6,opt,name=createdBy,proto3" json:"createdBy,omitempty" bson:"createdBy"`
+	CreatedTime           int64             `protobuf:"varint,7,opt,name=createdTime,proto3" json:"createdTime,omitempty" bson:"createdTime"`
+	Enable                bool              `protobuf:"varint,8,opt,name=enable,proto3" json:"enable,omitempty" bson:"enable"`
+	Status                WorkflowJobStatus `protobuf:"varint,9,opt,name=status,proto3,enum=models.WorkflowJobStatus" json:"status,omitempty" bson:"status"`
+	LastExecutionId       string            `protobuf:"bytes,10,opt,name=lastExecutionId,proto3" json:"lastExecutionId,omitempty" bson:"lastExecutionId"`
+	LastLogId             string            `protobuf:"bytes,11,opt,name=lastLogId,proto3" json:"lastLogId,omitempty" bson:"lastLogId"`
+	LastStartTime         int64             `protobuf:"varint,12,opt,name=lastStartTime,proto3" json:"lastStartTime,omitempty" bson:"lastStartTime"`
+	LastStopTime          int64             `protobuf:"varint,13,opt,name=lastStopTime,proto3" json:"lastStopTime,omitempty" bson:"lastStopTime"`
+	NextStartTime         int64             `protobuf:"varint,14,opt,name=nextStartTime,proto3" json:"nextStartTime,omitempty" bson:"nextStartTime"`
+	RunningExecutionCount int32             `protobuf:"varint,15,opt,name=runningExecutionCount,proto3" json:"runningExecutionCount,omitempty" bson:"runningExecutionCount"`
+	XXX_NoUnkeyedLiteral  struct{}          `json:"-" bson:"-"`
+	XXX_unrecognized      []byte            `json:"-" bson:"-"`
+	XXX_sizecache         int32             `json:"-" bson:"-"`
 }
 
 func (m *WorkflowJob) Reset()         { *m = WorkflowJob{} }
@@ -92,25 +156,18 @@ func (m *WorkflowJob) GetName() string {
 	return ""
 }
 
-func (m *WorkflowJob) GetNamespace() string {
+func (m *WorkflowJob) GetContent() string {
 	if m != nil {
-		return m.Namespace
+		return m.Content
 	}
 	return ""
 }
 
-func (m *WorkflowJob) GetType() string {
+func (m *WorkflowJob) GetType() WorkflowJobType {
 	if m != nil {
 		return m.Type
 	}
-	return ""
-}
-
-func (m *WorkflowJob) GetLogId() string {
-	if m != nil {
-		return m.LogId
-	}
-	return ""
+	return WorkflowJobType_Test
 }
 
 func (m *WorkflowJob) GetCreatedBy() string {
@@ -127,21 +184,65 @@ func (m *WorkflowJob) GetCreatedTime() int64 {
 	return 0
 }
 
-func (m *WorkflowJob) GetStartedTime() int64 {
+func (m *WorkflowJob) GetEnable() bool {
 	if m != nil {
-		return m.StartedTime
+		return m.Enable
+	}
+	return false
+}
+
+func (m *WorkflowJob) GetStatus() WorkflowJobStatus {
+	if m != nil {
+		return m.Status
+	}
+	return WorkflowJobStatus_Inited
+}
+
+func (m *WorkflowJob) GetLastExecutionId() string {
+	if m != nil {
+		return m.LastExecutionId
+	}
+	return ""
+}
+
+func (m *WorkflowJob) GetLastLogId() string {
+	if m != nil {
+		return m.LastLogId
+	}
+	return ""
+}
+
+func (m *WorkflowJob) GetLastStartTime() int64 {
+	if m != nil {
+		return m.LastStartTime
 	}
 	return 0
 }
 
-func (m *WorkflowJob) GetFinishedTime() int64 {
+func (m *WorkflowJob) GetLastStopTime() int64 {
 	if m != nil {
-		return m.FinishedTime
+		return m.LastStopTime
+	}
+	return 0
+}
+
+func (m *WorkflowJob) GetNextStartTime() int64 {
+	if m != nil {
+		return m.NextStartTime
+	}
+	return 0
+}
+
+func (m *WorkflowJob) GetRunningExecutionCount() int32 {
+	if m != nil {
+		return m.RunningExecutionCount
 	}
 	return 0
 }
 
 func init() {
+	proto.RegisterEnum("models.WorkflowJobType", WorkflowJobType_name, WorkflowJobType_value)
+	proto.RegisterEnum("models.WorkflowJobStatus", WorkflowJobStatus_name, WorkflowJobStatus_value)
 	proto.RegisterType((*WorkflowJob)(nil), "models.WorkflowJob")
 }
 
@@ -150,26 +251,38 @@ func init() {
 }
 
 var fileDescriptor_04c94e5c97aaaf4f = []byte{
-	// 291 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0xb1, 0x4e, 0xc3, 0x30,
-	0x10, 0x86, 0x71, 0xd3, 0x16, 0x7a, 0x45, 0x02, 0x59, 0x0c, 0x16, 0x42, 0x51, 0x94, 0x01, 0x75,
-	0xa2, 0x03, 0x1b, 0x63, 0xb7, 0x30, 0x46, 0x48, 0x8c, 0x51, 0x12, 0xbb, 0xc1, 0x90, 0xe4, 0xa2,
-	0xd8, 0x52, 0xd5, 0x9d, 0x87, 0x40, 0x0c, 0xbc, 0x03, 0x6f, 0xc1, 0xc8, 0x23, 0xa0, 0xf0, 0x22,
-	0xc8, 0x76, 0x0a, 0x41, 0xea, 0xe4, 0xbb, 0xef, 0xff, 0xee, 0x6c, 0x19, 0x2e, 0xb5, 0xc4, 0x46,
-	0x2d, 0x73, 0xac, 0x2a, 0xac, 0x97, 0x15, 0x72, 0x51, 0xaa, 0xe5, 0x06, 0xdb, 0xa7, 0x75, 0x89,
-	0x9b, 0xe4, 0x11, 0xb3, 0xab, 0xa6, 0x45, 0x8d, 0x74, 0xea, 0xa2, 0xf3, 0x60, 0x9f, 0xef, 0x3a,
-	0x67, 0xee, 0x37, 0x74, 0x5a, 0x14, 0xa2, 0x75, 0x46, 0xf8, 0x3e, 0x82, 0xf9, 0x7d, 0x7f, 0xc5,
-	0x2d, 0x66, 0x34, 0x00, 0x2f, 0x91, 0x9c, 0x91, 0x80, 0x2c, 0x66, 0xab, 0x93, 0xd7, 0xe7, 0x37,
-	0x0f, 0x32, 0x85, 0xf5, 0x4d, 0x98, 0x48, 0x1e, 0xc6, 0xa3, 0x88, 0x53, 0x1f, 0x60, 0xf7, 0xa6,
-	0x88, 0xb3, 0x91, 0x11, 0xe3, 0x01, 0xa1, 0x14, 0xc6, 0x75, 0x5a, 0x09, 0xe6, 0xd9, 0xc4, 0xd6,
-	0xf4, 0x02, 0x66, 0xe6, 0x54, 0x4d, 0x9a, 0x0b, 0x36, 0xb6, 0xc1, 0x1f, 0x30, 0x13, 0x7a, 0xdb,
-	0x08, 0x36, 0x71, 0x13, 0xa6, 0xa6, 0x67, 0x30, 0x29, 0xb1, 0x88, 0x38, 0x9b, 0x5a, 0xe8, 0x1a,
-	0xb3, 0x27, 0x6f, 0x45, 0xaa, 0x05, 0x5f, 0x6d, 0xd9, 0xa1, 0xdb, 0xf3, 0x0b, 0x68, 0x00, 0xf3,
-	0xbe, 0xb9, 0x93, 0x95, 0x60, 0x47, 0x01, 0x59, 0x78, 0xf1, 0x10, 0x19, 0x43, 0xe9, 0xb4, 0xdd,
-	0x19, 0x33, 0x67, 0x0c, 0x10, 0x0d, 0xe1, 0x78, 0x2d, 0x6b, 0xa9, 0x1e, 0x7a, 0x05, 0xac, 0xf2,
-	0x8f, 0xad, 0x4e, 0x3f, 0x3a, 0x9f, 0x7c, 0x76, 0x3e, 0xf9, 0xea, 0x7c, 0xf2, 0xf2, 0xed, 0x1f,
-	0x64, 0x53, 0xfb, 0x99, 0xd7, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x6e, 0xcb, 0x05, 0xc5, 0xc2,
-	0x01, 0x00, 0x00,
+	// 488 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x92, 0x4f, 0x8b, 0xd3, 0x40,
+	0x18, 0xc6, 0x77, 0xda, 0x6e, 0xda, 0xbe, 0xed, 0xb6, 0xf1, 0x05, 0xd7, 0x51, 0x24, 0x84, 0x22,
+	0x12, 0x56, 0x48, 0xf1, 0xcf, 0x45, 0x4f, 0xd2, 0xc5, 0x43, 0x64, 0x41, 0x48, 0x0b, 0x1e, 0x4b,
+	0x92, 0x19, 0x63, 0x34, 0x99, 0x09, 0xc9, 0x84, 0xdd, 0xde, 0xfd, 0x10, 0xe2, 0xc1, 0x8b, 0x5f,
+	0xc6, 0xa3, 0x1f, 0x41, 0xea, 0x17, 0x91, 0x4c, 0xb2, 0x6b, 0xbb, 0xf6, 0x36, 0xef, 0x6f, 0x1e,
+	0x9e, 0xfc, 0xc8, 0xbc, 0xf0, 0x58, 0x25, 0x32, 0x2f, 0xe7, 0x91, 0xcc, 0x32, 0x29, 0xe6, 0x99,
+	0x64, 0x3c, 0x2d, 0xe7, 0x97, 0xb2, 0xf8, 0xfc, 0x21, 0x95, 0x97, 0xeb, 0x4f, 0x32, 0x74, 0xf3,
+	0x42, 0x2a, 0x89, 0x46, 0x73, 0xf5, 0xc0, 0x3e, 0x94, 0x6f, 0xa6, 0x26, 0x79, 0x38, 0xa1, 0x82,
+	0x38, 0xe6, 0x45, 0x93, 0x98, 0xfd, 0xe8, 0xc1, 0xe8, 0x7d, 0xfb, 0x89, 0xb7, 0x32, 0x44, 0x1b,
+	0xba, 0xeb, 0x84, 0x51, 0x62, 0x13, 0x67, 0xb8, 0x98, 0x7e, 0xfb, 0xf2, 0xbd, 0x0b, 0x61, 0x29,
+	0xc5, 0xab, 0xd9, 0x3a, 0x61, 0x33, 0xbf, 0xe3, 0x31, 0xb4, 0x00, 0xae, 0x9d, 0x3c, 0x46, 0x3b,
+	0x75, 0xd0, 0xdf, 0x21, 0x88, 0xd0, 0x13, 0x41, 0xc6, 0x69, 0x57, 0xdf, 0xe8, 0x33, 0x52, 0xe8,
+	0x47, 0x52, 0x28, 0x2e, 0x14, 0xed, 0x69, 0x7c, 0x3d, 0xe2, 0x13, 0xe8, 0xa9, 0x4d, 0xce, 0xe9,
+	0xb1, 0x4d, 0x9c, 0xc9, 0xb3, 0x7b, 0x6e, 0xe3, 0xe8, 0xee, 0x28, 0xad, 0x36, 0x39, 0xf7, 0x75,
+	0x08, 0x1f, 0xc2, 0x30, 0x2a, 0x78, 0xa0, 0x38, 0x5b, 0x6c, 0xa8, 0xa1, 0x8b, 0xfe, 0x01, 0xb4,
+	0x61, 0xd4, 0x0e, 0xab, 0x24, 0xe3, 0xb4, 0x6f, 0x13, 0xa7, 0xeb, 0xef, 0x22, 0x3c, 0x05, 0x83,
+	0x8b, 0x20, 0x4c, 0x39, 0x1d, 0xd8, 0xc4, 0x19, 0xf8, 0xed, 0x84, 0x4f, 0xc1, 0x28, 0x55, 0xa0,
+	0xaa, 0x92, 0x0e, 0xb5, 0xc6, 0xfd, 0x03, 0x1a, 0x4b, 0x1d, 0xf0, 0xdb, 0x20, 0x3a, 0x30, 0x4d,
+	0x83, 0x52, 0xbd, 0xb9, 0xe2, 0x51, 0xa5, 0x12, 0x29, 0x3c, 0x46, 0x41, 0x0b, 0xdd, 0xc6, 0xb5,
+	0x74, 0x8d, 0x2e, 0x64, 0xec, 0x31, 0x3a, 0x6a, 0xa4, 0x6f, 0x00, 0x3e, 0x82, 0x93, 0x7a, 0x58,
+	0xaa, 0xa0, 0x50, 0x5a, 0x7b, 0xac, 0xb5, 0xf7, 0x21, 0xce, 0x60, 0xdc, 0x00, 0x99, 0xeb, 0xd0,
+	0x89, 0x0e, 0xed, 0xb1, 0xba, 0x49, 0xf0, 0xab, 0x9d, 0xa6, 0x49, 0xd3, 0xb4, 0x07, 0xf1, 0x05,
+	0xdc, 0x2d, 0x2a, 0x21, 0x12, 0x11, 0xdf, 0x38, 0x9e, 0xcb, 0x4a, 0x28, 0x3a, 0xb5, 0x89, 0x73,
+	0xec, 0x1f, 0xbe, 0x3c, 0x7b, 0x0d, 0xd3, 0x5b, 0x2f, 0x82, 0x03, 0xe8, 0xad, 0x78, 0xa9, 0xcc,
+	0xa3, 0xfa, 0xf4, 0x4e, 0x44, 0xdc, 0x24, 0x38, 0x86, 0xc1, 0x85, 0x14, 0xf1, 0x8a, 0x17, 0x99,
+	0xd9, 0xc1, 0x11, 0xf4, 0xcf, 0x0b, 0x29, 0x54, 0x10, 0x9a, 0xdd, 0xb3, 0x97, 0x70, 0xe7, 0xbf,
+	0x9f, 0x89, 0x00, 0x86, 0x27, 0x12, 0xc5, 0x99, 0x79, 0x84, 0x13, 0x80, 0x65, 0xf4, 0x91, 0xb3,
+	0x2a, 0x4d, 0x44, 0x6c, 0x92, 0xba, 0xd5, 0x63, 0x29, 0x37, 0x3b, 0x0b, 0xe7, 0xe7, 0xd6, 0x22,
+	0xbf, 0xb6, 0x16, 0xf9, 0xbd, 0xb5, 0xc8, 0xd7, 0x3f, 0xd6, 0x11, 0x9c, 0x26, 0xd2, 0xd5, 0x9b,
+	0xed, 0xb6, 0xdb, 0xde, 0x3c, 0x57, 0x68, 0xe8, 0x9d, 0x7e, 0xfe, 0x37, 0x00, 0x00, 0xff, 0xff,
+	0xc0, 0x8e, 0x4c, 0xcd, 0x49, 0x03, 0x00, 0x00,
 }
 
 func (m *WorkflowJob) Marshal() (dAtA []byte, err error) {
@@ -196,46 +309,76 @@ func (m *WorkflowJob) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if m.FinishedTime != 0 {
-		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.FinishedTime))
+	if m.RunningExecutionCount != 0 {
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.RunningExecutionCount))
 		i--
-		dAtA[i] = 0x50
+		dAtA[i] = 0x78
 	}
-	if m.StartedTime != 0 {
-		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.StartedTime))
+	if m.NextStartTime != 0 {
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.NextStartTime))
+		i--
+		dAtA[i] = 0x70
+	}
+	if m.LastStopTime != 0 {
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.LastStopTime))
+		i--
+		dAtA[i] = 0x68
+	}
+	if m.LastStartTime != 0 {
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.LastStartTime))
+		i--
+		dAtA[i] = 0x60
+	}
+	if len(m.LastLogId) > 0 {
+		i -= len(m.LastLogId)
+		copy(dAtA[i:], m.LastLogId)
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.LastLogId)))
+		i--
+		dAtA[i] = 0x5a
+	}
+	if len(m.LastExecutionId) > 0 {
+		i -= len(m.LastExecutionId)
+		copy(dAtA[i:], m.LastExecutionId)
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.LastExecutionId)))
+		i--
+		dAtA[i] = 0x52
+	}
+	if m.Status != 0 {
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.Status))
 		i--
 		dAtA[i] = 0x48
+	}
+	if m.Enable {
+		i--
+		if m.Enable {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x40
 	}
 	if m.CreatedTime != 0 {
 		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.CreatedTime))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x38
 	}
 	if len(m.CreatedBy) > 0 {
 		i -= len(m.CreatedBy)
 		copy(dAtA[i:], m.CreatedBy)
 		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.CreatedBy)))
 		i--
-		dAtA[i] = 0x3a
-	}
-	if len(m.LogId) > 0 {
-		i -= len(m.LogId)
-		copy(dAtA[i:], m.LogId)
-		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.LogId)))
-		i--
 		dAtA[i] = 0x32
 	}
-	if len(m.Type) > 0 {
-		i -= len(m.Type)
-		copy(dAtA[i:], m.Type)
-		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.Type)))
+	if m.Type != 0 {
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(m.Type))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x28
 	}
-	if len(m.Namespace) > 0 {
-		i -= len(m.Namespace)
-		copy(dAtA[i:], m.Namespace)
-		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.Namespace)))
+	if len(m.Content) > 0 {
+		i -= len(m.Content)
+		copy(dAtA[i:], m.Content)
+		i = encodeVarintWorkflowJob(dAtA, i, uint64(len(m.Content)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -292,17 +435,12 @@ func (m *WorkflowJob) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovWorkflowJob(uint64(l))
 	}
-	l = len(m.Namespace)
+	l = len(m.Content)
 	if l > 0 {
 		n += 1 + l + sovWorkflowJob(uint64(l))
 	}
-	l = len(m.Type)
-	if l > 0 {
-		n += 1 + l + sovWorkflowJob(uint64(l))
-	}
-	l = len(m.LogId)
-	if l > 0 {
-		n += 1 + l + sovWorkflowJob(uint64(l))
+	if m.Type != 0 {
+		n += 1 + sovWorkflowJob(uint64(m.Type))
 	}
 	l = len(m.CreatedBy)
 	if l > 0 {
@@ -311,11 +449,31 @@ func (m *WorkflowJob) Size() (n int) {
 	if m.CreatedTime != 0 {
 		n += 1 + sovWorkflowJob(uint64(m.CreatedTime))
 	}
-	if m.StartedTime != 0 {
-		n += 1 + sovWorkflowJob(uint64(m.StartedTime))
+	if m.Enable {
+		n += 2
 	}
-	if m.FinishedTime != 0 {
-		n += 1 + sovWorkflowJob(uint64(m.FinishedTime))
+	if m.Status != 0 {
+		n += 1 + sovWorkflowJob(uint64(m.Status))
+	}
+	l = len(m.LastExecutionId)
+	if l > 0 {
+		n += 1 + l + sovWorkflowJob(uint64(l))
+	}
+	l = len(m.LastLogId)
+	if l > 0 {
+		n += 1 + l + sovWorkflowJob(uint64(l))
+	}
+	if m.LastStartTime != 0 {
+		n += 1 + sovWorkflowJob(uint64(m.LastStartTime))
+	}
+	if m.LastStopTime != 0 {
+		n += 1 + sovWorkflowJob(uint64(m.LastStopTime))
+	}
+	if m.NextStartTime != 0 {
+		n += 1 + sovWorkflowJob(uint64(m.NextStartTime))
+	}
+	if m.RunningExecutionCount != 0 {
+		n += 1 + sovWorkflowJob(uint64(m.RunningExecutionCount))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -456,7 +614,7 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Namespace", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Content", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -484,13 +642,13 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Namespace = string(dAtA[iNdEx:postIndex])
+			m.Content = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
 			}
-			var stringLen uint64
+			m.Type = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWorkflowJob
@@ -500,57 +658,12 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.Type |= WorkflowJobType(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthWorkflowJob
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthWorkflowJob
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Type = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LogId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowWorkflowJob
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthWorkflowJob
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthWorkflowJob
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.LogId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedBy", wireType)
 			}
@@ -582,7 +695,7 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 			}
 			m.CreatedBy = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 7:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedTime", wireType)
 			}
@@ -601,11 +714,11 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 9:
+		case 8:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StartedTime", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Enable", wireType)
 			}
-			m.StartedTime = 0
+			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWorkflowJob
@@ -615,16 +728,36 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.StartedTime |= int64(b&0x7F) << shift
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enable = bool(v != 0)
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowJob
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= WorkflowJobStatus(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FinishedTime", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastExecutionId", wireType)
 			}
-			m.FinishedTime = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWorkflowJob
@@ -634,7 +767,128 @@ func (m *WorkflowJob) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FinishedTime |= int64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowJob
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowJob
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.LastExecutionId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastLogId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowJob
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowJob
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowJob
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.LastLogId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastStartTime", wireType)
+			}
+			m.LastStartTime = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowJob
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastStartTime |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 13:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastStopTime", wireType)
+			}
+			m.LastStopTime = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowJob
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastStopTime |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 14:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NextStartTime", wireType)
+			}
+			m.NextStartTime = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowJob
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NextStartTime |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 15:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RunningExecutionCount", wireType)
+			}
+			m.RunningExecutionCount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowJob
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RunningExecutionCount |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
