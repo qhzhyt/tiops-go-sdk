@@ -1,4 +1,4 @@
-module tiops
+module github.com/qhzhyt/tiops-go-sdk
 
 go 1.13
 
