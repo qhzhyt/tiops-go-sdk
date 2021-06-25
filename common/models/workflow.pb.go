@@ -23,28 +23,26 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type ConnectionInfo struct {
+type InputInfo struct {
 	NodeId               string   `protobuf:"bytes,1,opt,name=nodeId,proto3" json:"nodeId,omitempty" bson:"nodeId"`
 	OutputName           string   `protobuf:"bytes,2,opt,name=outputName,proto3" json:"outputName,omitempty" bson:"outputName"`
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
-	Type                 string   `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty" bson:"type"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-" bson:"-"`
 	XXX_unrecognized     []byte   `json:"-" bson:"-"`
 	XXX_sizecache        int32    `json:"-" bson:"-"`
 }
 
-func (m *ConnectionInfo) Reset()         { *m = ConnectionInfo{} }
-func (m *ConnectionInfo) String() string { return proto.CompactTextString(m) }
-func (*ConnectionInfo) ProtoMessage()    {}
-func (*ConnectionInfo) Descriptor() ([]byte, []int) {
+func (m *InputInfo) Reset()         { *m = InputInfo{} }
+func (m *InputInfo) String() string { return proto.CompactTextString(m) }
+func (*InputInfo) ProtoMessage()    {}
+func (*InputInfo) Descriptor() ([]byte, []int) {
 	return fileDescriptor_4f48be07aba71763, []int{0}
 }
-func (m *ConnectionInfo) XXX_Unmarshal(b []byte) error {
+func (m *InputInfo) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ConnectionInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *InputInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ConnectionInfo.Marshal(b, m, deterministic)
+		return xxx_messageInfo_InputInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -54,40 +52,89 @@ func (m *ConnectionInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-func (m *ConnectionInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConnectionInfo.Merge(m, src)
+func (m *InputInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InputInfo.Merge(m, src)
 }
-func (m *ConnectionInfo) XXX_Size() int {
+func (m *InputInfo) XXX_Size() int {
 	return m.Size()
 }
-func (m *ConnectionInfo) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConnectionInfo.DiscardUnknown(m)
+func (m *InputInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_InputInfo.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ConnectionInfo proto.InternalMessageInfo
+var xxx_messageInfo_InputInfo proto.InternalMessageInfo
 
-func (m *ConnectionInfo) GetNodeId() string {
+func (m *InputInfo) GetNodeId() string {
 	if m != nil {
 		return m.NodeId
 	}
 	return ""
 }
 
-func (m *ConnectionInfo) GetOutputName() string {
+func (m *InputInfo) GetOutputName() string {
 	if m != nil {
 		return m.OutputName
 	}
 	return ""
 }
 
-func (m *ConnectionInfo) GetName() string {
+type WorkflowConnections struct {
+	InputInfos           []*InputInfo `protobuf:"bytes,1,rep,name=inputInfos,proto3" json:"inputInfos,omitempty" bson:"inputInfos"`
+	Name                 string       `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	Type                 string       `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty" bson:"type"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-" bson:"-"`
+	XXX_unrecognized     []byte       `json:"-" bson:"-"`
+	XXX_sizecache        int32        `json:"-" bson:"-"`
+}
+
+func (m *WorkflowConnections) Reset()         { *m = WorkflowConnections{} }
+func (m *WorkflowConnections) String() string { return proto.CompactTextString(m) }
+func (*WorkflowConnections) ProtoMessage()    {}
+func (*WorkflowConnections) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4f48be07aba71763, []int{1}
+}
+func (m *WorkflowConnections) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *WorkflowConnections) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_WorkflowConnections.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *WorkflowConnections) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WorkflowConnections.Merge(m, src)
+}
+func (m *WorkflowConnections) XXX_Size() int {
+	return m.Size()
+}
+func (m *WorkflowConnections) XXX_DiscardUnknown() {
+	xxx_messageInfo_WorkflowConnections.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_WorkflowConnections proto.InternalMessageInfo
+
+func (m *WorkflowConnections) GetInputInfos() []*InputInfo {
+	if m != nil {
+		return m.InputInfos
+	}
+	return nil
+}
+
+func (m *WorkflowConnections) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *ConnectionInfo) GetType() string {
+func (m *WorkflowConnections) GetType() string {
 	if m != nil {
 		return m.Type
 	}
@@ -95,21 +142,22 @@ func (m *ConnectionInfo) GetType() string {
 }
 
 type WorkflowNodeInfo struct {
-	Id                   string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"id"`
-	ProjectId            string                     `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
-	ActionName           string                     `protobuf:"bytes,3,opt,name=actionName,proto3" json:"actionName,omitempty" bson:"actionName"`
-	Inputs               map[string]*ConnectionInfo `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"inputs"`
-	ActionOptions        map[string]string          `protobuf:"bytes,5,rep,name=actionOptions,proto3" json:"actionOptions,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"actionOptions"`
-	XXX_NoUnkeyedLiteral struct{}                   `json:"-" bson:"-"`
-	XXX_unrecognized     []byte                     `json:"-" bson:"-"`
-	XXX_sizecache        int32                      `json:"-" bson:"-"`
+	Id                   string                          `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"id"`
+	ActionId             string                          `protobuf:"bytes,2,opt,name=actionId,proto3" json:"actionId,omitempty" bson:"actionId"`
+	ProjectId            string                          `protobuf:"bytes,3,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
+	ActionName           string                          `protobuf:"bytes,4,opt,name=actionName,proto3" json:"actionName,omitempty" bson:"actionName"`
+	Inputs               map[string]*WorkflowConnections `protobuf:"bytes,5,rep,name=inputs,proto3" json:"inputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"inputs"`
+	ActionOptions        map[string]string               `protobuf:"bytes,6,rep,name=actionOptions,proto3" json:"actionOptions,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"actionOptions"`
+	XXX_NoUnkeyedLiteral struct{}                        `json:"-" bson:"-"`
+	XXX_unrecognized     []byte                          `json:"-" bson:"-"`
+	XXX_sizecache        int32                           `json:"-" bson:"-"`
 }
 
 func (m *WorkflowNodeInfo) Reset()         { *m = WorkflowNodeInfo{} }
 func (m *WorkflowNodeInfo) String() string { return proto.CompactTextString(m) }
 func (*WorkflowNodeInfo) ProtoMessage()    {}
 func (*WorkflowNodeInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{1}
+	return fileDescriptor_4f48be07aba71763, []int{2}
 }
 func (m *WorkflowNodeInfo) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -145,6 +193,13 @@ func (m *WorkflowNodeInfo) GetId() string {
 	return ""
 }
 
+func (m *WorkflowNodeInfo) GetActionId() string {
+	if m != nil {
+		return m.ActionId
+	}
+	return ""
+}
+
 func (m *WorkflowNodeInfo) GetProjectId() string {
 	if m != nil {
 		return m.ProjectId
@@ -159,7 +214,7 @@ func (m *WorkflowNodeInfo) GetActionName() string {
 	return ""
 }
 
-func (m *WorkflowNodeInfo) GetInputs() map[string]*ConnectionInfo {
+func (m *WorkflowNodeInfo) GetInputs() map[string]*WorkflowConnections {
 	if m != nil {
 		return m.Inputs
 	}
@@ -194,7 +249,7 @@ func (m *WorkflowGraphNode) Reset()         { *m = WorkflowGraphNode{} }
 func (m *WorkflowGraphNode) String() string { return proto.CompactTextString(m) }
 func (*WorkflowGraphNode) ProtoMessage()    {}
 func (*WorkflowGraphNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{2}
+	return fileDescriptor_4f48be07aba71763, []int{3}
 }
 func (m *WorkflowGraphNode) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -316,7 +371,7 @@ func (m *VariableNode) Reset()         { *m = VariableNode{} }
 func (m *VariableNode) String() string { return proto.CompactTextString(m) }
 func (*VariableNode) ProtoMessage()    {}
 func (*VariableNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{3}
+	return fileDescriptor_4f48be07aba71763, []int{4}
 }
 func (m *VariableNode) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -401,7 +456,7 @@ func (m *WorkflowGraphConnection) Reset()         { *m = WorkflowGraphConnection
 func (m *WorkflowGraphConnection) String() string { return proto.CompactTextString(m) }
 func (*WorkflowGraphConnection) ProtoMessage()    {}
 func (*WorkflowGraphConnection) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{4}
+	return fileDescriptor_4f48be07aba71763, []int{5}
 }
 func (m *WorkflowGraphConnection) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -473,7 +528,7 @@ func (m *WorkflowGraph) Reset()         { *m = WorkflowGraph{} }
 func (m *WorkflowGraph) String() string { return proto.CompactTextString(m) }
 func (*WorkflowGraph) ProtoMessage()    {}
 func (*WorkflowGraph) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{5}
+	return fileDescriptor_4f48be07aba71763, []int{6}
 }
 func (m *WorkflowGraph) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -538,20 +593,20 @@ func (m *WorkflowGraph) GetVariableNodes() []*VariableNode {
 }
 
 type WorkflowSpec struct {
-	Inputs               []*Parameter        `protobuf:"bytes,7,rep,name=inputs,proto3" json:"inputs,omitempty" bson:"inputs"`
-	Outputs              []*ConnectionInfo   `protobuf:"bytes,8,rep,name=outputs,proto3" json:"outputs,omitempty" bson:"outputs"`
-	Variables            []*Variable         `protobuf:"bytes,9,rep,name=variables,proto3" json:"variables,omitempty" bson:"variables"`
-	Nodes                []*WorkflowNodeInfo `protobuf:"bytes,10,rep,name=nodes,proto3" json:"nodes,omitempty" bson:"nodes"`
-	XXX_NoUnkeyedLiteral struct{}            `json:"-" bson:"-"`
-	XXX_unrecognized     []byte              `json:"-" bson:"-"`
-	XXX_sizecache        int32               `json:"-" bson:"-"`
+	Inputs               []*Parameter           `protobuf:"bytes,7,rep,name=inputs,proto3" json:"inputs,omitempty" bson:"inputs"`
+	Outputs              []*WorkflowConnections `protobuf:"bytes,8,rep,name=outputs,proto3" json:"outputs,omitempty" bson:"outputs"`
+	Variables            []*Variable            `protobuf:"bytes,9,rep,name=variables,proto3" json:"variables,omitempty" bson:"variables"`
+	Nodes                []*WorkflowNodeInfo    `protobuf:"bytes,10,rep,name=nodes,proto3" json:"nodes,omitempty" bson:"nodes"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-" bson:"-"`
+	XXX_unrecognized     []byte                 `json:"-" bson:"-"`
+	XXX_sizecache        int32                  `json:"-" bson:"-"`
 }
 
 func (m *WorkflowSpec) Reset()         { *m = WorkflowSpec{} }
 func (m *WorkflowSpec) String() string { return proto.CompactTextString(m) }
 func (*WorkflowSpec) ProtoMessage()    {}
 func (*WorkflowSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{6}
+	return fileDescriptor_4f48be07aba71763, []int{7}
 }
 func (m *WorkflowSpec) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -587,7 +642,7 @@ func (m *WorkflowSpec) GetInputs() []*Parameter {
 	return nil
 }
 
-func (m *WorkflowSpec) GetOutputs() []*ConnectionInfo {
+func (m *WorkflowSpec) GetOutputs() []*WorkflowConnections {
 	if m != nil {
 		return m.Outputs
 	}
@@ -618,6 +673,7 @@ type WorkflowInfo struct {
 	UpdatedTime          int64          `protobuf:"varint,7,opt,name=updatedTime,proto3" json:"updatedTime,omitempty" bson:"updatedTime"`
 	Graph                *WorkflowGraph `protobuf:"bytes,8,opt,name=graph,proto3" json:"graph,omitempty" bson:"graph"`
 	Spec                 *WorkflowSpec  `protobuf:"bytes,9,opt,name=spec,proto3" json:"spec,omitempty" bson:"spec"`
+	Workspace            string         `protobuf:"bytes,10,opt,name=workspace,proto3" json:"workspace,omitempty" bson:"workspace"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-" bson:"-"`
 	XXX_unrecognized     []byte         `json:"-" bson:"-"`
 	XXX_sizecache        int32          `json:"-" bson:"-"`
@@ -627,7 +683,7 @@ func (m *WorkflowInfo) Reset()         { *m = WorkflowInfo{} }
 func (m *WorkflowInfo) String() string { return proto.CompactTextString(m) }
 func (*WorkflowInfo) ProtoMessage()    {}
 func (*WorkflowInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4f48be07aba71763, []int{7}
+	return fileDescriptor_4f48be07aba71763, []int{8}
 }
 func (m *WorkflowInfo) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -719,11 +775,19 @@ func (m *WorkflowInfo) GetSpec() *WorkflowSpec {
 	return nil
 }
 
+func (m *WorkflowInfo) GetWorkspace() string {
+	if m != nil {
+		return m.Workspace
+	}
+	return ""
+}
+
 func init() {
-	proto.RegisterType((*ConnectionInfo)(nil), "models.ConnectionInfo")
+	proto.RegisterType((*InputInfo)(nil), "models.InputInfo")
+	proto.RegisterType((*WorkflowConnections)(nil), "models.WorkflowConnections")
 	proto.RegisterType((*WorkflowNodeInfo)(nil), "models.WorkflowNodeInfo")
 	proto.RegisterMapType((map[string]string)(nil), "models.WorkflowNodeInfo.ActionOptionsEntry")
-	proto.RegisterMapType((map[string]*ConnectionInfo)(nil), "models.WorkflowNodeInfo.InputsEntry")
+	proto.RegisterMapType((map[string]*WorkflowConnections)(nil), "models.WorkflowNodeInfo.InputsEntry")
 	proto.RegisterType((*WorkflowGraphNode)(nil), "models.WorkflowGraphNode")
 	proto.RegisterMapType((map[string]string)(nil), "models.WorkflowGraphNode.ActionOptionsEntry")
 	proto.RegisterType((*VariableNode)(nil), "models.VariableNode")
@@ -736,62 +800,64 @@ func init() {
 func init() { proto.RegisterFile("tiops/common/models/workflow.proto", fileDescriptor_4f48be07aba71763) }
 
 var fileDescriptor_4f48be07aba71763 = []byte{
-	// 823 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xcf, 0x6e, 0xd3, 0x4e,
-	0x10, 0xfe, 0xd9, 0xce, 0x9f, 0x66, 0x92, 0xf6, 0xd7, 0xae, 0x4a, 0x30, 0x11, 0x0a, 0x91, 0xc5,
-	0x21, 0xa8, 0x95, 0x83, 0xca, 0x01, 0xa8, 0x38, 0xd0, 0x22, 0x84, 0x72, 0x29, 0xd4, 0x54, 0x70,
-	0xac, 0x5c, 0x7b, 0x1b, 0x4c, 0x13, 0xaf, 0x65, 0x3b, 0x6d, 0x73, 0x47, 0x7d, 0x05, 0x10, 0x07,
-	0x5e, 0xa2, 0x2f, 0x81, 0xc4, 0x85, 0x47, 0x40, 0xe5, 0x45, 0xd0, 0xfe, 0xb3, 0x37, 0xae, 0x43,
-	0x2f, 0x5c, 0xa2, 0xdd, 0xd9, 0x6f, 0x66, 0xf6, 0xdb, 0x6f, 0x66, 0x62, 0xb0, 0xd2, 0x80, 0x44,
-	0xc9, 0xc0, 0x23, 0x93, 0x09, 0x09, 0x07, 0x13, 0xe2, 0xe3, 0x71, 0x32, 0x38, 0x23, 0xf1, 0xc9,
-	0xf1, 0x98, 0x9c, 0xd9, 0x51, 0x4c, 0x52, 0x82, 0x6a, 0xdc, 0xdc, 0xe9, 0x95, 0x61, 0xf9, 0x8e,
-	0x23, 0xcb, 0x11, 0xa9, 0x3b, 0x1a, 0xe1, 0x98, 0x23, 0xac, 0x08, 0x56, 0x5e, 0x90, 0x30, 0xc4,
-	0x5e, 0x1a, 0x90, 0x70, 0x18, 0x1e, 0x13, 0xd4, 0x86, 0x5a, 0x48, 0x7c, 0x3c, 0xf4, 0x4d, 0xad,
-	0xa7, 0xf5, 0x1b, 0x8e, 0xd8, 0xa1, 0x2e, 0x00, 0x99, 0xa6, 0xd1, 0x34, 0xdd, 0x73, 0x27, 0xd8,
-	0xd4, 0xd9, 0x99, 0x62, 0x41, 0x08, 0x2a, 0x21, 0x3d, 0x31, 0xd8, 0x09, 0x5b, 0x53, 0x5b, 0x3a,
-	0x8b, 0xb0, 0x59, 0xe1, 0x36, 0xba, 0xb6, 0x2e, 0x0c, 0x58, 0x7d, 0x2f, 0x08, 0xed, 0xd1, 0xd0,
-	0x34, 0xe9, 0x0a, 0xe8, 0x81, 0x4c, 0xa8, 0x07, 0x3e, 0xba, 0x0b, 0x8d, 0x28, 0x26, 0x1f, 0xb1,
-	0x97, 0x0e, 0x7d, 0x91, 0x2b, 0x37, 0xd0, 0xab, 0xb8, 0xec, 0xc2, 0x7b, 0x79, 0x42, 0xc5, 0x82,
-	0x9e, 0x41, 0x2d, 0x08, 0xa3, 0x69, 0x9a, 0x98, 0x95, 0x9e, 0xd1, 0x6f, 0x6e, 0xdd, 0xb7, 0x39,
-	0x75, 0xbb, 0x98, 0xd7, 0x1e, 0x32, 0xd8, 0xcb, 0x30, 0x8d, 0x67, 0x8e, 0xf0, 0x41, 0xfb, 0xb0,
-	0xcc, 0x63, 0xbd, 0x8e, 0xe8, 0x6f, 0x62, 0x56, 0x59, 0x90, 0x8d, 0x85, 0x41, 0x76, 0x54, 0x34,
-	0x8f, 0x35, 0x1f, 0xa1, 0xb3, 0x0f, 0x4d, 0x25, 0x13, 0x5a, 0x05, 0xe3, 0x04, 0xcf, 0x04, 0x5d,
-	0xba, 0x44, 0x9b, 0x50, 0x3d, 0x75, 0xc7, 0x53, 0xfe, 0xae, 0xcd, 0xad, 0xb6, 0xcc, 0x35, 0xaf,
-	0x8d, 0xc3, 0x41, 0xdb, 0xfa, 0x13, 0xad, 0xf3, 0x1c, 0xd0, 0xf5, 0xbc, 0x25, 0x91, 0xd7, 0xd5,
-	0xc8, 0x0d, 0x25, 0x82, 0x75, 0x69, 0xc0, 0x9a, 0xe4, 0xf2, 0x2a, 0x76, 0xa3, 0x0f, 0x94, 0xd0,
-	0x35, 0x25, 0xa4, 0xac, 0xba, 0x22, 0x6b, 0x1b, 0x6a, 0x9c, 0x9f, 0x10, 0x56, 0xec, 0x50, 0x07,
-	0x96, 0xf8, 0x6a, 0xe8, 0x9b, 0x55, 0x76, 0x92, 0xed, 0x0b, 0x9a, 0xd5, 0xae, 0x69, 0x36, 0xa7,
-	0x78, 0xbd, 0xa8, 0xf8, 0x83, 0x4c, 0xd1, 0x25, 0x26, 0xc6, 0x9a, 0x7c, 0xa0, 0x37, 0x6e, 0xec,
-	0x4e, 0x70, 0x8a, 0xe3, 0x4c, 0xbe, 0x0d, 0xa8, 0xf3, 0xaa, 0x4c, 0xcc, 0xc6, 0x22, 0xac, 0x44,
-	0x20, 0xa7, 0xa8, 0x35, 0x30, 0x97, 0xcd, 0xa2, 0xd6, 0xd9, 0xfb, 0xdc, 0x2c, 0x36, 0x6a, 0x81,
-	0x76, 0x6e, 0x36, 0x7b, 0x5a, 0x5f, 0x77, 0xb4, 0x73, 0xba, 0x9b, 0x99, 0x2d, 0xbe, 0x9b, 0xfd,
-	0x03, 0xd5, 0x2e, 0x34, 0x68, 0xbd, 0x73, 0xe3, 0xc0, 0x3d, 0x1a, 0x63, 0x26, 0x98, 0x14, 0x48,
-	0x2b, 0xe9, 0x3b, 0x3d, 0xef, 0xbb, 0x3c, 0x64, 0x45, 0x09, 0x49, 0x9f, 0x9d, 0x2d, 0x0e, 0x28,
-	0x9c, 0x6b, 0x96, 0x1b, 0x38, 0x95, 0xda, 0x1c, 0x95, 0xba, 0xa0, 0x62, 0x7d, 0xd6, 0xe0, 0xf6,
-	0xdc, 0xf3, 0xe4, 0xb5, 0x4a, 0xc5, 0x4e, 0xc8, 0x34, 0xf6, 0xd8, 0x0d, 0xc5, 0xcd, 0x14, 0x0b,
-	0x3d, 0x4f, 0xdd, 0x78, 0x84, 0x53, 0x76, 0x2e, 0x66, 0x49, 0x6e, 0xa1, 0xb7, 0x62, 0x6a, 0x2a,
-	0xfd, 0x9d, 0x1b, 0x0a, 0x93, 0xa8, 0x52, 0x9c, 0x44, 0xd6, 0xa5, 0x0e, 0xcb, 0x73, 0x37, 0x43,
-	0x03, 0xa8, 0xd2, 0x29, 0x96, 0x98, 0x1a, 0x93, 0xf7, 0xce, 0x42, 0x79, 0x1d, 0x8e, 0x43, 0x3b,
-	0xd0, 0xf4, 0x32, 0x3a, 0x89, 0xa9, 0x33, 0xb7, 0x7b, 0xa5, 0x6e, 0x39, 0x6d, 0x47, 0xf5, 0x41,
-	0x8f, 0x25, 0x07, 0x4a, 0xd1, 0x60, 0x6d, 0xfd, 0x97, 0xbc, 0x39, 0x16, 0x3d, 0xcd, 0xe8, 0x51,
-	0xcf, 0xca, 0x4d, 0x9e, 0x0a, 0x18, 0x6d, 0xc3, 0xf2, 0xa9, 0x52, 0x1b, 0x72, 0x74, 0xad, 0x4b,
-	0x6f, 0xb5, 0x70, 0x9c, 0x79, 0xa8, 0xf5, 0x43, 0x83, 0x96, 0x8c, 0xfe, 0x36, 0xc2, 0x9e, 0xd2,
-	0x73, 0xf5, 0x9b, 0x7a, 0xee, 0x61, 0xde, 0x73, 0xbc, 0x3f, 0x17, 0x0d, 0xb0, 0xac, 0xf1, 0x6c,
-	0x5a, 0x77, 0x3c, 0xbd, 0xec, 0xd3, 0xd5, 0xe2, 0x2d, 0x9d, 0x1c, 0x82, 0x6c, 0xa9, 0x20, 0x6f,
-	0x50, 0x73, 0xd1, 0x30, 0x16, 0x02, 0xd2, 0x1a, 0xc8, 0xd8, 0xb0, 0x7f, 0x98, 0x1e, 0x18, 0x87,
-	0x72, 0xb0, 0xed, 0xfe, 0xff, 0xf5, 0xd3, 0x37, 0x03, 0x8e, 0x12, 0x12, 0x6e, 0x5b, 0x87, 0x81,
-	0x6f, 0x39, 0xfa, 0xb0, 0x7c, 0xd2, 0xc9, 0x46, 0x32, 0x94, 0x46, 0xea, 0x41, 0xd3, 0xc7, 0x89,
-	0x17, 0x07, 0x91, 0x32, 0x02, 0x55, 0x13, 0x2d, 0x5f, 0x2f, 0xc6, 0x6e, 0x8a, 0xfd, 0xdd, 0x99,
-	0x6c, 0xaa, 0xcc, 0x40, 0xfd, 0xc5, 0xe6, 0x20, 0x10, 0xa3, 0xd0, 0x70, 0x54, 0x13, 0x45, 0x4c,
-	0x23, 0x3f, 0x43, 0xd4, 0x39, 0x42, 0x31, 0xa1, 0x0d, 0xa8, 0x8e, 0x68, 0x05, 0x98, 0x4b, 0xac,
-	0x3c, 0x6e, 0x95, 0x96, 0x87, 0xc3, 0x31, 0xa8, 0x0f, 0x95, 0x24, 0xc2, 0x9e, 0xd9, 0x60, 0xd8,
-	0xf5, 0x22, 0x96, 0x8a, 0xed, 0x30, 0xc4, 0x6e, 0xff, 0xfb, 0x55, 0x57, 0xfb, 0x79, 0xd5, 0xd5,
-	0x7e, 0x5d, 0x75, 0xb5, 0x2f, 0xbf, 0xbb, 0xff, 0x41, 0x3b, 0x20, 0x36, 0xfb, 0x88, 0xb0, 0xc5,
-	0x87, 0x05, 0x77, 0x3e, 0xaa, 0xb1, 0xcf, 0x87, 0x47, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0xf9,
-	0x58, 0x88, 0x24, 0xb0, 0x08, 0x00, 0x00,
+	// 859 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xcd, 0x6e, 0xd3, 0x58,
+	0x14, 0x1e, 0xdb, 0x89, 0xd3, 0x9c, 0xa4, 0x33, 0xed, 0x9d, 0x4e, 0xc7, 0x93, 0x19, 0x65, 0x22,
+	0x6b, 0x16, 0x19, 0x75, 0x94, 0xa8, 0x1d, 0x21, 0xa0, 0x62, 0x41, 0x5b, 0x21, 0x94, 0x4d, 0x01,
+	0x53, 0x95, 0x65, 0xe5, 0xda, 0xb7, 0xc1, 0x34, 0xf1, 0xb5, 0x6c, 0xa7, 0x6d, 0xf6, 0x88, 0x57,
+	0x00, 0xb1, 0x60, 0xcb, 0x03, 0xf4, 0x25, 0x58, 0x96, 0x37, 0x40, 0xe5, 0x45, 0xd0, 0xfd, 0xb3,
+	0xaf, 0x9d, 0xa4, 0x65, 0xc1, 0xce, 0xf7, 0xf8, 0x3b, 0x3f, 0xdf, 0xfd, 0xce, 0x39, 0x36, 0xd8,
+	0x69, 0x40, 0xa2, 0xa4, 0xef, 0x91, 0xf1, 0x98, 0x84, 0xfd, 0x31, 0xf1, 0xf1, 0x28, 0xe9, 0x9f,
+	0x93, 0xf8, 0xf4, 0x64, 0x44, 0xce, 0x7b, 0x51, 0x4c, 0x52, 0x82, 0x4c, 0x6e, 0x6e, 0x75, 0xe6,
+	0x61, 0xf9, 0x89, 0x23, 0xe7, 0x23, 0x52, 0x77, 0x38, 0xc4, 0x31, 0x47, 0xd8, 0x7b, 0x50, 0x1f,
+	0x84, 0xd1, 0x24, 0x1d, 0x84, 0x27, 0x04, 0xad, 0x83, 0x19, 0x12, 0x1f, 0x0f, 0x7c, 0x4b, 0xeb,
+	0x68, 0xdd, 0xba, 0x23, 0x4e, 0xa8, 0x0d, 0x40, 0x26, 0x69, 0x34, 0x49, 0xf7, 0xdd, 0x31, 0xb6,
+	0x74, 0xf6, 0x4e, 0xb1, 0xd8, 0x11, 0xfc, 0xfa, 0x42, 0x94, 0xb8, 0x47, 0xc2, 0x10, 0x7b, 0x69,
+	0x40, 0xc2, 0x04, 0x6d, 0x02, 0x04, 0x32, 0x76, 0x62, 0x69, 0x1d, 0xa3, 0xdb, 0xd8, 0x5a, 0xed,
+	0xf1, 0x2a, 0x7a, 0x59, 0x56, 0x47, 0x01, 0x21, 0x04, 0x95, 0x30, 0xcf, 0xc1, 0x9e, 0xa9, 0x2d,
+	0x9d, 0x46, 0xd8, 0x32, 0xb8, 0x8d, 0x3e, 0xdb, 0x1f, 0x0d, 0x58, 0x91, 0x29, 0xf7, 0x69, 0x91,
+	0xb4, 0xfc, 0x9f, 0x41, 0x0f, 0x64, 0xe9, 0x7a, 0xe0, 0xa3, 0x16, 0x2c, 0xb9, 0xac, 0x94, 0x81,
+	0x2f, 0x02, 0x66, 0x67, 0xf4, 0x17, 0xd4, 0xa3, 0x98, 0xbc, 0xc2, 0x5e, 0x3a, 0xf0, 0x45, 0xe4,
+	0xdc, 0x40, 0x09, 0x73, 0x24, 0x23, 0x5c, 0xe1, 0x84, 0x73, 0x0b, 0x7a, 0x00, 0x26, 0x2b, 0x3a,
+	0xb1, 0xaa, 0x8c, 0xd5, 0x3f, 0x92, 0x55, 0xb9, 0x26, 0x4e, 0x33, 0x79, 0x14, 0xa6, 0xf1, 0xd4,
+	0x11, 0x3e, 0xe8, 0x19, 0x2c, 0xf3, 0x58, 0x4f, 0x22, 0x76, 0x51, 0x96, 0xc9, 0x82, 0x6c, 0x2c,
+	0x0c, 0xb2, 0xa3, 0xa2, 0x79, 0xac, 0x62, 0x84, 0xd6, 0x21, 0x34, 0x94, 0x4c, 0x68, 0x05, 0x8c,
+	0x53, 0x3c, 0x15, 0x57, 0x41, 0x1f, 0xd1, 0x26, 0x54, 0xcf, 0xdc, 0xd1, 0x84, 0xdf, 0x6c, 0x63,
+	0xeb, 0xcf, 0x72, 0x2e, 0x45, 0x37, 0x87, 0x23, 0xb7, 0xf5, 0x7b, 0x5a, 0xeb, 0x21, 0xa0, 0xd9,
+	0xe4, 0x73, 0xc2, 0xaf, 0xa9, 0xe1, 0xeb, 0x4a, 0x04, 0xfb, 0xd2, 0x80, 0x55, 0x99, 0xe4, 0x71,
+	0xec, 0x46, 0x2f, 0x29, 0xab, 0x19, 0xa9, 0xe6, 0xe9, 0xbe, 0x0e, 0x26, 0x27, 0x29, 0x04, 0x10,
+	0xa7, 0x82, 0xac, 0xd5, 0x92, 0xac, 0x45, 0xe1, 0xcc, 0x19, 0xe1, 0x0a, 0xb2, 0xd7, 0xca, 0xb2,
+	0xff, 0x9b, 0xc9, 0xba, 0x54, 0x6c, 0xd6, 0xa7, 0x6e, 0xec, 0x8e, 0x71, 0x8a, 0xe3, 0x4c, 0xc3,
+	0x0d, 0xa8, 0xf1, 0x01, 0x48, 0xac, 0xfa, 0x22, 0xac, 0x44, 0x20, 0xa7, 0x2c, 0x38, 0x30, 0x97,
+	0xff, 0xca, 0x22, 0x64, 0xf7, 0x73, 0xbb, 0xe2, 0xa8, 0x09, 0xda, 0x85, 0xd5, 0xe8, 0x68, 0x5d,
+	0xdd, 0xd1, 0x2e, 0xe8, 0x69, 0x6a, 0x35, 0xf9, 0x69, 0xfa, 0x03, 0x54, 0x7b, 0xa3, 0x41, 0xf3,
+	0xd0, 0x8d, 0x03, 0xf7, 0x78, 0x84, 0x99, 0x60, 0x52, 0x20, 0x6d, 0xce, 0x60, 0xea, 0xf9, 0x60,
+	0xe6, 0x21, 0x2b, 0x4a, 0x48, 0x7a, 0xed, 0xec, 0xe1, 0x80, 0xc2, 0xb9, 0x66, 0xb9, 0x81, 0x53,
+	0x31, 0x0b, 0x54, 0x6a, 0x82, 0x8a, 0xfd, 0x56, 0x83, 0xdf, 0x0b, 0xd7, 0x93, 0x37, 0x2a, 0x15,
+	0x3b, 0x21, 0x93, 0xd8, 0x63, 0x15, 0x8a, 0xca, 0x14, 0x0b, 0x7d, 0x9f, 0xba, 0xf1, 0x10, 0xa7,
+	0xec, 0xbd, 0x58, 0x5b, 0xb9, 0x85, 0x56, 0xc5, 0xd4, 0x64, 0xbd, 0x22, 0x76, 0x40, 0x66, 0x28,
+	0x2d, 0xbd, 0xca, 0xcc, 0xd2, 0xbb, 0xd4, 0x61, 0xb9, 0x50, 0x19, 0xea, 0x43, 0x95, 0x2e, 0x4c,
+	0xb9, 0xea, 0xfe, 0x58, 0x28, 0xaf, 0xc3, 0x71, 0x68, 0x07, 0x1a, 0x5e, 0x3e, 0x77, 0x96, 0xce,
+	0xdc, 0xfe, 0x9e, 0xeb, 0x96, 0xd3, 0x76, 0x54, 0x1f, 0x74, 0x57, 0x72, 0xa0, 0x14, 0x0d, 0x36,
+	0xdb, 0x37, 0xe4, 0xcd, 0xb1, 0xe8, 0x7e, 0x46, 0x8f, 0x7a, 0x56, 0x6e, 0xf3, 0x54, 0xc0, 0x68,
+	0x1b, 0x96, 0xcf, 0x94, 0xde, 0x90, 0x4b, 0x70, 0x4d, 0x7a, 0xab, 0x8d, 0xe3, 0x14, 0xa1, 0xf6,
+	0x95, 0x06, 0x4d, 0x19, 0xfd, 0x79, 0x84, 0x3d, 0x65, 0xe6, 0x6a, 0xb7, 0xcd, 0xdc, 0x9d, 0x7c,
+	0xe6, 0xf8, 0x7c, 0xde, 0xb8, 0xc5, 0xb2, 0xe9, 0xeb, 0xd1, 0xe6, 0xe3, 0x35, 0xc8, 0x61, 0x5d,
+	0x29, 0x97, 0xea, 0xe4, 0x10, 0xd4, 0x93, 0x32, 0xf2, 0x29, 0xb5, 0x16, 0xad, 0x65, 0xa1, 0xa2,
+	0xfd, 0x59, 0xcf, 0x29, 0xb1, 0xef, 0x50, 0x07, 0x8c, 0x23, 0xb9, 0xdd, 0x76, 0x7f, 0x79, 0xff,
+	0xfa, 0x83, 0x01, 0xc7, 0x09, 0x09, 0xb7, 0xed, 0xa3, 0xc0, 0xb7, 0x1d, 0x7d, 0xe0, 0x7f, 0xef,
+	0x67, 0x0e, 0x75, 0xa0, 0xe1, 0xe3, 0xc4, 0x8b, 0x83, 0x48, 0xd9, 0x83, 0xaa, 0x89, 0xf6, 0xb0,
+	0x17, 0x63, 0x37, 0xc5, 0xfe, 0xee, 0x54, 0x4e, 0x56, 0x66, 0xa0, 0xfe, 0xe2, 0x70, 0x10, 0x88,
+	0x7d, 0x68, 0x38, 0xaa, 0x89, 0x22, 0x26, 0x91, 0x9f, 0x21, 0x6a, 0x1c, 0xa1, 0x98, 0xd0, 0x06,
+	0x54, 0x87, 0xb4, 0x0d, 0xac, 0x25, 0xd6, 0x23, 0xbf, 0xcd, 0xed, 0x11, 0x87, 0x63, 0x50, 0x17,
+	0x2a, 0x49, 0x84, 0x3d, 0xab, 0xce, 0xb0, 0x6b, 0x65, 0x2c, 0x55, 0xdc, 0x61, 0x08, 0x5a, 0x38,
+	0xfd, 0xad, 0x49, 0x22, 0xd7, 0xc3, 0x16, 0xf0, 0xc2, 0x33, 0xc3, 0x6e, 0xf7, 0xd3, 0x75, 0x5b,
+	0xbb, 0xba, 0x6e, 0x6b, 0x5f, 0xae, 0xdb, 0xda, 0xbb, 0xaf, 0xed, 0x9f, 0x60, 0x3d, 0x20, 0x3d,
+	0xf6, 0x37, 0xd3, 0x13, 0x7f, 0x38, 0x3c, 0xf4, 0xb1, 0xc9, 0xfe, 0x63, 0xfe, 0xff, 0x16, 0x00,
+	0x00, 0xff, 0xff, 0x63, 0xbc, 0x73, 0x3d, 0x39, 0x09, 0x00, 0x00,
 }
 
-func (m *ConnectionInfo) Marshal() (dAtA []byte, err error) {
+func (m *InputInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -801,12 +867,12 @@ func (m *ConnectionInfo) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ConnectionInfo) MarshalTo(dAtA []byte) (int, error) {
+func (m *InputInfo) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ConnectionInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *InputInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -814,20 +880,6 @@ func (m *ConnectionInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.XXX_unrecognized != nil {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.Type) > 0 {
-		i -= len(m.Type)
-		copy(dAtA[i:], m.Type)
-		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.Type)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.Name)))
-		i--
-		dAtA[i] = 0x1a
 	}
 	if len(m.OutputName) > 0 {
 		i -= len(m.OutputName)
@@ -842,6 +894,61 @@ func (m *ConnectionInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.NodeId)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *WorkflowConnections) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WorkflowConnections) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *WorkflowConnections) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Type) > 0 {
+		i -= len(m.Type)
+		copy(dAtA[i:], m.Type)
+		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.Type)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.InputInfos) > 0 {
+		for iNdEx := len(m.InputInfos) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.InputInfos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintWorkflow(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -886,7 +993,7 @@ func (m *WorkflowNodeInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0xa
 			i = encodeVarintWorkflow(dAtA, i, uint64(baseI-i))
 			i--
-			dAtA[i] = 0x2a
+			dAtA[i] = 0x32
 		}
 	}
 	if len(m.Inputs) > 0 {
@@ -912,7 +1019,7 @@ func (m *WorkflowNodeInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0xa
 			i = encodeVarintWorkflow(dAtA, i, uint64(baseI-i))
 			i--
-			dAtA[i] = 0x22
+			dAtA[i] = 0x2a
 		}
 	}
 	if len(m.ActionName) > 0 {
@@ -920,12 +1027,19 @@ func (m *WorkflowNodeInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.ActionName)
 		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.ActionName)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if len(m.ProjectId) > 0 {
 		i -= len(m.ProjectId)
 		copy(dAtA[i:], m.ProjectId)
 		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.ProjectId)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ActionId) > 0 {
+		i -= len(m.ActionId)
+		copy(dAtA[i:], m.ActionId)
+		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.ActionId)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1389,6 +1503,13 @@ func (m *WorkflowInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
+	if len(m.Workspace) > 0 {
+		i -= len(m.Workspace)
+		copy(dAtA[i:], m.Workspace)
+		i = encodeVarintWorkflow(dAtA, i, uint64(len(m.Workspace)))
+		i--
+		dAtA[i] = 0x52
+	}
 	if m.Spec != nil {
 		{
 			size, err := m.Spec.MarshalToSizedBuffer(dAtA[:i])
@@ -1472,7 +1593,7 @@ func encodeVarintWorkflow(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *ConnectionInfo) Size() (n int) {
+func (m *InputInfo) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1485,6 +1606,24 @@ func (m *ConnectionInfo) Size() (n int) {
 	l = len(m.OutputName)
 	if l > 0 {
 		n += 1 + l + sovWorkflow(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *WorkflowConnections) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.InputInfos) > 0 {
+		for _, e := range m.InputInfos {
+			l = e.Size()
+			n += 1 + l + sovWorkflow(uint64(l))
+		}
 	}
 	l = len(m.Name)
 	if l > 0 {
@@ -1507,6 +1646,10 @@ func (m *WorkflowNodeInfo) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.Id)
+	if l > 0 {
+		n += 1 + l + sovWorkflow(uint64(l))
+	}
+	l = len(m.ActionId)
 	if l > 0 {
 		n += 1 + l + sovWorkflow(uint64(l))
 	}
@@ -1783,6 +1926,10 @@ func (m *WorkflowInfo) Size() (n int) {
 		l = m.Spec.Size()
 		n += 1 + l + sovWorkflow(uint64(l))
 	}
+	l = len(m.Workspace)
+	if l > 0 {
+		n += 1 + l + sovWorkflow(uint64(l))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -1795,7 +1942,7 @@ func sovWorkflow(x uint64) (n int) {
 func sozWorkflow(x uint64) (n int) {
 	return sovWorkflow(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *ConnectionInfo) Unmarshal(dAtA []byte) error {
+func (m *InputInfo) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1818,10 +1965,10 @@ func (m *ConnectionInfo) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ConnectionInfo: wiretype end group for non-group")
+			return fmt.Errorf("proto: InputInfo: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ConnectionInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: InputInfo: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1888,7 +2035,92 @@ func (m *ConnectionInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.OutputName = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		default:
+			iNdEx = preIndex
+			skippy, err := skipWorkflow(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WorkflowConnections) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowWorkflow
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WorkflowConnections: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WorkflowConnections: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InputInfos", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.InputInfos = append(m.InputInfos, &InputInfo{})
+			if err := m.InputInfos[len(m.InputInfos)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
 			}
@@ -1920,7 +2152,7 @@ func (m *ConnectionInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
 			}
@@ -2037,6 +2269,38 @@ func (m *WorkflowNodeInfo) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ActionId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ActionId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ProjectId", wireType)
 			}
 			var stringLen uint64
@@ -2067,7 +2331,7 @@ func (m *WorkflowNodeInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.ProjectId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ActionName", wireType)
 			}
@@ -2099,7 +2363,7 @@ func (m *WorkflowNodeInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.ActionName = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Inputs", wireType)
 			}
@@ -2129,10 +2393,10 @@ func (m *WorkflowNodeInfo) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Inputs == nil {
-				m.Inputs = make(map[string]*ConnectionInfo)
+				m.Inputs = make(map[string]*WorkflowConnections)
 			}
 			var mapkey string
-			var mapvalue *ConnectionInfo
+			var mapvalue *WorkflowConnections
 			for iNdEx < postIndex {
 				entryPreIndex := iNdEx
 				var wire uint64
@@ -2206,7 +2470,7 @@ func (m *WorkflowNodeInfo) Unmarshal(dAtA []byte) error {
 					if postmsgIndex > l {
 						return io.ErrUnexpectedEOF
 					}
-					mapvalue = &ConnectionInfo{}
+					mapvalue = &WorkflowConnections{}
 					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
 						return err
 					}
@@ -2228,7 +2492,7 @@ func (m *WorkflowNodeInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.Inputs[mapkey] = mapvalue
 			iNdEx = postIndex
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ActionOptions", wireType)
 			}
@@ -3534,7 +3798,7 @@ func (m *WorkflowSpec) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Outputs = append(m.Outputs, &ConnectionInfo{})
+			m.Outputs = append(m.Outputs, &WorkflowConnections{})
 			if err := m.Outputs[len(m.Outputs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3927,6 +4191,38 @@ func (m *WorkflowInfo) Unmarshal(dAtA []byte) error {
 			if err := m.Spec.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Workspace", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflow
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Workspace = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

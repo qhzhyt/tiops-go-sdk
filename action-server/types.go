@@ -2,18 +2,22 @@ package action_server
 
 import (
 	"tiops/common/logger"
+	"tiops/common/models"
 	"tiops/common/services"
 )
 
 type ActionContext struct {
-	Logger *logger.Logger
-	done   bool
+	Logger      *logger.Logger
+	Info        *models.ActionInfo
+	InputNames  []string
+	OutputNames []string
+	done        bool
 }
 
 type RequestContext struct {
 	*ActionContext
 	NodeId        string
-	Inputs        map[string]interface{}
+	Input         ActionDataItem
 	ActionOptions ActionOptions
 }
 
@@ -35,13 +39,16 @@ type NodeRegisterContext struct {
 	ActionOptions ActionOptions
 }
 
-type ActionResult ActionDataItemMap
-type BatchResult ActionDataItemsMap
+type ActionDataItem map[string]interface{}
+
+type ActionDataBatch []ActionDataItem
+
+//type ActionResult ActionDataItemMap
+//type BatchResult ActionDataBatch
+
 type ActionOptions map[string]string
 
 type ServiceActionDataMap map[string]*services.ActionData
-
-type ActionFunction func(requestContext *RequestContext) ActionResult
 
 //type
 
@@ -52,10 +59,14 @@ type ActionApplication interface {
 	BatchProcess
 }
 
+type ActionItemFunc func(item ActionDataItem) ActionDataItem
+
+type Action ActionApplication
+
 type PieceProcess interface {
-	Call(ctx *RequestContext) ActionResult
+	Call(ctx *RequestContext) ActionDataItem
 }
 
 type BatchProcess interface {
-	CallBatch(ctx *BatchRequestContext) BatchResult
+	CallBatch(ctx *BatchRequestContext) ActionDataBatch
 }

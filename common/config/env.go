@@ -3,9 +3,11 @@ package config
 import "os"
 
 var (
-	WorkflowId   = os.Getenv(WorkflowIdEnvName)
-	LogId        = os.Getenv(LogIdEnvName)
-	LogLevel     = os.Getenv(LogLevelEnvName)
-	WorkflowType = os.Getenv(WorkflowTypeEnvName)
-	ExecutionID = os.Getenv(ExecutionIdEnvName)
+	WorkflowId   = os.Getenv(EnvNameWorkflowId)
+	LogId        = os.Getenv(EnvNameLogId)
+	LogLevel     = os.Getenv(EnvNameLogLevel)
+	WorkflowType = os.Getenv(EnvNameWorkflowType)
+	ExecutionID  = os.Getenv(EnvNameExecutionId)
+	AppType      = os.Getenv(EnvNameAppType)
+	ProjectId    = os.Getenv(EnvNameProjectId)
 )

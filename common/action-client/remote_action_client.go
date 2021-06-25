@@ -16,7 +16,6 @@ type RemoteActionClient struct {
 	conn *grpc.ClientConn
 }
 
-
 func NewRemoteActionClient(ip string, port int) *RemoteActionClient {
 
 	var kacp = keepalive.ClientParameters{
@@ -31,7 +30,6 @@ func NewRemoteActionClient(ip string, port int) *RemoteActionClient {
 		grpc_retry.WithBackoff(grpc_retry.BackoffLinearWithJitter(time.Second/2, 0.2)),
 	}
 	retryInterceptor := grpc_retry.UnaryClientInterceptor(retryOps...)
-
 
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port),
 		grpc.WithInsecure(),

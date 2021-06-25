@@ -6,7 +6,9 @@ import (
 	"path"
 	"runtime"
 	"strings"
+	client "tiops/common/api-client"
 	tiopsApiClient "tiops/common/api-client"
+	tiopsConfigs "tiops/common/config"
 	"tiops/common/models"
 	"tiops/common/utils"
 )
@@ -176,4 +178,28 @@ func StringToLogLevel(level string) models.LogLevel {
 	default:
 		return models.LogLevel_INFO
 	}
+}
+
+var _defaultLogger *Logger
+
+func init() {
+	apiClient := client.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
+	source := "unknown"
+	switch tiopsConfigs.AppType {
+	case tiopsConfigs.AppTypeWorkflowEngine:
+		source = "workflow-engine"
+	case tiopsConfigs.AppTypeActionServer:
+		source = fmt.Sprintf("action-server-%s", tiopsConfigs.ProjectId)
+	}
+	_defaultLogger = NewRemoteLogger(
+		tiopsConfigs.AppType,
+		tiopsConfigs.LogId,
+		source,
+		StringToLogLevel(tiopsConfigs.LogLevel),
+		apiClient,
+	)
+}
+
+func GetDefaultLogger() *Logger {
+	return _defaultLogger
 }

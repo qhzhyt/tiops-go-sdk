@@ -39,6 +39,16 @@ func (c *APIClient) GetWorkflowJobById(id string) *models.WorkflowJob {
 	return result
 }
 
+func (c *APIClient) GetActionListByIds(ids []string) ([]*models.ActionInfo, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.GetActionListByIds(ctx, &services.QueryRequest{Ids: ids})
+	if err != nil {
+		return nil, err
+	}
+	return result.List, nil
+}
+
 func (c *APIClient) CreateOrUpdateWorkflowExecution(execution *models.WorkflowExecution) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -59,7 +69,7 @@ func (c *APIClient) CreateExecutionRecord(record *models.ExecutionRecord) (bool,
 	return result.Status == services.Status_Ok, nil
 }
 
-func (c *APIClient)AddProcessRecord(record *models.ProcessRecord) (bool, error) {
+func (c *APIClient) AddProcessRecord(record *models.ProcessRecord) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	result, err := c.APIServiceClient.AddProcessRecord(ctx, record)
@@ -68,7 +78,6 @@ func (c *APIClient)AddProcessRecord(record *models.ProcessRecord) (bool, error) 
 	}
 	return result.Status == services.Status_Ok, nil
 }
-
 
 func (c *APIClient) GetProjectByID(id string) *models.ProjectInfo {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)

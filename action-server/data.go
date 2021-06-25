@@ -25,7 +25,8 @@ type ActionData interface {
 	Item(i int) interface{}
 }
 
-type ActionDataItemMap map[string]interface{}
+//type ActionDataItemMap map[string]interface{}
+
 type ActionDataItemsMap map[string][]interface{}
 
 type ConstantData struct {
@@ -180,7 +181,7 @@ func TransActionDataMap(dataMap map[string]*services.ActionData, inputs []*model
 	return result
 }
 
-func (m ActionDataMap) Item(i int) ActionDataItemMap {
+func (m ActionDataMap) Item(i int) ActionDataItem {
 	result := map[string]interface{}{}
 	for k, v := range m {
 		result[k] = v.Item(i)
@@ -188,9 +189,9 @@ func (m ActionDataMap) Item(i int) ActionDataItemMap {
 	return result
 }
 
-func (m ActionDataMap) Map(f func(ActionDataItemMap) ActionDataItemMap) []ActionDataItemMap {
+func (m ActionDataMap) Map(f func(item ActionDataItem) ActionDataItem) ActionDataBatch {
 	count := m.Count()
-	result := make([]ActionDataItemMap, count)
+	result := make(ActionDataBatch, count)
 	for i := 0; i < count; i++ {
 		result[i] = f(m.Item(i))
 	}
@@ -267,25 +268,26 @@ var (
 	}
 )
 
-func ToServiceActionDataMap(id string, source BatchResult, outputs []*models.Parameter) ServiceActionDataMap {
+func ToServiceActionDataMap(id string, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
 	result := ServiceActionDataMap{}
 	for _, output := range outputs {
-		count := len(source[output.Name])
+		count := len(source)
 		items := make([][]byte, count)
-		dataCol := source[output.Name]
+		//dataCol := source[output.Name]
+		name := output.Name
 		if stringTypes[strings.ToLower(output.Type)] {
 			for i := 0; i < count; i++ {
-				items[i] = []byte(dataCol[i].(string))
+				items[i] = []byte(source[i][name].(string))
 			}
 		} else if strings.ToLower(output.Type) == "bytes" {
 			for i := 0; i < count; i++ {
-				items[i] = dataCol[i].([]byte)
+				items[i] = source[i][name].([]byte)
 			}
 		} else {
 			for i := 0; i < count; i++ {
-				res, err := json.Marshal(dataCol[i])
+				res, err := json.Marshal(source[i][name])
 				if err != nil {
-					items[i] = []byte(fmt.Sprint(dataCol[i]))
+					items[i] = []byte(fmt.Sprint(source[i][name]))
 				} else {
 					items[i] = res
 				}
