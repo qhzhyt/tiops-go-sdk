@@ -122,7 +122,7 @@ func (a *actionServer) init() {
 
 func (a *actionServer) Serve() {
 	a.init()
-	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", 5555))
+	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -157,9 +157,10 @@ func newActionServer() *actionServer {
 		apiClient:            tiopsApiClient,
 		Logger:               remoteLogger,
 		actionNodeOptionsMap: map[string]ActionOptions{},
+		actionContextMap: map[string]*ActionContext{},
 	}
 	myServer.projectInfo = &models.ProjectInfo{}
-	_ = utils.UnmarshalYAMLFile(myServer.projectInfo, "manifest.yaml")
+	_ = utils.UnmarshalYAMLFile(myServer.projectInfo, tiopsConfigs.ManifestPath)
 	myServer.actionInfoMap = map[string]*models.ActionInfo{}
 	for _, actionInfo := range myServer.projectInfo.Actions {
 		myServer.actionInfoMap[actionInfo.Name] = actionInfo
@@ -171,7 +172,6 @@ func newActionServer() *actionServer {
 		for i, input := range actionInfo.Inputs {
 			inputs[i] = input.Name
 		}
-
 		myServer.actionContextMap[actionInfo.Name] = &ActionContext{Logger: remoteLogger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
 	}
 	services.RegisterActionsServiceServer(s, myServer)

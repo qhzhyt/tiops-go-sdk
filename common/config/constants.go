@@ -1,6 +1,7 @@
 package config
 
 const (
+	ManifestPath                  = "manifest.yaml"
 	WorkflowEngineLabel           = "workflow-engine"
 	WorkflowEngineImageBase       = "tiops-system/workflow-engine:latest"
 	WorkflowActionServerImageBase = "tiops-project-images/%s:latest"

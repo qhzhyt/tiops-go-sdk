@@ -11,4 +11,9 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	google.golang.org/grpc v1.37.0
 	google.golang.org/protobuf v1.26.0
+	tiops v0.0.0
+)
+
+replace (
+	tiops v0.0.0 => ./
 )
