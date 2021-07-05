@@ -18,8 +18,16 @@ func ActionServiceName(name string) string {
 	return fmt.Sprintf(WorkflowActionServerLabelBase, name)
 }
 
+func StandAloneActionServiceName(name string, nodeId string) string {
+	return fmt.Sprintf(WorkflowActionServerLabelBase, name+"-"+nodeId)
+}
+
 func WorkflowActionServerImage(name string) string {
 	return fmt.Sprintf(WorkflowActionServerImageBase, name)
+}
+
+func WorkflowEngineImage(project string, name string) string {
+	return fmt.Sprintf(WorkflowActionServerImageBase, project)
 }
 
 var (

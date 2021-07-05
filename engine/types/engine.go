@@ -3,7 +3,9 @@ package types
 import "tiops/common/models"
 
 type WorkflowEngine interface {
+	RequiredResources(workflowInfo *models.WorkflowInfo) *models.WorkflowResources
+	WaitForResources(workflow *Workflow)
 	Exec(workflow *Workflow)
-	RequiredK8sResources(workflowInfo *models.WorkflowInfo)
 	Stop()
+	Init(ctx *WorkflowContext)
 }

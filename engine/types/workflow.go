@@ -5,6 +5,7 @@ import (
 	"time"
 	apiClient "tiops/common/api-client"
 	"tiops/common/logger"
+	"tiops/common/models"
 )
 
 const RegisterActionRetryTimes = 30
@@ -21,6 +22,11 @@ type Workflow struct {
 	//Packages   map[string]*Package
 	Logger    *logger.Logger
 	ApiClient *apiClient.APIClient
+	info *models.WorkflowInfo
+}
+
+func (w *Workflow) Info() *models.WorkflowInfo {
+	return w.info
 }
 
 func (w *Workflow) GetAction(aId string) Action {
@@ -28,7 +34,7 @@ func (w *Workflow) GetAction(aId string) Action {
 	return w.Actions[aId]
 }
 
-func (w *Workflow) InitActionNodes() bool {
+func (w *Workflow) RegisterActionNodes() bool {
 	result := true
 	for _, node := range w.Nodes {
 		retryTimes := 0

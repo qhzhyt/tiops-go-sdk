@@ -14,9 +14,10 @@ type RemoteServiceAction struct {
 	info   *models.ActionInfo
 	client *actionClient.RemoteActionClient
 	node   *types.Node
+	nodeInfo *models.WorkflowNodeInfo
 }
 
-const ActionTypeRemoteService = "RemoteService"
+const RemoteService = "RemoteService"
 
 //func (a *RemoteServiceAction) Call(request *ActionRequest) (*ActionResponse, error) {
 //	panic("implement me")
@@ -27,6 +28,7 @@ func (a *RemoteServiceAction) Copy() types.Action {
 		info:   a.info,
 		client: a.client,
 		node:   nil,
+		nodeInfo: a.nodeInfo,
 	}
 }
 
@@ -45,39 +47,34 @@ func (a *RemoteServiceAction) Info() *models.ActionInfo {
 }
 
 func (a *RemoteServiceAction) Type() types.ActionType {
-	return ActionTypeRemoteService
+	return RemoteService
 }
 
 func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
-
-	//var deadlineMs = flag.Int("deadline_ms", 20*1000, "Default deadline in milliseconds.")
-	//ctx, cancel := context.WithTimeout(ctx, time.Duration(*deadlineMs) * time.Millisecond)
-	//fmt.Println("Call", a.info.Name, arguments)
-
 	defer cancel()
-	res, err := a.client.CallAction(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.node.Info.Id, Inputs: request.Inputs})
+	res, err := a.client.CallAction(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
 
 	if err != nil {
 		return nil, err
 	}
-
 	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
-
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return nil, err
-	//}
-	//fmt.Println("result", a.info.Name, res.Outputs)
-	//return res.Outputs, err
 }
 
 var _actionClientMap = map[string]*actionClient.RemoteActionClient{}
 
-func NewRemoteServiceAction(info *models.ActionInfo) types.Action {
+func NewRemoteServiceAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
 
-	if _actionClientMap[info.ProjectId] == nil{
-		_actionClientMap[info.ProjectId] = actionClient.NewRemoteActionClient(tiopsConfigs.ActionServiceName(info.ProjectId), tiopsConfigs.ActionServerPort)
+	serviceName := tiopsConfigs.ActionServiceName(info.ProjectId)
+
+	if nodeInfo.StandAlone {
+		serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
 	}
-	return &RemoteServiceAction{info: info, client: _actionClientMap[info.ProjectId]}
+
+
+	if _actionClientMap[serviceName] == nil{
+		_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
+	}
+
+	return &RemoteServiceAction{info: info, client: _actionClientMap[serviceName], nodeInfo: nodeInfo}
 }

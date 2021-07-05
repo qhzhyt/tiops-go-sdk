@@ -1,4 +1,4 @@
-package action_server
+package service
 
 import (
 	"encoding/json"

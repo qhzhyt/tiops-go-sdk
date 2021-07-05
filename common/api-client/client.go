@@ -19,14 +19,11 @@ func (c *APIClient) Close() error {
 	return c.grpcConn.Close()
 }
 
-func (c *APIClient) GetWorkflowById(id string) *models.WorkflowInfo {
+func (c *APIClient) GetWorkflowById(id string) (*models.WorkflowInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	result, err := c.APIServiceClient.GetWorkflowById(ctx, &services.QueryRequest{Id: id})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return result
+	return result, err
 }
 
 func (c *APIClient) GetWorkflowJobById(id string) *models.WorkflowJob {
@@ -88,6 +85,22 @@ func (c *APIClient) GetProjectByID(id string) *models.ProjectInfo {
 	}
 	return result
 }
+
+func (c *APIClient) GetWorkflowExecutionById(id string) (*models.WorkflowExecution, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	return c.APIServiceClient.GetWorkflowExecutionById(ctx, &services.QueryRequest{Id: id})
+}
+
+//func (c *APIClient) GetWorkflowExecutionResource(executionId string) (*models.K8SResources, error) {
+//	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+//	defer cancel()
+//	result, err := c.APIServiceClient.GetProjectByID(ctx, &services.QueryRequest{Id: executionId})
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	return result
+//}
 
 //func (c *APIClient) GetPackageByID(id string) *models.PackageInfo {
 //	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)

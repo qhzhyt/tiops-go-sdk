@@ -7,10 +7,9 @@ const (
 	WorkflowActionServerImageBase = "tiops-project-images/%s:latest"
 	WorkflowActionServerLabelBase = "workflow-action-server-%s"
 	WorkflowIdLabel               = "workflow-id"
-	ApiServerHost                 = "tiops-api-server.tiops-system"
 	ApiServerGrpcPort             = 5000
 	ApiServerHttpPort             = 8000
-	TiopsSystemK8sNamespace       = "tiops-system"
+	DefaultTiopsSystemNamespace       = "tiops-system"
 	ActionServerPort              = 5555
 )
 
@@ -22,9 +21,17 @@ const (
 	EnvNameExecutionId  = "EXECUTION_ID"
 	EnvNameAppType      = "APP_TYPE"
 	EnvNameLogLevel     = "LOG_LEVEL"
+	EnvNameEngineName   = "ENGINE_NAME"
+	EnvNameInMainEngine = "IN_MAIN_ENGINE"
+	EnvNameTiopsSystemNamespace = "TIOPS_SYSTEM_NAMESPACE"
 )
 
 const (
 	AppTypeWorkflowEngine = "workflow-engine"
 	AppTypeActionServer   = "action-server"
+)
+
+const (
+	BuildinEngineImage = "tiops-buildin-projects/workflow-engines:latest"
+	DefaultEngineName  = "default"
 )

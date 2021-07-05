@@ -12,7 +12,9 @@ import (
 	"tiops/engine/variable"
 )
 
-func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.APIClient) ([]*models.ActionInfo, error) {
+var _apiClient = apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
+
+func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.APIClient) (map[string]*models.ActionInfo, error) {
 	//return w.Packages[pId].GetAction(aName)
 	actionNameSet := map[string]bool{}
 	for _, nodeInfo := range nodeInfos {
@@ -23,7 +25,11 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 		actionIds = append(actionIds, name)
 	}
 	actionInfos, err := client.GetActionListByIds(actionIds)
-	return actionInfos, err
+	result := map[string]*models.ActionInfo{}
+	for _, actionInfo := range actionInfos {
+		result[actionInfo.XId] = actionInfo
+	}
+	return result, err
 }
 
 // buildWorkflow 根据 models.WorkflowInfo 构建相应的 Workflow 对象
@@ -48,8 +54,8 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		return nil, err
 	}
 
-	for _, actionInfo := range actionInfos {
-		wf.Actions[actionInfo.XId] = action.New(actionInfo)
+	for _, nodeInfo := range wi.Spec.Nodes {
+		wf.Actions[nodeInfo.Id] = action.New(actionInfos[nodeInfo.ActionId], nodeInfo)
 	}
 
 	spec := wi.Spec
@@ -73,7 +79,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		nodeInfos[nodeInfo.Id] = nodeInfo
 		node := &types.Node{
 			ID:      nodeInfo.Id,
-			Action:  wf.GetAction(nodeInfo.ActionId).Copy(),
+			Action:  wf.GetAction(nodeInfo.Id).Copy(),
 			Inputs:  types.InputConnectionsMap{},
 			Outputs: types.OutputConnectionsMap{},
 			Info:    nodeInfo,
@@ -156,19 +162,24 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 }
 
 func New(id string) (*types.Workflow, error) {
-	workflowId := tiopsConfigs.WorkflowId
+	workflowId := id
 	//global.Logger.Info("connecting to api server")
 
-	client := apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
+	//client := apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 
 	_logger := logger.GetDefaultLogger()
 
 	//global.Logger.Info("connected to api server")
 	//global.Logger.Info("getting workflow info")
-	wfi := client.GetWorkflowById(workflowId)
+	wfi, err := _apiClient.GetWorkflowById(workflowId)
+
+	if err != nil {
+		return nil, err
+	}
+
 	_logger.Info("get workflow info success")
 
-	_, err := client.CreateExecutionRecord(&models.ExecutionRecord{
+	_, err = _apiClient.CreateExecutionRecord(&models.ExecutionRecord{
 		XId:         tiopsConfigs.ExecutionID,
 		ExecutionId: tiopsConfigs.ExecutionID,
 		ProcessRecords: []*models.ProcessRecord{
@@ -190,5 +201,20 @@ func New(id string) (*types.Workflow, error) {
 	//	}
 	//}
 
-	return buildWorkflow(wfi, client)
+	return buildWorkflow(wfi, _apiClient)
+}
+
+func Current() (*types.Workflow, error) {
+	return New(tiopsConfigs.WorkflowId)
+}
+
+func Context() *types.WorkflowContext {
+	return &types.WorkflowContext{
+		WorkflowType: tiopsConfigs.WorkflowType,
+		WorkflowId:   tiopsConfigs.WorkflowId,
+		ExecutionId:  tiopsConfigs.ExecutionID,
+		RecordId:     tiopsConfigs.ExecutionID,
+		Logger:       logger.GetDefaultLogger(),
+		APIClient:    _apiClient,
+	}
 }

@@ -1,4 +1,4 @@
-package action_server
+package service
 
 import (
 	"context"
@@ -9,31 +9,35 @@ import (
 	"math"
 	"net"
 	"os"
+	"time"
+	"tiops/buildin/engines"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/common/utils"
+	"tiops/engine/types"
+	"tiops/engine/workflow"
 )
 
 var _actionServer = newActionServer()
 
 type actionServer struct {
-	server        *grpc.Server
-	actionBoolMap map[string]bool
-	//actionFuncMap        map[string]ActionFunction
-	//actionAppMap         map[string]ActionApplication
-
-	actions map[string]Action
-
-	actionInfoMap map[string]*models.ActionInfo
-	//actionOutputsMap     map[string][]string
+	server               *grpc.Server
+	actionBoolMap        map[string]bool
+	actions              map[string]Action
+	engines              map[string]types.WorkflowEngine
+	actionInfoMap        map[string]*models.ActionInfo
 	actionNodeOptionsMap map[string]ActionOptions
 	actionContextMap     map[string]*ActionContext
 	projectInfo          *models.ProjectInfo
 	Logger               *logger.Logger
 	apiClient            *apiClient.APIClient
+}
+
+func (a *actionServer) GetRequiredResources(ctx context.Context, info *models.WorkflowInfo) (*models.WorkflowResources, error) {
+	panic("implement me")
 }
 
 func (a *actionServer) getActionOptions(nodeId string) ActionOptions {
@@ -93,22 +97,14 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 	return &services.StatusResponse{Status: services.Status_Ok}, nil
 }
 
-func ActionServer() *actionServer {
-	return _actionServer
+type actionServerCtl struct {
+	actionServer *actionServer
 }
 
 func (a *actionServer) Register(name string, action Action) *actionServer {
 	a.actions[name] = action
 	return a
 }
-
-//func (a *actionServer) RegisterApplication(name string, application ActionApplication) *actionServer {
-//	//a.actionFuncMap[name] = function
-//	a.actionAppMap[name] = application
-//	a.actionBoolMap[name] = true
-//	return a
-//}
-//
 
 func (a *actionServer) RegisterFunction(name string, function ActionFunction) *actionServer {
 	return a.Register(name, function)
@@ -120,15 +116,50 @@ func (a *actionServer) init() {
 	}
 }
 
-func (a *actionServer) Serve() {
-	a.init()
-	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
+func (a *actionServer) runMainEngine() {
+	engine := a.getCurrentEngine()
+	_workflow, err := workflow.Current()
+	_context := workflow.Context()
 	if err != nil {
-		log.Fatal(err)
-		return
+		_context.Error(err)
+		utils.SleepAndExit(time.Second*6, 3)
 	}
-	if err := a.server.Serve(sock); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	engine.Init(_context)
+	requiredResources := engine.RequiredResources(_workflow.Info())
+	if requiredResources != nil{
+		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(&models.WorkflowExecution{WorkflowResource: requiredResources})
+		_context.Error(err)
+	}
+	engine.WaitForResources(_workflow)
+	//engine := engines.NewBasicChanEngine(context)
+	engine.Exec(_workflow)
+}
+
+func (a *actionServer) getCurrentEngine() types.WorkflowEngine {
+	if a.engines[tiopsConfigs.EngineName] != nil {
+		return a.engines[tiopsConfigs.EngineName]
+	}
+	for _, engine := range a.engines {
+		return engine
+	}
+	return engines.NewBasicChanEngine()
+}
+
+func (a *actionServer) Start() {
+	if tiopsConfigs.InMainEngine() {
+		//_workflow, err := workflow.Current()
+		//context := workflow.Context()
+		a.runMainEngine()
+	} else {
+		a.init()
+		sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		if err := a.server.Serve(sock); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
 	}
 }
 
@@ -157,7 +188,7 @@ func newActionServer() *actionServer {
 		apiClient:            tiopsApiClient,
 		Logger:               remoteLogger,
 		actionNodeOptionsMap: map[string]ActionOptions{},
-		actionContextMap: map[string]*ActionContext{},
+		actionContextMap:     map[string]*ActionContext{},
 	}
 	myServer.projectInfo = &models.ProjectInfo{}
 	_ = utils.UnmarshalYAMLFile(myServer.projectInfo, tiopsConfigs.ManifestPath)
@@ -176,4 +207,25 @@ func newActionServer() *actionServer {
 	}
 	services.RegisterActionsServiceServer(s, myServer)
 	return myServer
+}
+
+func ActionServer() *actionServerCtl {
+	return &actionServerCtl{actionServer: _actionServer}
+}
+
+func (a *actionServerCtl) Register(name string, action Action) *actionServerCtl {
+	a.actionServer.Register(name, action)
+	return a
+}
+
+func (a *actionServerCtl) RegisterFunction(name string, function ActionFunction) *actionServerCtl {
+	return a.Register(name, function)
+}
+
+func (a *actionServerCtl) Start() {
+	a.actionServer.Start()
+}
+
+func (a *actionServerCtl) RegisterEngine(name string, engine types.WorkflowEngine) *actionServerCtl {
+	return a
 }

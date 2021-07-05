@@ -1,4 +1,4 @@
-package action_server
+package service
 
 func (ac *ActionContext) Done() {
 	ac.done = true

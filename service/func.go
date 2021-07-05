@@ -1,4 +1,4 @@
-package action_server
+package service
 
 type ActionFunction func(requestContext *RequestContext) ActionDataItem
 
