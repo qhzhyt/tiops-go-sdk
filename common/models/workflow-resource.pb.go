@@ -50,7 +50,7 @@ func (ServiceMode) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_a052fcb2f97e11e6, []int{0}
 }
 
-type Container struct {
+type K8SContainer struct {
 	Image                string            `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty" bson:"image"`
 	Cmd                  []string          `protobuf:"bytes,2,rep,name=cmd,proto3" json:"cmd,omitempty" bson:"cmd"`
 	Env                  map[string]string `protobuf:"bytes,3,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"env"`
@@ -59,18 +59,18 @@ type Container struct {
 	XXX_sizecache        int32             `json:"-" bson:"-"`
 }
 
-func (m *Container) Reset()         { *m = Container{} }
-func (m *Container) String() string { return proto.CompactTextString(m) }
-func (*Container) ProtoMessage()    {}
-func (*Container) Descriptor() ([]byte, []int) {
+func (m *K8SContainer) Reset()         { *m = K8SContainer{} }
+func (m *K8SContainer) String() string { return proto.CompactTextString(m) }
+func (*K8SContainer) ProtoMessage()    {}
+func (*K8SContainer) Descriptor() ([]byte, []int) {
 	return fileDescriptor_a052fcb2f97e11e6, []int{0}
 }
-func (m *Container) XXX_Unmarshal(b []byte) error {
+func (m *K8SContainer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Container) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *K8SContainer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Container.Marshal(b, m, deterministic)
+		return xxx_messageInfo_K8SContainer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -80,49 +80,184 @@ func (m *Container) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Container) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Container.Merge(m, src)
+func (m *K8SContainer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_K8SContainer.Merge(m, src)
 }
-func (m *Container) XXX_Size() int {
+func (m *K8SContainer) XXX_Size() int {
 	return m.Size()
 }
-func (m *Container) XXX_DiscardUnknown() {
-	xxx_messageInfo_Container.DiscardUnknown(m)
+func (m *K8SContainer) XXX_DiscardUnknown() {
+	xxx_messageInfo_K8SContainer.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Container proto.InternalMessageInfo
+var xxx_messageInfo_K8SContainer proto.InternalMessageInfo
 
-func (m *Container) GetImage() string {
+func (m *K8SContainer) GetImage() string {
 	if m != nil {
 		return m.Image
 	}
 	return ""
 }
 
-func (m *Container) GetCmd() []string {
+func (m *K8SContainer) GetCmd() []string {
 	if m != nil {
 		return m.Cmd
 	}
 	return nil
 }
 
-func (m *Container) GetEnv() map[string]string {
+func (m *K8SContainer) GetEnv() map[string]string {
 	if m != nil {
 		return m.Env
 	}
 	return nil
 }
 
+type K8SPort struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	ContainerPort        int32    `protobuf:"varint,2,opt,name=containerPort,proto3" json:"containerPort,omitempty" bson:"containerPort"`
+	ServicePort          int32    `protobuf:"varint,3,opt,name=servicePort,proto3" json:"servicePort,omitempty" bson:"servicePort"`
+	NodePort             int32    `protobuf:"varint,4,opt,name=nodePort,proto3" json:"nodePort,omitempty" bson:"nodePort"`
+	Proto                string   `protobuf:"bytes,5,opt,name=proto,proto3" json:"proto,omitempty" bson:"proto"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" bson:"-"`
+	XXX_unrecognized     []byte   `json:"-" bson:"-"`
+	XXX_sizecache        int32    `json:"-" bson:"-"`
+}
+
+func (m *K8SPort) Reset()         { *m = K8SPort{} }
+func (m *K8SPort) String() string { return proto.CompactTextString(m) }
+func (*K8SPort) ProtoMessage()    {}
+func (*K8SPort) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a052fcb2f97e11e6, []int{1}
+}
+func (m *K8SPort) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *K8SPort) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_K8SPort.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *K8SPort) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_K8SPort.Merge(m, src)
+}
+func (m *K8SPort) XXX_Size() int {
+	return m.Size()
+}
+func (m *K8SPort) XXX_DiscardUnknown() {
+	xxx_messageInfo_K8SPort.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_K8SPort proto.InternalMessageInfo
+
+func (m *K8SPort) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *K8SPort) GetContainerPort() int32 {
+	if m != nil {
+		return m.ContainerPort
+	}
+	return 0
+}
+
+func (m *K8SPort) GetServicePort() int32 {
+	if m != nil {
+		return m.ServicePort
+	}
+	return 0
+}
+
+func (m *K8SPort) GetNodePort() int32 {
+	if m != nil {
+		return m.NodePort
+	}
+	return 0
+}
+
+func (m *K8SPort) GetProto() string {
+	if m != nil {
+		return m.Proto
+	}
+	return ""
+}
+
+type K8SService struct {
+	Name                 string     `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	Ports                []*K8SPort `protobuf:"bytes,2,rep,name=ports,proto3" json:"ports,omitempty" bson:"ports"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-" bson:"-"`
+	XXX_unrecognized     []byte     `json:"-" bson:"-"`
+	XXX_sizecache        int32      `json:"-" bson:"-"`
+}
+
+func (m *K8SService) Reset()         { *m = K8SService{} }
+func (m *K8SService) String() string { return proto.CompactTextString(m) }
+func (*K8SService) ProtoMessage()    {}
+func (*K8SService) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a052fcb2f97e11e6, []int{2}
+}
+func (m *K8SService) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *K8SService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_K8SService.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *K8SService) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_K8SService.Merge(m, src)
+}
+func (m *K8SService) XXX_Size() int {
+	return m.Size()
+}
+func (m *K8SService) XXX_DiscardUnknown() {
+	xxx_messageInfo_K8SService.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_K8SService proto.InternalMessageInfo
+
+func (m *K8SService) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *K8SService) GetPorts() []*K8SPort {
+	if m != nil {
+		return m.Ports
+	}
+	return nil
+}
+
 type K8SApp struct {
-	Name      string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
-	ProjectId string `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
-	//  string image = 3;
+	Name                 string            `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	ProjectId            string            `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
 	Replica              int32             `protobuf:"varint,3,opt,name=replica,proto3" json:"replica,omitempty" bson:"replica"`
-	MainContainer        *Container        `protobuf:"bytes,4,opt,name=mainContainer,proto3" json:"mainContainer,omitempty" bson:"mainContainer"`
-	WorkContainers       []*Container      `protobuf:"bytes,5,rep,name=workContainers,proto3" json:"workContainers,omitempty" bson:"workContainers"`
-	InitContainers       []*Container      `protobuf:"bytes,6,rep,name=initContainers,proto3" json:"initContainers,omitempty" bson:"initContainers"`
+	MainContainer        *K8SContainer     `protobuf:"bytes,4,opt,name=mainContainer,proto3" json:"mainContainer,omitempty" bson:"mainContainer"`
+	WorkContainers       []*K8SContainer   `protobuf:"bytes,5,rep,name=workContainers,proto3" json:"workContainers,omitempty" bson:"workContainers"`
+	InitContainers       []*K8SContainer   `protobuf:"bytes,6,rep,name=initContainers,proto3" json:"initContainers,omitempty" bson:"initContainers"`
 	ServiceMode          ServiceMode       `protobuf:"varint,7,opt,name=serviceMode,proto3,enum=models.ServiceMode" json:"serviceMode,omitempty" bson:"serviceMode"`
 	Datasets             map[string]string `protobuf:"bytes,8,rep,name=datasets,proto3" json:"datasets,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"datasets"`
+	ServiceTCPPorts      map[string]int32  `protobuf:"bytes,9,rep,name=serviceTCPPorts,proto3" json:"serviceTCPPorts,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3" bson:"serviceTCPPorts"`
+	ServiceUDPPorts      map[string]int32  `protobuf:"bytes,10,rep,name=serviceUDPPorts,proto3" json:"serviceUDPPorts,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3" bson:"serviceUDPPorts"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-" bson:"-"`
 	XXX_unrecognized     []byte            `json:"-" bson:"-"`
 	XXX_sizecache        int32             `json:"-" bson:"-"`
@@ -132,7 +267,7 @@ func (m *K8SApp) Reset()         { *m = K8SApp{} }
 func (m *K8SApp) String() string { return proto.CompactTextString(m) }
 func (*K8SApp) ProtoMessage()    {}
 func (*K8SApp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a052fcb2f97e11e6, []int{1}
+	return fileDescriptor_a052fcb2f97e11e6, []int{3}
 }
 func (m *K8SApp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -182,21 +317,21 @@ func (m *K8SApp) GetReplica() int32 {
 	return 0
 }
 
-func (m *K8SApp) GetMainContainer() *Container {
+func (m *K8SApp) GetMainContainer() *K8SContainer {
 	if m != nil {
 		return m.MainContainer
 	}
 	return nil
 }
 
-func (m *K8SApp) GetWorkContainers() []*Container {
+func (m *K8SApp) GetWorkContainers() []*K8SContainer {
 	if m != nil {
 		return m.WorkContainers
 	}
 	return nil
 }
 
-func (m *K8SApp) GetInitContainers() []*Container {
+func (m *K8SApp) GetInitContainers() []*K8SContainer {
 	if m != nil {
 		return m.InitContainers
 	}
@@ -217,6 +352,20 @@ func (m *K8SApp) GetDatasets() map[string]string {
 	return nil
 }
 
+func (m *K8SApp) GetServiceTCPPorts() map[string]int32 {
+	if m != nil {
+		return m.ServiceTCPPorts
+	}
+	return nil
+}
+
+func (m *K8SApp) GetServiceUDPPorts() map[string]int32 {
+	if m != nil {
+		return m.ServiceUDPPorts
+	}
+	return nil
+}
+
 type WorkflowResources struct {
 	Apps                 []*K8SApp `protobuf:"bytes,1,rep,name=apps,proto3" json:"apps,omitempty" bson:"apps"`
 	XXX_NoUnkeyedLiteral struct{}  `json:"-" bson:"-"`
@@ -228,7 +377,7 @@ func (m *WorkflowResources) Reset()         { *m = WorkflowResources{} }
 func (m *WorkflowResources) String() string { return proto.CompactTextString(m) }
 func (*WorkflowResources) ProtoMessage()    {}
 func (*WorkflowResources) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a052fcb2f97e11e6, []int{2}
+	return fileDescriptor_a052fcb2f97e11e6, []int{4}
 }
 func (m *WorkflowResources) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -266,10 +415,14 @@ func (m *WorkflowResources) GetApps() []*K8SApp {
 
 func init() {
 	proto.RegisterEnum("models.ServiceMode", ServiceMode_name, ServiceMode_value)
-	proto.RegisterType((*Container)(nil), "models.Container")
-	proto.RegisterMapType((map[string]string)(nil), "models.Container.EnvEntry")
+	proto.RegisterType((*K8SContainer)(nil), "models.K8sContainer")
+	proto.RegisterMapType((map[string]string)(nil), "models.K8sContainer.EnvEntry")
+	proto.RegisterType((*K8SPort)(nil), "models.K8sPort")
+	proto.RegisterType((*K8SService)(nil), "models.K8sService")
 	proto.RegisterType((*K8SApp)(nil), "models.K8sApp")
 	proto.RegisterMapType((map[string]string)(nil), "models.K8sApp.DatasetsEntry")
+	proto.RegisterMapType((map[string]int32)(nil), "models.K8sApp.ServiceTCPPortsEntry")
+	proto.RegisterMapType((map[string]int32)(nil), "models.K8sApp.ServiceUDPPortsEntry")
 	proto.RegisterType((*WorkflowResources)(nil), "models.WorkflowResources")
 }
 
@@ -278,39 +431,48 @@ func init() {
 }
 
 var fileDescriptor_a052fcb2f97e11e6 = []byte{
-	// 462 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x53, 0xcd, 0x6e, 0x13, 0x31,
-	0x10, 0xae, 0xb3, 0x69, 0x7e, 0x66, 0xd5, 0x28, 0x35, 0x08, 0x59, 0x51, 0x15, 0xad, 0x72, 0x5a,
-	0x01, 0xdd, 0x48, 0x41, 0xd0, 0x00, 0x27, 0x7e, 0x7a, 0x40, 0x08, 0x90, 0xcc, 0x81, 0xb3, 0xd9,
-	0x1d, 0x22, 0xd3, 0xac, 0xbd, 0xb2, 0xdd, 0x54, 0x7d, 0x13, 0x78, 0x0c, 0xde, 0x82, 0x23, 0x8f,
-	0x80, 0xc2, 0x8b, 0xa0, 0x5d, 0xef, 0xa6, 0x09, 0x84, 0x03, 0xb7, 0x99, 0xf9, 0xbe, 0x6f, 0x66,
-	0x3c, 0x33, 0x86, 0x7b, 0x4e, 0xea, 0xc2, 0x4e, 0x53, 0x9d, 0xe7, 0x5a, 0x4d, 0x73, 0x9d, 0xe1,
-	0xd2, 0x4e, 0xaf, 0xb4, 0xb9, 0xf8, 0xb4, 0xd4, 0x57, 0xa7, 0x06, 0xad, 0xbe, 0x34, 0x29, 0x26,
-	0x85, 0xd1, 0x4e, 0xd3, 0x8e, 0xc7, 0x47, 0xd1, 0x3e, 0x91, 0xf7, 0x3c, 0x73, 0x3f, 0xc3, 0x89,
-	0xc5, 0x02, 0x8d, 0x67, 0x4c, 0xbe, 0x12, 0xe8, 0xbf, 0xd0, 0xca, 0x09, 0xa9, 0xd0, 0xd0, 0xdb,
-	0x70, 0x28, 0x73, 0xb1, 0x40, 0x46, 0x22, 0x12, 0xf7, 0xb9, 0x77, 0xe8, 0x10, 0x82, 0x34, 0xcf,
-	0x58, 0x2b, 0x0a, 0xe2, 0x3e, 0x2f, 0x4d, 0x7a, 0x1f, 0x02, 0x54, 0x2b, 0x16, 0x44, 0x41, 0x1c,
-	0xce, 0x46, 0x89, 0x4f, 0x9c, 0x6c, 0xf2, 0x24, 0xe7, 0x6a, 0x75, 0xae, 0x9c, 0xb9, 0xe6, 0x25,
-	0x6d, 0xf4, 0x08, 0x7a, 0x4d, 0xa0, 0xcc, 0x75, 0x81, 0xd7, 0x75, 0xfe, 0xd2, 0x2c, 0x6b, 0xae,
-	0xc4, 0xf2, 0x12, 0x59, 0xcb, 0xd7, 0xac, 0x9c, 0x27, 0xad, 0x39, 0x99, 0x7c, 0x0b, 0xa0, 0xf3,
-	0x7a, 0x6e, 0x9f, 0x15, 0x05, 0xa5, 0xd0, 0x56, 0x22, 0x6f, 0xfa, 0xaa, 0x6c, 0x7a, 0x02, 0xfd,
-	0xc2, 0xe8, 0xcf, 0x98, 0xba, 0x57, 0x59, 0x2d, 0xbe, 0x09, 0x50, 0x06, 0x5d, 0x83, 0xc5, 0x52,
-	0xa6, 0x82, 0x05, 0x11, 0x89, 0x0f, 0x79, 0xe3, 0xd2, 0x33, 0x38, 0xca, 0x85, 0x54, 0x9b, 0x6e,
-	0x59, 0x3b, 0x22, 0x71, 0x38, 0x3b, 0xfe, 0xeb, 0x19, 0x7c, 0x97, 0x47, 0x1f, 0xc3, 0xa0, 0x5c,
-	0xc9, 0x26, 0x60, 0xd9, 0x61, 0x35, 0x80, 0x3d, 0xca, 0x3f, 0x88, 0xa5, 0x54, 0x2a, 0xe9, 0xb6,
-	0xa4, 0x9d, 0x7f, 0x4a, 0x77, 0x89, 0xf4, 0x21, 0x84, 0x16, 0xcd, 0x4a, 0xa6, 0xf8, 0x46, 0x67,
-	0xc8, 0xba, 0x11, 0x89, 0x07, 0xb3, 0x5b, 0x8d, 0xee, 0xfd, 0x0d, 0xc4, 0xb7, 0x79, 0x74, 0x0e,
-	0xbd, 0x4c, 0x38, 0x61, 0xd1, 0x59, 0xd6, 0xab, 0x6a, 0x9d, 0x34, 0x1a, 0x3f, 0xd3, 0xe4, 0x65,
-	0x0d, 0xfb, 0x4d, 0x6d, 0xd8, 0xa3, 0xa7, 0x70, 0xb4, 0x03, 0xfd, 0xd7, 0xce, 0xce, 0xe0, 0xf8,
-	0x43, 0x7d, 0xb6, 0xbc, 0xbe, 0x5a, 0x4b, 0x27, 0xd0, 0x16, 0x45, 0x61, 0x19, 0xa9, 0xfa, 0x18,
-	0xec, 0xf6, 0xc1, 0x2b, 0xec, 0xee, 0x29, 0x84, 0x5b, 0x6f, 0xa1, 0x3d, 0x68, 0xbf, 0xd5, 0x0a,
-	0x87, 0x07, 0xb4, 0x0b, 0xc1, 0x3b, 0x85, 0x43, 0x42, 0x43, 0xe8, 0x72, 0xbf, 0xc2, 0x61, 0xeb,
-	0x79, 0xfc, 0x7d, 0x3d, 0x26, 0x3f, 0xd6, 0x63, 0xf2, 0x73, 0x3d, 0x26, 0x5f, 0x7e, 0x8d, 0x0f,
-	0xe0, 0x8e, 0xd4, 0x49, 0x75, 0xee, 0x49, 0xfd, 0x05, 0x7c, 0x95, 0x8f, 0x9d, 0xea, 0xd0, 0x1f,
-	0xfc, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x81, 0xf9, 0xae, 0x0a, 0x63, 0x03, 0x00, 0x00,
+	// 599 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0xc7, 0xeb, 0x38, 0xce, 0xc7, 0x98, 0xb6, 0x61, 0x89, 0x90, 0x15, 0x95, 0xc8, 0x0a, 0x20,
+	0x45, 0xa0, 0x3a, 0x52, 0x10, 0x60, 0x15, 0x2e, 0xfd, 0x12, 0x42, 0x51, 0x21, 0x72, 0x40, 0x9c,
+	0x8d, 0xbd, 0x44, 0xa6, 0xf1, 0xae, 0xb5, 0xbb, 0x4d, 0xd5, 0x27, 0x81, 0x1b, 0xaf, 0xc3, 0x91,
+	0x47, 0xa8, 0xc2, 0x8b, 0x20, 0xef, 0xda, 0xa9, 0x1d, 0x59, 0x45, 0xbd, 0x79, 0x66, 0xfe, 0xf3,
+	0x9b, 0xd9, 0x99, 0xf5, 0xc2, 0x73, 0x11, 0xd1, 0x84, 0x8f, 0x02, 0x1a, 0xc7, 0x94, 0x8c, 0x62,
+	0x1a, 0xe2, 0x05, 0x1f, 0x5d, 0x52, 0x76, 0xfe, 0x6d, 0x41, 0x2f, 0xf7, 0x19, 0xe6, 0xf4, 0x82,
+	0x05, 0xd8, 0x49, 0x18, 0x15, 0x14, 0x35, 0x54, 0xbc, 0x67, 0x57, 0x25, 0x29, 0x4b, 0x29, 0xab,
+	0x15, 0xc2, 0x9f, 0xcf, 0x31, 0x53, 0x8a, 0xc1, 0x2f, 0x0d, 0xee, 0x4d, 0x5c, 0x7e, 0x4c, 0x89,
+	0xf0, 0x23, 0x82, 0x19, 0xea, 0x82, 0x11, 0xc5, 0xfe, 0x1c, 0x5b, 0x9a, 0xad, 0x0d, 0xdb, 0x9e,
+	0x32, 0x50, 0x07, 0xf4, 0x20, 0x0e, 0xad, 0x9a, 0xad, 0x0f, 0xdb, 0x5e, 0xfa, 0x89, 0x46, 0xa0,
+	0x63, 0xb2, 0xb4, 0x74, 0x5b, 0x1f, 0x9a, 0xe3, 0x47, 0x8e, 0x62, 0x3b, 0x45, 0x94, 0x73, 0x4a,
+	0x96, 0xa7, 0x44, 0xb0, 0x2b, 0x2f, 0x55, 0xf6, 0x5e, 0x41, 0x2b, 0x77, 0xa4, 0xb8, 0x73, 0x7c,
+	0x95, 0x95, 0x48, 0x3f, 0xd3, 0xb2, 0x4b, 0x7f, 0x71, 0x81, 0xad, 0x9a, 0x2a, 0x2b, 0x8d, 0x83,
+	0x9a, 0xab, 0x0d, 0x7e, 0x68, 0xd0, 0x9c, 0xb8, 0x7c, 0x4a, 0x99, 0x40, 0x08, 0xea, 0xc4, 0x8f,
+	0xf3, 0xde, 0xe4, 0x37, 0x7a, 0x02, 0xdb, 0x41, 0x5e, 0x32, 0x15, 0x49, 0x82, 0xe1, 0x95, 0x9d,
+	0xc8, 0x06, 0x93, 0x63, 0xb6, 0x8c, 0x02, 0x2c, 0x35, 0xba, 0xd4, 0x14, 0x5d, 0xa8, 0x07, 0x2d,
+	0x42, 0x43, 0x15, 0xae, 0xcb, 0xf0, 0xda, 0x4e, 0xbb, 0x93, 0xe3, 0xb2, 0x0c, 0xd5, 0x9d, 0x9a,
+	0xdd, 0x3b, 0x80, 0x89, 0xcb, 0x67, 0x8a, 0x51, 0xd9, 0xdb, 0x53, 0x30, 0x12, 0xca, 0x04, 0x97,
+	0x83, 0x33, 0xc7, 0xbb, 0x85, 0x31, 0xa5, 0x5c, 0x4f, 0x45, 0x07, 0xd7, 0x06, 0x34, 0x26, 0x2e,
+	0x3f, 0x4c, 0x92, 0x4a, 0xca, 0x1e, 0xb4, 0x13, 0x46, 0xbf, 0xe3, 0x40, 0xbc, 0x0f, 0xb3, 0xf9,
+	0xdc, 0x38, 0x90, 0x05, 0x4d, 0x86, 0x93, 0x45, 0x14, 0xf8, 0xd9, 0xa9, 0x72, 0x13, 0x1d, 0xc0,
+	0x76, 0xec, 0x47, 0x64, 0xbd, 0x10, 0x79, 0x2c, 0x73, 0xdc, 0xad, 0x5a, 0x96, 0x57, 0x96, 0xa2,
+	0xb7, 0xb0, 0x93, 0x5e, 0xbf, 0xb5, 0x83, 0x5b, 0x86, 0x3c, 0x42, 0x75, 0xf2, 0x86, 0x36, 0xcd,
+	0x8e, 0x48, 0x24, 0x0a, 0xd9, 0x8d, 0xdb, 0xb2, 0xcb, 0x5a, 0xf4, 0x72, 0xbd, 0xab, 0x33, 0x1a,
+	0x62, 0xab, 0x69, 0x6b, 0xc3, 0x9d, 0xf1, 0x83, 0x3c, 0x75, 0x76, 0x13, 0xf2, 0x8a, 0x3a, 0xe4,
+	0x42, 0x2b, 0xf4, 0x85, 0xcf, 0xb1, 0xe0, 0x56, 0x4b, 0x96, 0xdb, 0x2b, 0x94, 0x3b, 0x4c, 0x12,
+	0xe7, 0x24, 0x0b, 0xab, 0x5b, 0xb9, 0x56, 0xa3, 0x33, 0xd8, 0xcd, 0x40, 0x9f, 0x8e, 0xa7, 0x53,
+	0xb9, 0xb0, 0xb6, 0x04, 0x3c, 0xde, 0x00, 0xcc, 0xca, 0x2a, 0xc5, 0xd9, 0xcc, 0x2d, 0xe0, 0x3e,
+	0x9f, 0x64, 0x38, 0xb8, 0x0d, 0x97, 0xab, 0xca, 0xb8, 0xdc, 0xdb, 0x7b, 0x03, 0xdb, 0xa5, 0xc6,
+	0xef, 0xf2, 0xf7, 0xf4, 0x8e, 0xa0, 0x5b, 0xd5, 0xf4, 0xff, 0x18, 0x46, 0x35, 0xa3, 0xd4, 0xe9,
+	0x5d, 0x18, 0x83, 0xd7, 0x70, 0xff, 0x4b, 0xf6, 0x9c, 0x79, 0xd9, 0x6b, 0xc6, 0xd1, 0x00, 0xea,
+	0x7e, 0x92, 0x70, 0x4b, 0x93, 0xd3, 0xd9, 0x29, 0x4f, 0xc7, 0x93, 0xb1, 0x67, 0xfb, 0x60, 0x16,
+	0x36, 0x8e, 0x5a, 0x50, 0xff, 0x40, 0x09, 0xee, 0x6c, 0xa1, 0x26, 0xe8, 0x1f, 0x09, 0xee, 0x68,
+	0xc8, 0x84, 0xa6, 0xa7, 0x6e, 0x7c, 0xa7, 0x76, 0x34, 0xfc, 0xbd, 0xea, 0x6b, 0x7f, 0x56, 0x7d,
+	0xed, 0x7a, 0xd5, 0xd7, 0x7e, 0xfe, 0xed, 0x6f, 0xc1, 0xc3, 0x88, 0x3a, 0xf2, 0x19, 0x74, 0xb2,
+	0xa7, 0x51, 0x55, 0xf9, 0xda, 0x90, 0x3f, 0xf1, 0x8b, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x7f,
+	0xf8, 0x04, 0x99, 0x7b, 0x05, 0x00, 0x00,
 }
 
-func (m *Container) Marshal() (dAtA []byte, err error) {
+func (m *K8SContainer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -320,12 +482,12 @@ func (m *Container) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Container) MarshalTo(dAtA []byte) (int, error) {
+func (m *K8SContainer) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Container) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *K8SContainer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -372,6 +534,110 @@ func (m *Container) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *K8SPort) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *K8SPort) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *K8SPort) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Proto) > 0 {
+		i -= len(m.Proto)
+		copy(dAtA[i:], m.Proto)
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(len(m.Proto)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.NodePort != 0 {
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(m.NodePort))
+		i--
+		dAtA[i] = 0x20
+	}
+	if m.ServicePort != 0 {
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(m.ServicePort))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.ContainerPort != 0 {
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(m.ContainerPort))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *K8SService) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *K8SService) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *K8SService) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Ports) > 0 {
+		for iNdEx := len(m.Ports) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Ports[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintWorkflowResource(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *K8SApp) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -395,6 +661,40 @@ func (m *K8SApp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.XXX_unrecognized != nil {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.ServiceUDPPorts) > 0 {
+		for k := range m.ServiceUDPPorts {
+			v := m.ServiceUDPPorts[k]
+			baseI := i
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(v))
+			i--
+			dAtA[i] = 0x10
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x52
+		}
+	}
+	if len(m.ServiceTCPPorts) > 0 {
+		for k := range m.ServiceTCPPorts {
+			v := m.ServiceTCPPorts[k]
+			baseI := i
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(v))
+			i--
+			dAtA[i] = 0x10
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x4a
+		}
 	}
 	if len(m.Datasets) > 0 {
 		for k := range m.Datasets {
@@ -534,7 +834,7 @@ func encodeVarintWorkflowResource(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *Container) Size() (n int) {
+func (m *K8SContainer) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -556,6 +856,57 @@ func (m *Container) Size() (n int) {
 			_ = v
 			mapEntrySize := 1 + len(k) + sovWorkflowResource(uint64(len(k))) + 1 + len(v) + sovWorkflowResource(uint64(len(v)))
 			n += mapEntrySize + 1 + sovWorkflowResource(uint64(mapEntrySize))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *K8SPort) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovWorkflowResource(uint64(l))
+	}
+	if m.ContainerPort != 0 {
+		n += 1 + sovWorkflowResource(uint64(m.ContainerPort))
+	}
+	if m.ServicePort != 0 {
+		n += 1 + sovWorkflowResource(uint64(m.ServicePort))
+	}
+	if m.NodePort != 0 {
+		n += 1 + sovWorkflowResource(uint64(m.NodePort))
+	}
+	l = len(m.Proto)
+	if l > 0 {
+		n += 1 + l + sovWorkflowResource(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *K8SService) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovWorkflowResource(uint64(l))
+	}
+	if len(m.Ports) > 0 {
+		for _, e := range m.Ports {
+			l = e.Size()
+			n += 1 + l + sovWorkflowResource(uint64(l))
 		}
 	}
 	if m.XXX_unrecognized != nil {
@@ -608,6 +959,22 @@ func (m *K8SApp) Size() (n int) {
 			n += mapEntrySize + 1 + sovWorkflowResource(uint64(mapEntrySize))
 		}
 	}
+	if len(m.ServiceTCPPorts) > 0 {
+		for k, v := range m.ServiceTCPPorts {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovWorkflowResource(uint64(len(k))) + 1 + sovWorkflowResource(uint64(v))
+			n += mapEntrySize + 1 + sovWorkflowResource(uint64(mapEntrySize))
+		}
+	}
+	if len(m.ServiceUDPPorts) > 0 {
+		for k, v := range m.ServiceUDPPorts {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovWorkflowResource(uint64(len(k))) + 1 + sovWorkflowResource(uint64(v))
+			n += mapEntrySize + 1 + sovWorkflowResource(uint64(mapEntrySize))
+		}
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -638,7 +1005,7 @@ func sovWorkflowResource(x uint64) (n int) {
 func sozWorkflowResource(x uint64) (n int) {
 	return sovWorkflowResource(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *Container) Unmarshal(dAtA []byte) error {
+func (m *K8SContainer) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -661,10 +1028,10 @@ func (m *Container) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Container: wiretype end group for non-group")
+			return fmt.Errorf("proto: K8sContainer: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Container: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: K8sContainer: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -880,6 +1247,295 @@ func (m *Container) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *K8SPort) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowWorkflowResource
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: K8sPort: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: K8sPort: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContainerPort", wireType)
+			}
+			m.ContainerPort = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ContainerPort |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServicePort", wireType)
+			}
+			m.ServicePort = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ServicePort |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NodePort", wireType)
+			}
+			m.NodePort = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NodePort |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Proto", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Proto = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipWorkflowResource(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *K8SService) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowWorkflowResource
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: K8sService: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: K8sService: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ports", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ports = append(m.Ports, &K8SPort{})
+			if err := m.Ports[len(m.Ports)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipWorkflowResource(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *K8SApp) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1022,7 +1678,7 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.MainContainer == nil {
-				m.MainContainer = &Container{}
+				m.MainContainer = &K8SContainer{}
 			}
 			if err := m.MainContainer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1057,7 +1713,7 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.WorkContainers = append(m.WorkContainers, &Container{})
+			m.WorkContainers = append(m.WorkContainers, &K8SContainer{})
 			if err := m.WorkContainers[len(m.WorkContainers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1091,7 +1747,7 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.InitContainers = append(m.InitContainers, &Container{})
+			m.InitContainers = append(m.InitContainers, &K8SContainer{})
 			if err := m.InitContainers[len(m.InitContainers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1241,6 +1897,232 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.Datasets[mapkey] = mapvalue
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServiceTCPPorts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ServiceTCPPorts == nil {
+				m.ServiceTCPPorts = make(map[string]int32)
+			}
+			var mapkey string
+			var mapvalue int32
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowWorkflowResource
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowWorkflowResource
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthWorkflowResource
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthWorkflowResource
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowWorkflowResource
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapvalue |= int32(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipWorkflowResource(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthWorkflowResource
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.ServiceTCPPorts[mapkey] = mapvalue
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServiceUDPPorts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ServiceUDPPorts == nil {
+				m.ServiceUDPPorts = make(map[string]int32)
+			}
+			var mapkey string
+			var mapvalue int32
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowWorkflowResource
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowWorkflowResource
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthWorkflowResource
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthWorkflowResource
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowWorkflowResource
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapvalue |= int32(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipWorkflowResource(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthWorkflowResource
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.ServiceUDPPorts[mapkey] = mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
