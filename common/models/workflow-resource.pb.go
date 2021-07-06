@@ -50,14 +50,79 @@ func (ServiceMode) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_a052fcb2f97e11e6, []int{0}
 }
 
+type Container struct {
+	Image                string            `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty" bson:"image"`
+	Cmd                  []string          `protobuf:"bytes,2,rep,name=cmd,proto3" json:"cmd,omitempty" bson:"cmd"`
+	Env                  map[string]string `protobuf:"bytes,3,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"env"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-" bson:"-"`
+	XXX_unrecognized     []byte            `json:"-" bson:"-"`
+	XXX_sizecache        int32             `json:"-" bson:"-"`
+}
+
+func (m *Container) Reset()         { *m = Container{} }
+func (m *Container) String() string { return proto.CompactTextString(m) }
+func (*Container) ProtoMessage()    {}
+func (*Container) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a052fcb2f97e11e6, []int{0}
+}
+func (m *Container) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Container) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Container.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Container) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Container.Merge(m, src)
+}
+func (m *Container) XXX_Size() int {
+	return m.Size()
+}
+func (m *Container) XXX_DiscardUnknown() {
+	xxx_messageInfo_Container.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Container proto.InternalMessageInfo
+
+func (m *Container) GetImage() string {
+	if m != nil {
+		return m.Image
+	}
+	return ""
+}
+
+func (m *Container) GetCmd() []string {
+	if m != nil {
+		return m.Cmd
+	}
+	return nil
+}
+
+func (m *Container) GetEnv() map[string]string {
+	if m != nil {
+		return m.Env
+	}
+	return nil
+}
+
 type K8SApp struct {
-	Name                 string            `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
-	ProjectId            string            `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
-	Image                string            `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty" bson:"image"`
-	Replica              int32             `protobuf:"varint,4,opt,name=replica,proto3" json:"replica,omitempty" bson:"replica"`
-	ServiceMode          ServiceMode       `protobuf:"varint,5,opt,name=serviceMode,proto3,enum=models.ServiceMode" json:"serviceMode,omitempty" bson:"serviceMode"`
-	Env                  map[string]string `protobuf:"bytes,6,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"env"`
-	Datasets             map[string]string `protobuf:"bytes,7,rep,name=datasets,proto3" json:"datasets,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"datasets"`
+	Name      string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	ProjectId string `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
+	//  string image = 3;
+	Replica              int32             `protobuf:"varint,3,opt,name=replica,proto3" json:"replica,omitempty" bson:"replica"`
+	MainContainer        *Container        `protobuf:"bytes,4,opt,name=mainContainer,proto3" json:"mainContainer,omitempty" bson:"mainContainer"`
+	WorkContainers       []*Container      `protobuf:"bytes,5,rep,name=workContainers,proto3" json:"workContainers,omitempty" bson:"workContainers"`
+	InitContainers       []*Container      `protobuf:"bytes,6,rep,name=initContainers,proto3" json:"initContainers,omitempty" bson:"initContainers"`
+	ServiceMode          ServiceMode       `protobuf:"varint,7,opt,name=serviceMode,proto3,enum=models.ServiceMode" json:"serviceMode,omitempty" bson:"serviceMode"`
+	Datasets             map[string]string `protobuf:"bytes,8,rep,name=datasets,proto3" json:"datasets,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"datasets"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-" bson:"-"`
 	XXX_unrecognized     []byte            `json:"-" bson:"-"`
 	XXX_sizecache        int32             `json:"-" bson:"-"`
@@ -67,7 +132,7 @@ func (m *K8SApp) Reset()         { *m = K8SApp{} }
 func (m *K8SApp) String() string { return proto.CompactTextString(m) }
 func (*K8SApp) ProtoMessage()    {}
 func (*K8SApp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a052fcb2f97e11e6, []int{0}
+	return fileDescriptor_a052fcb2f97e11e6, []int{1}
 }
 func (m *K8SApp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -110,13 +175,6 @@ func (m *K8SApp) GetProjectId() string {
 	return ""
 }
 
-func (m *K8SApp) GetImage() string {
-	if m != nil {
-		return m.Image
-	}
-	return ""
-}
-
 func (m *K8SApp) GetReplica() int32 {
 	if m != nil {
 		return m.Replica
@@ -124,18 +182,32 @@ func (m *K8SApp) GetReplica() int32 {
 	return 0
 }
 
+func (m *K8SApp) GetMainContainer() *Container {
+	if m != nil {
+		return m.MainContainer
+	}
+	return nil
+}
+
+func (m *K8SApp) GetWorkContainers() []*Container {
+	if m != nil {
+		return m.WorkContainers
+	}
+	return nil
+}
+
+func (m *K8SApp) GetInitContainers() []*Container {
+	if m != nil {
+		return m.InitContainers
+	}
+	return nil
+}
+
 func (m *K8SApp) GetServiceMode() ServiceMode {
 	if m != nil {
 		return m.ServiceMode
 	}
 	return ServiceMode_None
-}
-
-func (m *K8SApp) GetEnv() map[string]string {
-	if m != nil {
-		return m.Env
-	}
-	return nil
 }
 
 func (m *K8SApp) GetDatasets() map[string]string {
@@ -156,7 +228,7 @@ func (m *WorkflowResources) Reset()         { *m = WorkflowResources{} }
 func (m *WorkflowResources) String() string { return proto.CompactTextString(m) }
 func (*WorkflowResources) ProtoMessage()    {}
 func (*WorkflowResources) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a052fcb2f97e11e6, []int{1}
+	return fileDescriptor_a052fcb2f97e11e6, []int{2}
 }
 func (m *WorkflowResources) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -194,9 +266,10 @@ func (m *WorkflowResources) GetApps() []*K8SApp {
 
 func init() {
 	proto.RegisterEnum("models.ServiceMode", ServiceMode_name, ServiceMode_value)
+	proto.RegisterType((*Container)(nil), "models.Container")
+	proto.RegisterMapType((map[string]string)(nil), "models.Container.EnvEntry")
 	proto.RegisterType((*K8SApp)(nil), "models.K8sApp")
 	proto.RegisterMapType((map[string]string)(nil), "models.K8sApp.DatasetsEntry")
-	proto.RegisterMapType((map[string]string)(nil), "models.K8sApp.EnvEntry")
 	proto.RegisterType((*WorkflowResources)(nil), "models.WorkflowResources")
 }
 
@@ -205,32 +278,98 @@ func init() {
 }
 
 var fileDescriptor_a052fcb2f97e11e6 = []byte{
-	// 392 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0xc1, 0x8e, 0xd3, 0x30,
-	0x10, 0x86, 0xd7, 0x49, 0x9a, 0x74, 0x27, 0x62, 0x15, 0x0c, 0x02, 0xab, 0x5a, 0x45, 0x51, 0x4f,
-	0x01, 0xb4, 0xa9, 0xb4, 0x08, 0xa8, 0xe0, 0x04, 0x62, 0x0f, 0x08, 0x01, 0x52, 0x38, 0x70, 0x36,
-	0xc9, 0x50, 0x85, 0x4d, 0x62, 0xcb, 0xce, 0xa6, 0xea, 0x9b, 0xf0, 0x48, 0x1c, 0x79, 0x04, 0x54,
-	0x1e, 0x83, 0x0b, 0xaa, 0x9d, 0xd2, 0x16, 0xf5, 0xc2, 0xcd, 0x93, 0xff, 0x1b, 0xe7, 0xf7, 0x3f,
-	0x03, 0x8f, 0xba, 0x4a, 0x48, 0x3d, 0x2b, 0x44, 0xd3, 0x88, 0x76, 0xd6, 0x88, 0x12, 0x6b, 0x3d,
-	0x5b, 0x0a, 0x75, 0xfd, 0xa5, 0x16, 0xcb, 0x0b, 0x85, 0x5a, 0xdc, 0xa8, 0x02, 0x33, 0xa9, 0x44,
-	0x27, 0xa8, 0x6f, 0xf5, 0x49, 0x72, 0xac, 0xc9, 0x56, 0x96, 0x3c, 0x4e, 0x74, 0x7c, 0xb1, 0x40,
-	0x65, 0x89, 0xe9, 0x6f, 0x07, 0xfc, 0xb7, 0x73, 0xfd, 0x52, 0x4a, 0x4a, 0xc1, 0x6b, 0x79, 0x83,
-	0x8c, 0x24, 0x24, 0x3d, 0xcd, 0xcd, 0x99, 0x9e, 0xc3, 0xa9, 0x54, 0xe2, 0x2b, 0x16, 0xdd, 0x9b,
-	0x92, 0x39, 0x46, 0xd8, 0x7d, 0xa0, 0x77, 0x61, 0x54, 0x35, 0x7c, 0x81, 0xcc, 0x35, 0x8a, 0x2d,
-	0x28, 0x83, 0x40, 0xa1, 0xac, 0xab, 0x82, 0x33, 0x2f, 0x21, 0xe9, 0x28, 0xdf, 0x96, 0xf4, 0x09,
-	0x84, 0x1a, 0x55, 0x5f, 0x15, 0xf8, 0x4e, 0x94, 0xc8, 0x46, 0x09, 0x49, 0xcf, 0x2e, 0xef, 0x64,
-	0xd6, 0x57, 0xf6, 0x71, 0x27, 0xe5, 0xfb, 0x1c, 0x7d, 0x00, 0x2e, 0xb6, 0x3d, 0xf3, 0x13, 0x37,
-	0x0d, 0x2f, 0xef, 0x6f, 0x71, 0xeb, 0x3a, 0xbb, 0x6a, 0xfb, 0xab, 0xb6, 0x53, 0xab, 0x7c, 0xc3,
-	0xd0, 0x39, 0x8c, 0x4b, 0xde, 0x71, 0x8d, 0x9d, 0x66, 0x81, 0xe1, 0xcf, 0xff, 0xe1, 0x5f, 0x0f,
-	0xb2, 0x6d, 0xfa, 0x4b, 0x4f, 0x9e, 0xc2, 0x78, 0x7b, 0x15, 0x8d, 0xc0, 0xbd, 0xc6, 0xd5, 0x10,
-	0xc4, 0xe6, 0xb8, 0x79, 0x69, 0xcf, 0xeb, 0x1b, 0x1c, 0x32, 0xb0, 0xc5, 0x73, 0x67, 0x4e, 0x26,
-	0x2f, 0xe0, 0xd6, 0xc1, 0x95, 0xff, 0xd3, 0x3c, 0x7d, 0x06, 0xb7, 0x3f, 0x0d, 0x43, 0xce, 0x87,
-	0x19, 0x6b, 0x3a, 0x05, 0x8f, 0x4b, 0xa9, 0x19, 0x31, 0xfe, 0xcf, 0x0e, 0xfd, 0xe7, 0x46, 0x7b,
-	0x78, 0x01, 0xe1, 0x5e, 0x5c, 0x74, 0x0c, 0xde, 0x7b, 0xd1, 0x62, 0x74, 0x42, 0x03, 0x70, 0x3f,
-	0xb4, 0x18, 0x11, 0x1a, 0x42, 0x90, 0xdb, 0xd8, 0x23, 0xe7, 0x55, 0xfa, 0x7d, 0x1d, 0x93, 0x1f,
-	0xeb, 0x98, 0xfc, 0x5c, 0xc7, 0xe4, 0xdb, 0xaf, 0xf8, 0x04, 0xee, 0x55, 0x22, 0x33, 0xcb, 0x91,
-	0x0d, 0x0b, 0x63, 0xff, 0xf2, 0xd9, 0x37, 0x6b, 0xf1, 0xf8, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0x15, 0x06, 0x97, 0x5c, 0x91, 0x02, 0x00, 0x00,
+	// 462 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x53, 0xcd, 0x6e, 0x13, 0x31,
+	0x10, 0xae, 0xb3, 0x69, 0x7e, 0x66, 0xd5, 0x28, 0x35, 0x08, 0x59, 0x51, 0x15, 0xad, 0x72, 0x5a,
+	0x01, 0xdd, 0x48, 0x41, 0xd0, 0x00, 0x27, 0x7e, 0x7a, 0x40, 0x08, 0x90, 0xcc, 0x81, 0xb3, 0xd9,
+	0x1d, 0x22, 0xd3, 0xac, 0xbd, 0xb2, 0xdd, 0x54, 0x7d, 0x13, 0x78, 0x0c, 0xde, 0x82, 0x23, 0x8f,
+	0x80, 0xc2, 0x8b, 0xa0, 0x5d, 0xef, 0xa6, 0x09, 0x84, 0x03, 0xb7, 0x99, 0xf9, 0xbe, 0x6f, 0x66,
+	0x3c, 0x33, 0x86, 0x7b, 0x4e, 0xea, 0xc2, 0x4e, 0x53, 0x9d, 0xe7, 0x5a, 0x4d, 0x73, 0x9d, 0xe1,
+	0xd2, 0x4e, 0xaf, 0xb4, 0xb9, 0xf8, 0xb4, 0xd4, 0x57, 0xa7, 0x06, 0xad, 0xbe, 0x34, 0x29, 0x26,
+	0x85, 0xd1, 0x4e, 0xd3, 0x8e, 0xc7, 0x47, 0xd1, 0x3e, 0x91, 0xf7, 0x3c, 0x73, 0x3f, 0xc3, 0x89,
+	0xc5, 0x02, 0x8d, 0x67, 0x4c, 0xbe, 0x12, 0xe8, 0xbf, 0xd0, 0xca, 0x09, 0xa9, 0xd0, 0xd0, 0xdb,
+	0x70, 0x28, 0x73, 0xb1, 0x40, 0x46, 0x22, 0x12, 0xf7, 0xb9, 0x77, 0xe8, 0x10, 0x82, 0x34, 0xcf,
+	0x58, 0x2b, 0x0a, 0xe2, 0x3e, 0x2f, 0x4d, 0x7a, 0x1f, 0x02, 0x54, 0x2b, 0x16, 0x44, 0x41, 0x1c,
+	0xce, 0x46, 0x89, 0x4f, 0x9c, 0x6c, 0xf2, 0x24, 0xe7, 0x6a, 0x75, 0xae, 0x9c, 0xb9, 0xe6, 0x25,
+	0x6d, 0xf4, 0x08, 0x7a, 0x4d, 0xa0, 0xcc, 0x75, 0x81, 0xd7, 0x75, 0xfe, 0xd2, 0x2c, 0x6b, 0xae,
+	0xc4, 0xf2, 0x12, 0x59, 0xcb, 0xd7, 0xac, 0x9c, 0x27, 0xad, 0x39, 0x99, 0x7c, 0x0b, 0xa0, 0xf3,
+	0x7a, 0x6e, 0x9f, 0x15, 0x05, 0xa5, 0xd0, 0x56, 0x22, 0x6f, 0xfa, 0xaa, 0x6c, 0x7a, 0x02, 0xfd,
+	0xc2, 0xe8, 0xcf, 0x98, 0xba, 0x57, 0x59, 0x2d, 0xbe, 0x09, 0x50, 0x06, 0x5d, 0x83, 0xc5, 0x52,
+	0xa6, 0x82, 0x05, 0x11, 0x89, 0x0f, 0x79, 0xe3, 0xd2, 0x33, 0x38, 0xca, 0x85, 0x54, 0x9b, 0x6e,
+	0x59, 0x3b, 0x22, 0x71, 0x38, 0x3b, 0xfe, 0xeb, 0x19, 0x7c, 0x97, 0x47, 0x1f, 0xc3, 0xa0, 0x5c,
+	0xc9, 0x26, 0x60, 0xd9, 0x61, 0x35, 0x80, 0x3d, 0xca, 0x3f, 0x88, 0xa5, 0x54, 0x2a, 0xe9, 0xb6,
+	0xa4, 0x9d, 0x7f, 0x4a, 0x77, 0x89, 0xf4, 0x21, 0x84, 0x16, 0xcd, 0x4a, 0xa6, 0xf8, 0x46, 0x67,
+	0xc8, 0xba, 0x11, 0x89, 0x07, 0xb3, 0x5b, 0x8d, 0xee, 0xfd, 0x0d, 0xc4, 0xb7, 0x79, 0x74, 0x0e,
+	0xbd, 0x4c, 0x38, 0x61, 0xd1, 0x59, 0xd6, 0xab, 0x6a, 0x9d, 0x34, 0x1a, 0x3f, 0xd3, 0xe4, 0x65,
+	0x0d, 0xfb, 0x4d, 0x6d, 0xd8, 0xa3, 0xa7, 0x70, 0xb4, 0x03, 0xfd, 0xd7, 0xce, 0xce, 0xe0, 0xf8,
+	0x43, 0x7d, 0xb6, 0xbc, 0xbe, 0x5a, 0x4b, 0x27, 0xd0, 0x16, 0x45, 0x61, 0x19, 0xa9, 0xfa, 0x18,
+	0xec, 0xf6, 0xc1, 0x2b, 0xec, 0xee, 0x29, 0x84, 0x5b, 0x6f, 0xa1, 0x3d, 0x68, 0xbf, 0xd5, 0x0a,
+	0x87, 0x07, 0xb4, 0x0b, 0xc1, 0x3b, 0x85, 0x43, 0x42, 0x43, 0xe8, 0x72, 0xbf, 0xc2, 0x61, 0xeb,
+	0x79, 0xfc, 0x7d, 0x3d, 0x26, 0x3f, 0xd6, 0x63, 0xf2, 0x73, 0x3d, 0x26, 0x5f, 0x7e, 0x8d, 0x0f,
+	0xe0, 0x8e, 0xd4, 0x49, 0x75, 0xee, 0x49, 0xfd, 0x05, 0x7c, 0x95, 0x8f, 0x9d, 0xea, 0xd0, 0x1f,
+	0xfc, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x81, 0xf9, 0xae, 0x0a, 0x63, 0x03, 0x00, 0x00,
+}
+
+func (m *Container) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Container) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Container) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Env) > 0 {
+		for k := range m.Env {
+			v := m.Env[k]
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(v)))
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Cmd) > 0 {
+		for iNdEx := len(m.Cmd) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Cmd[iNdEx])
+			copy(dAtA[i:], m.Cmd[iNdEx])
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(m.Cmd[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Image) > 0 {
+		i -= len(m.Image)
+		copy(dAtA[i:], m.Image)
+		i = encodeVarintWorkflowResource(dAtA, i, uint64(len(m.Image)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *K8SApp) Marshal() (dAtA []byte, err error) {
@@ -273,44 +412,58 @@ func (m *K8SApp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0xa
 			i = encodeVarintWorkflowResource(dAtA, i, uint64(baseI-i))
 			i--
-			dAtA[i] = 0x3a
-		}
-	}
-	if len(m.Env) > 0 {
-		for k := range m.Env {
-			v := m.Env[k]
-			baseI := i
-			i -= len(v)
-			copy(dAtA[i:], v)
-			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(v)))
-			i--
-			dAtA[i] = 0x12
-			i -= len(k)
-			copy(dAtA[i:], k)
-			i = encodeVarintWorkflowResource(dAtA, i, uint64(len(k)))
-			i--
-			dAtA[i] = 0xa
-			i = encodeVarintWorkflowResource(dAtA, i, uint64(baseI-i))
-			i--
-			dAtA[i] = 0x32
+			dAtA[i] = 0x42
 		}
 	}
 	if m.ServiceMode != 0 {
 		i = encodeVarintWorkflowResource(dAtA, i, uint64(m.ServiceMode))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x38
+	}
+	if len(m.InitContainers) > 0 {
+		for iNdEx := len(m.InitContainers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.InitContainers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintWorkflowResource(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x32
+		}
+	}
+	if len(m.WorkContainers) > 0 {
+		for iNdEx := len(m.WorkContainers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.WorkContainers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintWorkflowResource(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if m.MainContainer != nil {
+		{
+			size, err := m.MainContainer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintWorkflowResource(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
 	}
 	if m.Replica != 0 {
 		i = encodeVarintWorkflowResource(dAtA, i, uint64(m.Replica))
 		i--
-		dAtA[i] = 0x20
-	}
-	if len(m.Image) > 0 {
-		i -= len(m.Image)
-		copy(dAtA[i:], m.Image)
-		i = encodeVarintWorkflowResource(dAtA, i, uint64(len(m.Image)))
-		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x18
 	}
 	if len(m.ProjectId) > 0 {
 		i -= len(m.ProjectId)
@@ -381,6 +534,36 @@ func encodeVarintWorkflowResource(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *Container) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Image)
+	if l > 0 {
+		n += 1 + l + sovWorkflowResource(uint64(l))
+	}
+	if len(m.Cmd) > 0 {
+		for _, s := range m.Cmd {
+			l = len(s)
+			n += 1 + l + sovWorkflowResource(uint64(l))
+		}
+	}
+	if len(m.Env) > 0 {
+		for k, v := range m.Env {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovWorkflowResource(uint64(len(k))) + 1 + len(v) + sovWorkflowResource(uint64(len(v)))
+			n += mapEntrySize + 1 + sovWorkflowResource(uint64(mapEntrySize))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
 func (m *K8SApp) Size() (n int) {
 	if m == nil {
 		return 0
@@ -395,23 +578,27 @@ func (m *K8SApp) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovWorkflowResource(uint64(l))
 	}
-	l = len(m.Image)
-	if l > 0 {
-		n += 1 + l + sovWorkflowResource(uint64(l))
-	}
 	if m.Replica != 0 {
 		n += 1 + sovWorkflowResource(uint64(m.Replica))
 	}
+	if m.MainContainer != nil {
+		l = m.MainContainer.Size()
+		n += 1 + l + sovWorkflowResource(uint64(l))
+	}
+	if len(m.WorkContainers) > 0 {
+		for _, e := range m.WorkContainers {
+			l = e.Size()
+			n += 1 + l + sovWorkflowResource(uint64(l))
+		}
+	}
+	if len(m.InitContainers) > 0 {
+		for _, e := range m.InitContainers {
+			l = e.Size()
+			n += 1 + l + sovWorkflowResource(uint64(l))
+		}
+	}
 	if m.ServiceMode != 0 {
 		n += 1 + sovWorkflowResource(uint64(m.ServiceMode))
-	}
-	if len(m.Env) > 0 {
-		for k, v := range m.Env {
-			_ = k
-			_ = v
-			mapEntrySize := 1 + len(k) + sovWorkflowResource(uint64(len(k))) + 1 + len(v) + sovWorkflowResource(uint64(len(v)))
-			n += mapEntrySize + 1 + sovWorkflowResource(uint64(mapEntrySize))
-		}
 	}
 	if len(m.Datasets) > 0 {
 		for k, v := range m.Datasets {
@@ -451,7 +638,7 @@ func sovWorkflowResource(x uint64) (n int) {
 func sozWorkflowResource(x uint64) (n int) {
 	return sovWorkflowResource(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *K8SApp) Unmarshal(dAtA []byte) error {
+func (m *Container) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -474,77 +661,13 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: K8sApp: wiretype end group for non-group")
+			return fmt.Errorf("proto: Container: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: K8sApp: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Container: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowWorkflowResource
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthWorkflowResource
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthWorkflowResource
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Name = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ProjectId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowWorkflowResource
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthWorkflowResource
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthWorkflowResource
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ProjectId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Image", wireType)
 			}
@@ -576,11 +699,11 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 			}
 			m.Image = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Replica", wireType)
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Cmd", wireType)
 			}
-			m.Replica = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWorkflowResource
@@ -590,31 +713,25 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Replica |= int32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ServiceMode", wireType)
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowResource
 			}
-			m.ServiceMode = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowWorkflowResource
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.ServiceMode |= ServiceMode(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
 			}
-		case 6:
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Cmd = append(m.Cmd, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Env", wireType)
 			}
@@ -741,7 +858,264 @@ func (m *K8SApp) Unmarshal(dAtA []byte) error {
 			}
 			m.Env[mapkey] = mapvalue
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipWorkflowResource(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *K8SApp) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowWorkflowResource
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: K8sApp: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: K8sApp: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ProjectId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ProjectId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Replica", wireType)
+			}
+			m.Replica = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Replica |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MainContainer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MainContainer == nil {
+				m.MainContainer = &Container{}
+			}
+			if err := m.MainContainer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field WorkContainers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.WorkContainers = append(m.WorkContainers, &Container{})
+			if err := m.WorkContainers[len(m.WorkContainers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitContainers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWorkflowResource
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.InitContainers = append(m.InitContainers, &Container{})
+			if err := m.InitContainers[len(m.InitContainers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ServiceMode", wireType)
+			}
+			m.ServiceMode = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWorkflowResource
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ServiceMode |= ServiceMode(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Datasets", wireType)
 			}
