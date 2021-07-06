@@ -132,7 +132,11 @@ func (a *actionServer) runMainEngine() {
 	requiredResources := engine.RequiredResources(_workflow.Info())
 	_context.Info(requiredResources)
 	if requiredResources != nil {
-		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(&models.WorkflowExecution{WorkflowResource: requiredResources})
+		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(
+			&models.WorkflowExecution{
+				XId: tiopsConfigs.ExecutionID,
+				WorkflowResource: requiredResources,
+			})
 		_context.Error(err)
 	}
 	engine.WaitForResources(_workflow)
