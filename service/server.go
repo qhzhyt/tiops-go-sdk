@@ -109,6 +109,10 @@ func (a *actionServer) Register(name string, action Action) *actionServer {
 func (a *actionServer) RegisterFunction(name string, function ActionFunction) *actionServer {
 	return a.Register(name, function)
 }
+func (a *actionServer) RegisterEngine(name string, engine types.WorkflowEngine) *actionServer {
+	a.engines[name] = engine
+	return a
+}
 
 func (a *actionServer) init() {
 	for name, app := range a.actions {
@@ -127,7 +131,7 @@ func (a *actionServer) runMainEngine() {
 	engine.Init(_context)
 	requiredResources := engine.RequiredResources(_workflow.Info())
 	_context.Info(requiredResources)
-	if requiredResources != nil{
+	if requiredResources != nil {
 		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(&models.WorkflowExecution{WorkflowResource: requiredResources})
 		_context.Error(err)
 	}
@@ -185,6 +189,7 @@ func newActionServer() *actionServer {
 	myServer := &actionServer{
 		server:               s,
 		actions:              map[string]Action{},
+		engines:              map[string]types.WorkflowEngine{},
 		actionBoolMap:        map[string]bool{},
 		apiClient:            tiopsApiClient,
 		Logger:               remoteLogger,
@@ -228,5 +233,6 @@ func (a *actionServerCtl) Start() {
 }
 
 func (a *actionServerCtl) RegisterEngine(name string, engine types.WorkflowEngine) *actionServerCtl {
+	a.actionServer.RegisterEngine(name, engine)
 	return a
 }
