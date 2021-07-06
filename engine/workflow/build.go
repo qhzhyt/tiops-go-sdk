@@ -37,16 +37,9 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 
 	//wi.Spec.Nodes
 
-	wf := &types.Workflow{
-		ID:        wi.XId,
-		Name:      wi.Name,
-		Nodes:     map[string]*types.Node{},
-		Actions:   map[string]types.Action{},
-		Variables: map[string]types.Variable{},
-		ApiClient: client,
-		//Packages:  packages,
-		//Logger:    global.Logger,
-	}
+	wf := types.NewWorkflow(wi)
+
+	wf.ApiClient = client
 
 	actionInfos, err := loadActionInfos(wi.Spec.Nodes, client)
 

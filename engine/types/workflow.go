@@ -22,7 +22,7 @@ type Workflow struct {
 	//Packages   map[string]*Package
 	Logger    *logger.Logger
 	ApiClient *apiClient.APIClient
-	info *models.WorkflowInfo
+	info      *models.WorkflowInfo
 }
 
 func (w *Workflow) Info() *models.WorkflowInfo {
@@ -58,5 +58,16 @@ func (w *Workflow) RegisterActionNodes() bool {
 func (w *Workflow) Init() {
 	for _, node := range w.Nodes {
 		node.HasVarInputOnly = node.Inputs.HasVarOnly()
+	}
+}
+
+func NewWorkflow(info *models.WorkflowInfo) *Workflow {
+	return &Workflow{
+		ID:        info.XId,
+		Name:      info.Name,
+		Nodes:     map[string]*Node{},
+		Actions:   map[string]Action{},
+		Variables: map[string]Variable{},
+		info:      info,
 	}
 }
