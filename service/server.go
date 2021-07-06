@@ -196,6 +196,7 @@ func newActionServer() *actionServer {
 		actionNodeOptionsMap: map[string]ActionOptions{},
 		actionContextMap:     map[string]*ActionContext{},
 	}
+
 	myServer.projectInfo = &models.ProjectInfo{}
 	_ = utils.UnmarshalYAMLFile(myServer.projectInfo, tiopsConfigs.ManifestPath)
 	myServer.actionInfoMap = map[string]*models.ActionInfo{}
