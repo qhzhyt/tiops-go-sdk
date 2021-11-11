@@ -2,13 +2,14 @@ package types
 
 import (
 	"fmt"
+	"sync"
 	"time"
 	apiClient "tiops/common/api-client"
 	"tiops/common/logger"
 	"tiops/common/models"
 )
 
-const RegisterActionRetryTimes = 30
+const RegisterActionRetryTimes = 120
 
 // Workflow 工作流
 type Workflow struct {
@@ -36,21 +37,32 @@ func (w *Workflow) GetAction(aId string) Action {
 
 func (w *Workflow) RegisterActionNodes() bool {
 	result := true
+	wg := &sync.WaitGroup{}
 	for _, node := range w.Nodes {
-		retryTimes := 0
-		var err error
-		for retryTimes < RegisterActionRetryTimes {
-			if err = node.Action.Init(node); err != nil {
-				retryTimes++
-				time.Sleep(time.Second * 2)
-			} else {
-				break
+		wg.Add(1)
+		node0 := node
+
+		go func() {
+			defer wg.Done()
+			retryTimes := 0
+			var err error
+			for retryTimes < RegisterActionRetryTimes {
+				if err = node0.Action.Init(node0); err != nil {
+					retryTimes++
+					time.Sleep(time.Second * 2)
+				} else {
+					break
+				}
 			}
-		}
-		if retryTimes == RegisterActionRetryTimes {
-			w.Logger.Error(fmt.Sprintf("register node %s for action %s failed, %s", node.Info.Id, node.Info.ActionName, err))
-			result = false
-		}
+			if retryTimes == RegisterActionRetryTimes {
+				w.Logger.Error(fmt.Sprintf("register node %s for action %s failed, %s", node0.Info.Id, node0.Info.ActionName, err))
+				result = false
+			}
+		}()
+
+		wg.Wait()
+
+
 	}
 	return result
 }
@@ -65,9 +77,11 @@ func NewWorkflow(info *models.WorkflowInfo) *Workflow {
 	return &Workflow{
 		ID:        info.XId,
 		Name:      info.Name,
+		Logger:    logger.GetDefaultLogger(),
 		Nodes:     map[string]*Node{},
 		Actions:   map[string]Action{},
 		Variables: map[string]Variable{},
 		info:      info,
 	}
+	//sync.NewCond(&sync.Mutex{})
 }

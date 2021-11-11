@@ -30,7 +30,6 @@ func (m *ExecutionRecordManager) Start() {
 			for _, record := range processRecords {
 				if processRecordMap[record.NodeId] == nil {
 					record.DataIds = []string{record.RecordId}
-
 					processRecordMap[record.NodeId] = record
 				} else {
 					oldRecord := processRecordMap[record.NodeId]
@@ -48,16 +47,13 @@ func (m *ExecutionRecordManager) Start() {
 				if m.batchSizes[record.NodeId] < 1 {
 					m.batchSizes[record.NodeId] = record.ItemCount / record.BatchCount
 				}
-
 				record.BatchSize = m.batchSizes[record.NodeId]
-
 				record.RecordTime = utils.CurrentTimeStampMS()
 				_, err := m.AddProcessRecord(record)
 				if err != nil {
 					m.Error(err.Error())
 				}
 			}
-
 		}
 	}()
 }
