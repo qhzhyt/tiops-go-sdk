@@ -8,6 +8,10 @@ import (
 type CodeAction struct {
 	info     *models.ActionInfo
 	nodeInfo *models.WorkflowNodeInfo
+	code     string
+	lang     string
+	class    string
+	funcName string
 }
 
 func (c *CodeAction) Init(node *types.Node) error {
@@ -32,5 +36,11 @@ func (c *CodeAction) Copy() types.Action {
 
 func NewCodeAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
 
-	return &CodeAction{info: info, nodeInfo: nodeInfo}
+	action := &CodeAction{info: info, nodeInfo: nodeInfo}
+	action.code = info.Code
+	action.lang = info.Lang
+	action.class = info.Class
+	action.funcName = info.Func
+
+	return action
 }

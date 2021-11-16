@@ -268,7 +268,7 @@ var (
 	}
 )
 
-func ToServiceActionDataMap(id string, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
+func ToServiceActionDataMap(id string, traceId int32, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
 	result := ServiceActionDataMap{}
 	for _, output := range outputs {
 		count := len(source)
@@ -298,6 +298,7 @@ func ToServiceActionDataMap(id string, source ActionDataBatch, outputs []*models
 			Count:     int32(count),
 			Data:      items,
 			ValueType: output.Type,
+			TraceId: traceId,
 		}
 	}
 	return result

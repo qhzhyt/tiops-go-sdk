@@ -1,5 +1,9 @@
 package engines
 
+/*
+基于channel的简易流程引擎
+*/
+
 import (
 	"fmt"
 	"sync"

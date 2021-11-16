@@ -21,12 +21,16 @@ import (
 	"tiops/engine/workflow"
 )
 
+const (
+	ActionMessageTypePushData = iota
+)
+
 var _actionServer = newActionServer()
 
 type actionServer struct {
 	server               *grpc.Server
 	actionBoolMap        map[string]bool
-	actions              map[string]Action
+	actions              map[string]StrictAction
 	engines              map[string]types.WorkflowEngine
 	actionInfoMap        map[string]*models.ActionInfo
 	actionNodeOptionsMap map[string]ActionOptions
@@ -34,6 +38,32 @@ type actionServer struct {
 	projectInfo          *models.ProjectInfo
 	Logger               *logger.Logger
 	apiClient            *apiClient.APIClient
+}
+
+func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
+	for {
+		if actionMessage, err := server.Recv(); err == nil {
+			a.Logger.Println(actionMessage)
+			if actionMessage.Type == services.ActionMessageType_PushData {
+				actionName := actionMessage.Header["actionName"]
+				action := a.actions[actionName]
+				if action == nil {
+					a.Logger.Error(errors.New("action " + actionName + " not found"))
+				} else {
+					pushMessageContext := &PushMessageContext{
+						ActionContext: a.actionContextMap[actionName],
+						MessageHeader: actionMessage.Header,
+						MessageData:   actionMessage.Data,
+						NodeId: actionMessage.NodeId,
+					}
+					action.OnMessage(pushMessageContext)
+				}
+			}
+		} else {
+			a.Logger.Error(err)
+			return err
+		}
+	}
 }
 
 func (a *actionServer) GetRequiredResources(ctx context.Context, info *models.WorkflowInfo) (*models.WorkflowResources, error) {
@@ -46,15 +76,11 @@ func (a *actionServer) getActionOptions(nodeId string) ActionOptions {
 
 func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (*services.ActionResponse, error) {
 	actionName := request.ActionName
-
 	a.Logger.Info(inputLog(actionName, request.Inputs))
-
 	inputDataMap := TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
-
 	actionContext := a.actionContextMap[actionName]
 
 	var result ActionDataBatch
-
 	if a.actions[actionName] != nil {
 		result = a.actions[actionName].CallBatch(
 			&BatchRequestContext{
@@ -67,10 +93,10 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 		return nil, errors.New("action " + actionName + " not found")
 	}
 
-	outputs := ToServiceActionDataMap(request.Id, result, a.actionInfoMap[actionName].Outputs)
+	outputs := ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
 	a.Logger.Info(outputLog(actionName, outputs))
 
-	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionContext.HasDone()}, nil
+	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionContext.HasDone(), TraceId: request.TraceId}, nil
 }
 
 func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (*services.StatusResponse, error) {
@@ -85,6 +111,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 			ActionContext: a.actionContextMap[actionName],
 			NodeId:        request.NodeId,
 			ActionOptions: request.ActionOptions,
+			NextActions:   request.NextActions,
 		},
 		)
 		if err != nil {
@@ -102,13 +129,21 @@ type actionServerCtl struct {
 }
 
 func (a *actionServer) Register(name string, action Action) *actionServer {
-	a.actions[name] = action
+	//a.actions[name] = action
+
+	if action.(StrictAction) != nil {
+		a.actions[name] = action.(StrictAction)
+	} else {
+		a.actions[name] = newStrictAction(action)
+	}
+
 	return a
 }
 
 func (a *actionServer) RegisterFunction(name string, function ActionFunction) *actionServer {
 	return a.Register(name, function)
 }
+
 func (a *actionServer) RegisterEngine(name string, engine types.WorkflowEngine) *actionServer {
 	a.engines[name] = engine
 	return a
@@ -134,7 +169,7 @@ func (a *actionServer) runMainEngine() {
 	if requiredResources != nil {
 		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(
 			&models.WorkflowExecution{
-				XId: tiopsConfigs.ExecutionID,
+				XId:              tiopsConfigs.ExecutionID,
 				WorkflowResource: requiredResources,
 			})
 		_context.Error(err)
@@ -192,7 +227,7 @@ func newActionServer() *actionServer {
 
 	myServer := &actionServer{
 		server:               s,
-		actions:              map[string]Action{},
+		actions:              map[string]StrictAction{},
 		engines:              map[string]types.WorkflowEngine{},
 		actionBoolMap:        map[string]bool{},
 		apiClient:            tiopsApiClient,

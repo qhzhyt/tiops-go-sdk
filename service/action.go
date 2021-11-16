@@ -28,3 +28,4 @@ func (a ActionOptions) GetStringList(name string) []string {
 
 	return result
 }
+

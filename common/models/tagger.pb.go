@@ -6,7 +6,7 @@ package models
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	descriptor "github.com/golang/protobuf/protoc-gen-go/descriptor"
+	descriptorpb "google.golang.org/protobuf/types/descriptorpb"
 	math "math"
 )
 
@@ -22,7 +22,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 var E_Tags = &proto.ExtensionDesc{
-	ExtendedType:  (*descriptor.FieldOptions)(nil),
+	ExtendedType:  (*descriptorpb.FieldOptions)(nil),
 	ExtensionType: (*string)(nil),
 	Field:         847939,
 	Name:          "models.tags",
@@ -31,7 +31,7 @@ var E_Tags = &proto.ExtensionDesc{
 }
 
 var E_OneofTags = &proto.ExtensionDesc{
-	ExtendedType:  (*descriptor.OneofOptions)(nil),
+	ExtendedType:  (*descriptorpb.OneofOptions)(nil),
 	ExtensionType: (*string)(nil),
 	Field:         847939,
 	Name:          "models.oneof_tags",

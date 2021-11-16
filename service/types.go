@@ -37,6 +37,7 @@ type NodeRegisterContext struct {
 	*ActionContext
 	NodeId        string
 	ActionOptions ActionOptions
+	NextActions   []*services.NextActions
 }
 
 type ActionDataItem map[string]interface{}
@@ -63,10 +64,26 @@ type ActionItemFunc func(item ActionDataItem) ActionDataItem
 
 type Action ActionApplication
 
+type StrictAction interface {
+	Action
+	PushMessageProcess
+}
+
 type PieceProcess interface {
 	Call(ctx *RequestContext) ActionDataItem
 }
 
 type BatchProcess interface {
 	CallBatch(ctx *BatchRequestContext) ActionDataBatch
+}
+
+type PushMessageContext struct {
+	*ActionContext
+	NodeId        string
+	MessageHeader ActionOptions
+	MessageData   []byte
+}
+
+type PushMessageProcess interface {
+	OnMessage(ctx *PushMessageContext) error
 }

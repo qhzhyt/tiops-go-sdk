@@ -34,10 +34,27 @@ func (a *RemoteServiceAction) Copy() types.Action {
 
 func (a *RemoteServiceAction) Init(node *types.Node) error {
 	a.node = node
+	//node.Outputs
+	var allNextActions []*services.NextActions
+
+	for s, connections := range node.Outputs {
+		nextActions := &services.NextActions{OutputName: s, Actions: []*services.ServiceAndAction{}}
+		allNextActions = append(allNextActions, nextActions)
+		for _, connection := range connections {
+			targetNode := connection.TargetNode
+			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
+				Service: getServiceName(targetNode.Info),
+				Action:  targetNode.Info.ActionName,
+				NodeId: targetNode.ID,
+			})
+		}
+	}
+
 	_, err := a.client.RegisterActionNode(context.TODO(), &services.RegisterActionNodeRequest{
 		ActionName:    a.info.Name,
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
+		NextActions: allNextActions,
 	})
 	return err
 }
@@ -63,13 +80,23 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 
 var _actionClientMap = map[string]*actionClient.RemoteActionClient{}
 
-func NewRemoteServiceAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
-
-	serviceName := tiopsConfigs.ActionServiceName(info.ProjectId)
+func getServiceName(nodeInfo *models.WorkflowNodeInfo)  string{
+	serviceName := tiopsConfigs.ActionServiceName(nodeInfo.ProjectId)
 
 	if nodeInfo.StandAlone {
-		serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
+		serviceName = tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, nodeInfo.Id)
 	}
+
+	return serviceName
+}
+
+func NewRemoteServiceAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
+
+	serviceName := getServiceName(nodeInfo)
+
+	//if nodeInfo.StandAlone {
+	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
+	//}
 
 
 	if _actionClientMap[serviceName] == nil{

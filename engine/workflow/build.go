@@ -58,6 +58,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	for _, _variable := range spec.Variables {
 		wf.Variables[_variable.Name] = variable.New(_variable.Name, _variable.Type, _variable.ValueType, _variable.Value)
 	}
+
 	inputNode := &types.Node{ID: types.InputNodeId, Outputs: types.OutputConnectionsMap{}}
 	//packages := map[string]*Package{}
 	if spec.Inputs != nil && len(spec.Inputs) > 0 {
