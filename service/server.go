@@ -131,8 +131,8 @@ type actionServerCtl struct {
 func (a *actionServer) Register(name string, action Action) *actionServer {
 	//a.actions[name] = action
 
-	if action.(StrictAction) != nil {
-		a.actions[name] = action.(StrictAction)
+	if sa, ok := action.(StrictAction); ok {
+		a.actions[name] = sa
 	} else {
 		a.actions[name] = newStrictAction(action)
 	}

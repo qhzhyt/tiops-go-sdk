@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"fmt"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
@@ -24,6 +25,8 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	for name, _ := range actionNameSet {
 		actionIds = append(actionIds, name)
 	}
+	fmt.Println(actionIds)
+	fmt.Println(nodeInfos)
 	actionInfos, err := client.GetActionListByIds(actionIds)
 	result := map[string]*models.ActionInfo{}
 	for _, actionInfo := range actionInfos {
@@ -60,6 +63,8 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	wf.ApiClient = client
 
 	actionInfos, err := loadActionInfos(wi.Spec.Nodes, client)
+
+	fmt.Println(actionInfos)
 
 	if err != nil {
 		return nil, err
