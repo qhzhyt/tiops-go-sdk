@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"tiops/common/config"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/common/utils"
@@ -25,8 +26,38 @@ func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) {
 	workflow.RegisterActionNodes()
 }
 
-func (w *basicChanEngine) RequiredResources(workflowInfo *models.WorkflowInfo) *models.WorkflowResources {
-	return nil
+func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow) *models.WorkflowResources {
+
+	var apps []*models.K8SApp
+
+	nodes := workflowInfo.Nodes
+
+	processedProjects := map[string]bool{}
+
+	for _, node := range nodes {
+
+		serviceName := config.ActionServiceName(node.Info.ActionName)
+
+		app := &models.K8SApp{
+			Name:      serviceName,
+			ProjectId: node.Info.ProjectId,
+			MainContainer: &models.K8SContainer{
+			},
+			Replica:     1,
+			ServiceMode: models.ServiceMode_One,
+		}
+		if node.Info.StandAlone {
+			app.Name = config.StandAloneActionServiceName(node.Info.ActionName, node.ID)
+			apps = append(apps, app)
+		} else if !processedProjects[node.Info.ProjectId] {
+			apps = append(apps, app)
+			processedProjects[node.Info.ProjectId] = true
+		}
+
+	}
+	return &models.WorkflowResources{
+		Apps:                 apps,
+	}
 }
 
 func (w *basicChanEngine) Init(ctx *types.WorkflowContext) {

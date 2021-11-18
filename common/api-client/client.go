@@ -46,6 +46,16 @@ func (c *APIClient) GetActionListByIds(ids []string) ([]*models.ActionInfo, erro
 	return result.List, nil
 }
 
+func (c *APIClient) GetProjectListByIds(ids []string) ([]*models.ProjectInfo, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.GetProjectList(ctx, &services.QueryRequest{Ids: ids})
+	if err != nil {
+		return nil, err
+	}
+	return result.List, nil
+}
+
 func (c *APIClient) CreateOrUpdateWorkflowExecution(execution *models.WorkflowExecution) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()

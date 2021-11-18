@@ -163,9 +163,15 @@ func (a *actionServer) runMainEngine() {
 		_context.Error(err)
 		utils.SleepAndExit(time.Second*6, 3)
 	}
+
 	engine.Init(_context)
-	requiredResources := engine.RequiredResources(_workflow.Info())
+
+	requiredResources := engine.RequiredResources(_workflow)
+
+	requiredResources = workflow.ResourcesPreProcess(requiredResources, _workflow)
+
 	_context.Info(requiredResources)
+
 	if requiredResources != nil {
 		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(
 			&models.WorkflowExecution{
@@ -174,6 +180,7 @@ func (a *actionServer) runMainEngine() {
 			})
 		_context.Error(err)
 	}
+
 	engine.WaitForResources(_workflow)
 	//engine := engines.NewBasicChanEngine(context)
 	engine.Exec(_workflow)

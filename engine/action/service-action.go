@@ -11,9 +11,9 @@ import (
 )
 
 type RemoteServiceAction struct {
-	info   *models.ActionInfo
-	client *actionClient.RemoteActionClient
-	node   *types.Node
+	info     *models.ActionInfo
+	client   *actionClient.RemoteActionClient
+	node     *types.Node
 	nodeInfo *models.WorkflowNodeInfo
 }
 
@@ -25,14 +25,27 @@ const RemoteService = "RemoteService"
 
 func (a *RemoteServiceAction) Copy() types.Action {
 	return &RemoteServiceAction{
-		info:   a.info,
-		client: a.client,
-		node:   nil,
+		info:     a.info,
+		client:   a.client,
+		node:     nil,
 		nodeInfo: a.nodeInfo,
 	}
 }
 
 func (a *RemoteServiceAction) Init(node *types.Node) error {
+	// 初始化时再创建 action 客户端
+	serviceName := getServiceName(node.Info)
+
+	//if nodeInfo.StandAlone {
+	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
+	//}
+
+	if _actionClientMap[serviceName] == nil {
+		_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
+	}
+
+	a.client = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
+
 	a.node = node
 	//node.Outputs
 	var allNextActions []*services.NextActions
@@ -45,7 +58,7 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
 				Service: getServiceName(targetNode.Info),
 				Action:  targetNode.Info.ActionName,
-				NodeId: targetNode.ID,
+				NodeId:  targetNode.ID,
 			})
 		}
 	}
@@ -54,7 +67,7 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 		ActionName:    a.info.Name,
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
-		NextActions: allNextActions,
+		NextActions:   allNextActions,
 	})
 	return err
 }
@@ -80,7 +93,7 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 
 var _actionClientMap = map[string]*actionClient.RemoteActionClient{}
 
-func getServiceName(nodeInfo *models.WorkflowNodeInfo)  string{
+func getServiceName(nodeInfo *models.WorkflowNodeInfo) string {
 	serviceName := tiopsConfigs.ActionServiceName(nodeInfo.ProjectId)
 
 	if nodeInfo.StandAlone {
@@ -91,17 +104,5 @@ func getServiceName(nodeInfo *models.WorkflowNodeInfo)  string{
 }
 
 func NewRemoteServiceAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
-
-	serviceName := getServiceName(nodeInfo)
-
-	//if nodeInfo.StandAlone {
-	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
-	//}
-
-
-	if _actionClientMap[serviceName] == nil{
-		_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
-	}
-
-	return &RemoteServiceAction{info: info, client: _actionClientMap[serviceName], nodeInfo: nodeInfo}
+	return &RemoteServiceAction{info: info, nodeInfo: nodeInfo}
 }

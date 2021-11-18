@@ -32,6 +32,24 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	return result, err
 }
 
+func loadProjectInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.APIClient) (map[string]*models.ProjectInfo, error) {
+	//return w.Packages[pId].GetAction(aName)
+	projectNameSet := map[string]bool{}
+	for _, nodeInfo := range nodeInfos {
+		projectNameSet[nodeInfo.ProjectId] = true
+	}
+	projectIds := make([]string, 0, len(projectNameSet))
+	for name, _ := range projectNameSet {
+		projectIds = append(projectIds, name)
+	}
+	projectInfos, err := client.GetProjectListByIds(projectIds)
+	result := map[string]*models.ProjectInfo{}
+	for _, projectInfo := range projectInfos {
+		result[projectInfo.XId] = projectInfo
+	}
+	return result, err
+}
+
 // buildWorkflow 根据 models.WorkflowInfo 构建相应的 Workflow 对象
 func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types.Workflow, error) {
 
@@ -42,6 +60,12 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	wf.ApiClient = client
 
 	actionInfos, err := loadActionInfos(wi.Spec.Nodes, client)
+
+	if err != nil {
+		return nil, err
+	}
+
+	wf.Projects, err = loadProjectInfos(wi.Spec.Nodes, client)
 
 	if err != nil {
 		return nil, err
