@@ -1,8 +1,8 @@
 package action
 
 import (
-	"github.com/qhzhyt/tiops-go-sdk/common/models"
-	"github.com/qhzhyt/tiops-go-sdk/engine/types"
+	"tiops/common/models"
+	"tiops/engine/types"
 )
 
 type CodeAction struct {
