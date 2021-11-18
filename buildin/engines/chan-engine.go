@@ -36,7 +36,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow) *model
 
 	for _, node := range nodes {
 
-		serviceName := config.ActionServiceName(node.Info.ActionName)
+		serviceName := config.ActionServiceName(node.Info.ProjectId)
 
 		app := &models.K8SApp{
 			Name:      serviceName,

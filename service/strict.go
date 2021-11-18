@@ -23,6 +23,7 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData, outputs ServiceAc
 
 func (a *defaultStrictAction) Init(ctx *InitContext) {
 	a.action.Init(ctx)
+	a.nodeDataMap = map[string]*nodeData{}
 }
 
 func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
