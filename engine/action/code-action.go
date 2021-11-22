@@ -14,6 +14,10 @@ type CodeAction struct {
 	funcName string
 }
 
+func (c *CodeAction) Control(ctrl types.ActionControl, args map[string]string) error {
+	panic("implement me")
+}
+
 func (c *CodeAction) Init(node *types.Node) error {
 	panic("implement me")
 }
