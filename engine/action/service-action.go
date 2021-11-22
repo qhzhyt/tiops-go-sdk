@@ -31,7 +31,9 @@ func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]
 			NodeId:  a.node.ID,
 			Type:    services.ActionMessageType_StreamCmd,
 			Message: args["cmd"],
-			Header:  nil,
+			Header: map[string]string{
+				"actionName": a.info.GetName(),
+			},
 			Data:    nil,
 		})
 	}

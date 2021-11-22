@@ -46,7 +46,10 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 		if actionMessage, err := server.Recv(); err == nil {
 			fmt.Println(actionMessage)
 			a.Logger.Println(actionMessage)
-			if actionMessage.Type == services.ActionMessageType_PushData {
+			switch actionMessage.Type {
+
+			case services.ActionMessageType_PushData:
+
 				actionName := actionMessage.Header["actionName"]
 				action := a.actions[actionName]
 				if action == nil {
@@ -59,6 +62,23 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 						NodeId: actionMessage.NodeId,
 					}
 					action.OnMessage(pushMessageContext)
+				}
+			case services.ActionMessageType_StreamCmd:
+				actionName := actionMessage.Header["actionName"]
+				action := a.actions[actionName]
+				if actionMessage.Message == "start" {
+
+					if action == nil {
+						a.Logger.Error(errors.New("action " + actionName + " not found"))
+					} else {
+						pushMessageContext := &PushMessageContext{
+							ActionContext: a.actionContextMap[actionName],
+							MessageHeader: actionMessage.Header,
+							MessageData:   actionMessage.Data,
+							NodeId: actionMessage.NodeId,
+						}
+						action.OnMessage(pushMessageContext)
+					}
 				}
 			}
 		} else {
