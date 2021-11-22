@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	actionClient "github.com/qhzhyt/tiops-go-sdk/common/action-client"
 	"google.golang.org/protobuf/proto"
 	"tiops/common/services"
 )
@@ -10,6 +12,9 @@ type nodeData struct {
 	nextActions []*services.NextActions
 	messageCache map[int32]map[string]*services.ActionData
 	actionOptions ActionOptions
+	actionDataMapQueue chan ServiceActionDataMap
+	serviceClients map[string]*actionClient.RemoteActionClient
+	pushMessageClient map[string] services.ActionsService_PushMessageClient
 }
 
 type defaultStrictAction struct {
@@ -17,8 +22,46 @@ type defaultStrictAction struct {
 	nodeDataMap map[string]*nodeData
 }
 
-func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData, outputs ServiceActionDataMap)  {
+func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData)  {
+	for data := range nodeCache.actionDataMapQueue {
+		//for outputName, output := range data {
+		//
+		//}
 
+		for _, nextAction := range nodeCache.nextActions {
+			output := data[nextAction.OutputName]
+			outputData, _ := proto.Marshal(output)
+
+			for _, action := range nextAction.Actions {
+				if nodeCache.serviceClients[action.Service] == nil {
+					nodeCache.serviceClients[action.Service] = actionClient.NewRemoteActionClient(action.Service, 5555)
+
+					pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.TODO())
+
+					if err != nil {
+						panic(err)
+					}
+
+					nodeCache.pushMessageClient[action.Service] = pushClient
+				}
+
+				err := nodeCache.pushMessageClient[action.Service].Send(&services.ActionMessage{
+					NodeId:  action.NodeId,
+					Type:    0,
+					Message: action.Service,
+					Header: map[string]string{
+						"inputName": action.InputName,
+					},
+					Data: outputData,
+				})
+
+				if err != nil {
+					panic(err)
+				}
+			}
+
+		}
+	}
 }
 
 func (a *defaultStrictAction) Init(ctx *InitContext) {
@@ -26,13 +69,18 @@ func (a *defaultStrictAction) Init(ctx *InitContext) {
 	a.nodeDataMap = map[string]*nodeData{}
 }
 
+
+
 func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
-	a.nodeDataMap[ctx.NodeId] = &nodeData{
+	nd := &nodeData{
 		nodeId:      ctx.NodeId,
 		nextActions: ctx.NextActions,
 		messageCache: map[int32]map[string]*services.ActionData{},
 		actionOptions: ctx.ActionOptions,
+		actionDataMapQueue: make(chan ServiceActionDataMap),
 	}
+	a.nodeDataMap[ctx.NodeId] = nd
+	go a.sendOutputs(nd)
 	return a.action.RegisterNode(ctx)
 }
 
@@ -58,6 +106,9 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 	if nodeData0.messageCache[traceId] == nil {
 		nodeData0.messageCache[traceId] = map[string]*services.ActionData{}
+		//if nodeData0.serviceClients[nodeData0.nextActions] {
+		//
+		//}
 	}
 
 
@@ -79,7 +130,7 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 				ActionOptions: nodeData0.actionOptions,
 			})
 		outputs := ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionContext.Info.Outputs)
-		a.sendOutputs(nodeData0, outputs)
+		nodeData0.actionDataMapQueue <- outputs
 	}
 
 	return nil

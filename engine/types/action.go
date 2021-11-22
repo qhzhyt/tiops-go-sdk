@@ -13,6 +13,12 @@ const (
 	RemoteApplication
 )
 
+type ActionControl int
+const (
+	ActionControlInit ActionControl = iota
+	ActionControlStream
+)
+
 type ActionRequest struct {
 	ID     string
 	Inputs map[string]*services.ActionData
@@ -28,6 +34,7 @@ type Action interface {
 	Init(node *Node) error
 	Call(request *ActionRequest) (*ActionResponse, error)
 	Info() *models.ActionInfo
+	Control(ctrl ActionControl, args map[string]string) error
 	Type() ActionType
 	Copy() Action
 }

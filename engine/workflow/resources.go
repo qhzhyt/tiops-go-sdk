@@ -26,12 +26,12 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 		if projectConfig != nil {
 			if projectConfig.UseAllDatasetVolumes {
 				app.Volumes = map[string]string{
-					"datasets": "/datasets",
+					"tiops-datasets": "/datasets",
 				}
 			} else if projectConfig.UseVolume && len(projectConfig.DatasetVolumes) > 0{
 				app.Volumes = map[string]string{}
 				for _, volume := range projectConfig.DatasetVolumes {
-					app.Volumes[path.Join("datasets", volume.DatasetId)] = volume.MountPath
+					app.Volumes[path.Join("tiops-datasets", volume.DatasetId)] = volume.MountPath
 				}
 			}
 
@@ -44,11 +44,6 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 				}
 			}
 		}
-
-
-
-
 	}
-
 	return resources
 }

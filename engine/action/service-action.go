@@ -17,6 +17,24 @@ type RemoteServiceAction struct {
 	nodeInfo *models.WorkflowNodeInfo
 }
 
+func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]string) error {
+	switch ctrl {
+	case types.ActionControlStream:
+		p, err := a.client.PushMessage(context.TODO())
+		if err != nil {
+			return err
+		}
+		return p.Send(&services.ActionMessage{
+			NodeId:  a.node.ID,
+			Type:    services.ActionMessageType_StreamCmd,
+			Message: args["cmd"],
+			Header:  nil,
+			Data:    nil,
+		})
+	}
+	return nil
+}
+
 const RemoteService = "RemoteService"
 
 //func (a *RemoteServiceAction) Call(request *ActionRequest) (*ActionResponse, error) {
