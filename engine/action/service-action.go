@@ -20,7 +20,8 @@ type RemoteServiceAction struct {
 func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]string) error {
 	switch ctrl {
 	case types.ActionControlStream:
-		p, err := a.client.PushMessage(context.TODO())
+		ctx, _ := context.WithTimeout(context.Background(), time.Second * 60)
+		p, err := a.client.PushMessage(ctx)
 		if err != nil {
 			return err
 		}
