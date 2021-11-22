@@ -2,6 +2,7 @@ package action
 
 import (
 	"context"
+	"fmt"
 	"time"
 	actionClient "tiops/common/action-client"
 	tiopsConfigs "tiops/common/config"
@@ -25,6 +26,7 @@ func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]
 		if err != nil {
 			return err
 		}
+		fmt.Println(ctrl)
 		return p.Send(&services.ActionMessage{
 			NodeId:  a.node.ID,
 			Type:    services.ActionMessageType_StreamCmd,

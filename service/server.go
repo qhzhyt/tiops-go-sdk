@@ -42,8 +42,9 @@ type actionServer struct {
 
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
 	for {
-		a.Logger.Println(server)
+		fmt.Println(server)
 		if actionMessage, err := server.Recv(); err == nil {
+			fmt.Println(actionMessage)
 			a.Logger.Println(actionMessage)
 			if actionMessage.Type == services.ActionMessageType_PushData {
 				actionName := actionMessage.Header["actionName"]
