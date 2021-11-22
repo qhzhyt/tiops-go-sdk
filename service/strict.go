@@ -2,19 +2,19 @@ package service
 
 import (
 	"context"
-	actionClient "github.com/qhzhyt/tiops-go-sdk/common/action-client"
 	"google.golang.org/protobuf/proto"
+	actionClient "tiops/common/action-client"
 	"tiops/common/services"
 )
 
 type nodeData struct {
-	nodeId      string
-	nextActions []*services.NextActions
-	messageCache map[int32]map[string]*services.ActionData
-	actionOptions ActionOptions
+	nodeId             string
+	nextActions        []*services.NextActions
+	messageCache       map[int32]map[string]*services.ActionData
+	actionOptions      ActionOptions
 	actionDataMapQueue chan ServiceActionDataMap
-	serviceClients map[string]*actionClient.RemoteActionClient
-	pushMessageClient map[string] services.ActionsService_PushMessageClient
+	serviceClients     map[string]*actionClient.RemoteActionClient
+	pushMessageClient  map[string]services.ActionsService_PushMessageClient
 }
 
 type defaultStrictAction struct {
@@ -22,7 +22,7 @@ type defaultStrictAction struct {
 	nodeDataMap map[string]*nodeData
 }
 
-func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData)  {
+func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 	for data := range nodeCache.actionDataMapQueue {
 		//for outputName, output := range data {
 		//
@@ -69,14 +69,12 @@ func (a *defaultStrictAction) Init(ctx *InitContext) {
 	a.nodeDataMap = map[string]*nodeData{}
 }
 
-
-
 func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
 	nd := &nodeData{
-		nodeId:      ctx.NodeId,
-		nextActions: ctx.NextActions,
-		messageCache: map[int32]map[string]*services.ActionData{},
-		actionOptions: ctx.ActionOptions,
+		nodeId:             ctx.NodeId,
+		nextActions:        ctx.NextActions,
+		messageCache:       map[int32]map[string]*services.ActionData{},
+		actionOptions:      ctx.ActionOptions,
 		actionDataMapQueue: make(chan ServiceActionDataMap),
 	}
 	a.nodeDataMap[ctx.NodeId] = nd
@@ -111,14 +109,13 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 		//}
 	}
 
-
 	dataCache := nodeData0.messageCache[traceId]
 
-	if inputName != ""{
+	if inputName != "" {
 		dataCache[inputName] = actionData
 	}
 
-	if len(dataCache) >= len(ctx.InputNames){
+	if len(dataCache) >= len(ctx.InputNames) {
 		delete(nodeData0.messageCache, traceId)
 		inputDataMap := TransActionDataMap(dataCache, ctx.ActionContext.Info.Inputs)
 
