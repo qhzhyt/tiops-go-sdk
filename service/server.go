@@ -29,7 +29,6 @@ var _actionServer = newActionServer()
 
 type actionServer struct {
 	server               *grpc.Server
-	actionBoolMap        map[string]bool
 	actions              map[string]StrictAction
 	engines              map[string]types.WorkflowEngine
 	actionInfoMap        map[string]*models.ActionInfo
@@ -40,6 +39,19 @@ type actionServer struct {
 	apiClient            *apiClient.APIClient
 }
 
+func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
+	res := &services.ServiceStatus{ActionsStatus: map[string]*services.ActionStatus{}}
+	for name, action := range a.actions {
+		res.ActionsStatus[name] = action.Status()
+	}
+
+	return res, nil
+}
+
+func (a *actionServer) CallHttpAction(ctx context.Context, request *services.HttpRequest) (*services.HttpResponse, error) {
+	panic("implement me")
+}
+
 var NoMoreDataError = errors.New("no more data")
 
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
@@ -47,7 +59,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 		//fmt.Println(server)
 		if actionMessage, err := server.Recv(); err == nil {
 			//fmt.Println(actionMessage)
-			a.Logger.Info(actionMessage)
+			//a.Logger.Info(actionMessage)
 			switch actionMessage.Type {
 
 			case services.ActionMessageType_PushData:
@@ -61,7 +73,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 						ActionContext: a.actionContextMap[actionName],
 						MessageHeader: actionMessage.Header,
 						MessageData:   actionMessage.Data,
-						NodeId: actionMessage.NodeId,
+						NodeId:        actionMessage.NodeId,
 					}
 					action.OnMessage(pushMessageContext)
 				}
@@ -74,12 +86,12 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 						a.Logger.Error(errors.New("action " + actionName + " not found"))
 					} else {
 						go func() {
-							for  {
+							for {
 								pushMessageContext := &PushMessageContext{
 									ActionContext: a.actionContextMap[actionName],
 									MessageHeader: actionMessage.Header,
 									MessageData:   actionMessage.Data,
-									NodeId: actionMessage.NodeId,
+									NodeId:        actionMessage.NodeId,
 								}
 								err = action.OnMessage(pushMessageContext)
 								if err != nil {
@@ -168,11 +180,11 @@ type actionServerCtl struct {
 func (a *actionServer) Register(name string, action Action) *actionServer {
 	//a.actions[name] = action
 
-	if sa, ok := action.(StrictAction); ok {
-		a.actions[name] = sa
-	} else {
-		a.actions[name] = newStrictAction(action)
-	}
+	//if sa, ok := action.(StrictAction); ok {
+	//	a.actions[name] = sa
+	//} else {
+	a.actions[name] = newStrictAction(action)
+	//}
 
 	return a
 }
@@ -273,7 +285,6 @@ func newActionServer() *actionServer {
 		server:               s,
 		actions:              map[string]StrictAction{},
 		engines:              map[string]types.WorkflowEngine{},
-		actionBoolMap:        map[string]bool{},
 		apiClient:            tiopsApiClient,
 		Logger:               remoteLogger,
 		actionNodeOptionsMap: map[string]ActionOptions{},

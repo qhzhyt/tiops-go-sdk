@@ -23,6 +23,28 @@ type defaultStrictAction struct {
 	action      Action
 	nodeDataMap map[string]*nodeData
 	logger      *logger.Logger
+	done        bool
+	processedCount int64
+}
+
+func (a *defaultStrictAction) Status() *services.ActionStatus {
+	if sp, ok := a.action.(StatusProvider); ok {
+		return sp.Status()
+	}
+
+	count := 0
+
+	for _, nodeData0 := range a.nodeDataMap {
+		count += len(nodeData0.actionDataMapQueue) + len(nodeData0.messageCache)
+	}
+
+	res := &services.ActionStatus{
+		RestCount: int64(count),
+		ProcessedCount: a.processedCount,
+		Done: a.done,
+	}
+
+	return res
 }
 
 func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
@@ -33,7 +55,6 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 			outputData, _ := proto.Marshal(output)
 
 			for _, action := range nextAction.Actions {
-
 
 				creatClient := func() {
 					nodeCache.serviceClients[action.Service] = actionClient.NewRemoteActionClient(action.Service, 5555)
@@ -82,7 +103,12 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 }
 
 func (a *defaultStrictAction) Init(ctx *InitContext) {
-	a.action.Init(ctx)
+
+	if i, ok := a.action.(ActionInit); ok {
+		i.Init(ctx)
+	}
+
+	//a.action.Init(ctx)
 	a.nodeDataMap = map[string]*nodeData{}
 }
 
@@ -98,18 +124,36 @@ func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
 	}
 	a.nodeDataMap[ctx.NodeId] = nd
 	go a.sendOutputs(nd)
-	return a.action.RegisterNode(ctx)
+
+	if rn, ok := a.action.(RegisterNode); ok {
+		return rn.RegisterNode(ctx)
+	}
+
+	return nil
 }
 
 func (a *defaultStrictAction) Call(ctx *RequestContext) ActionDataItem {
+	a.processedCount++
 	return a.action.Call(ctx)
 }
 
 func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatch {
-	return a.action.CallBatch(ctx)
+	if ba, ok := a.action.(BatchAction); ok {
+		a.processedCount += int64(ctx.Inputs.Count())
+		return ba.CallBatch(ctx)
+	}
+	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions}
+	return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
+		requestContext.Input = item
+		return a.Call(requestContext)
+	})
 }
 
 func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
+
+	if pmp, ok := a.action.(PushMessageProcess); ok {
+		return pmp.OnMessage(ctx)
+	}
 
 	actionData := &services.ActionData{}
 
@@ -135,15 +179,21 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 		delete(nodeData0.messageCache, traceId)
 		inputDataMap := TransActionDataMap(dataCache, ctx.ActionContext.Info.Inputs)
 
-		result := a.CallBatch(
-			&BatchRequestContext{
-				ActionContext: ctx.ActionContext,
-				NodeId:        ctx.NodeId,
-				Inputs:        inputDataMap,
-				ActionOptions: nodeData0.actionOptions,
-			})
+		batchCtx := &BatchRequestContext{
+			ActionContext: ctx.ActionContext,
+			NodeId:        ctx.NodeId,
+			Inputs:        inputDataMap,
+			ActionOptions: nodeData0.actionOptions,
+		}
+
+		result := a.CallBatch(batchCtx)
+
 		outputs := ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionContext.Info.Outputs)
 		nodeData0.actionDataMapQueue <- outputs
+
+		if batchCtx.HasDone() {
+			a.done = true
+		}
 	}
 
 	return nil
@@ -151,5 +201,8 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 func newStrictAction(action Action) StrictAction {
 
-	return &defaultStrictAction{action: action, logger: logger.GetDefaultLogger()}
+	return &defaultStrictAction{
+		action: action,
+		logger: logger.GetDefaultLogger(),
+	}
 }

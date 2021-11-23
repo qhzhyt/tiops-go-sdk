@@ -53,20 +53,37 @@ type ServiceActionDataMap map[string]*services.ActionData
 
 //type
 
-type ActionApplication interface {
-	Init(ctx *InitContext)
+type RegisterNode interface {
 	RegisterNode(ctx *NodeRegisterContext) error
+}
+
+type ActionInit interface {
+	Init(ctx *InitContext)
+}
+
+type ActionApplication interface {
 	PieceProcess
-	BatchProcess
+}
+
+type StatusProvider interface {
+	Status() *services.ActionStatus
 }
 
 type ActionItemFunc func(item ActionDataItem) ActionDataItem
 
 type Action ActionApplication
 
-type StrictAction interface {
+type BatchAction interface {
 	Action
+	BatchProcess
+}
+
+type StrictAction interface {
+	BatchAction
+	ActionInit
 	PushMessageProcess
+	StatusProvider
+	RegisterNode
 }
 
 type PieceProcess interface {
