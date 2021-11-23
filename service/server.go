@@ -51,7 +51,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 			case services.ActionMessageType_PushData:
 				a.Logger.Info(actionMessage.Header)
 
-				actionName := actionMessage.Header["actionName"]
+				actionName := actionMessage.Message //actionMessage.Header["actionName"]
 				action := a.actions[actionName]
 				if action == nil {
 					a.Logger.Error(errors.New("action " + actionName + " not found"))
