@@ -81,8 +81,10 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 									MessageData:   actionMessage.Data,
 									NodeId: actionMessage.NodeId,
 								}
-								err := action.OnMessage(pushMessageContext)
-								a.Logger.Error(err)
+								err = action.OnMessage(pushMessageContext)
+								if err != nil {
+									a.Logger.Error(err)
+								}
 								if errors.Is(err, NoMoreDataError) {
 									break
 								}

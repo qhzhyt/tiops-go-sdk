@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"google.golang.org/protobuf/proto"
+	"time"
 	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
 	"tiops/common/logger"
@@ -44,7 +45,10 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 
 				a.logger.Info(action.Service)
 
-				pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.Background())
+				ctx, _ := context.WithTimeout(context.Background(), time.Second * 60)
+				//p, err := a.client.PushMessage(ctx)
+
+				pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(ctx)
 
 				if err != nil {
 					panic(err)
@@ -63,7 +67,7 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 				})
 
 				if err != nil {
-					a.logger.Error(action.Service)
+					a.logger.Error(err)
 				}
 			}
 
