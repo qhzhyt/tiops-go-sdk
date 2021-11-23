@@ -47,7 +47,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 		fmt.Println(server)
 		if actionMessage, err := server.Recv(); err == nil {
 			fmt.Println(actionMessage)
-			a.Logger.Println(actionMessage)
+			a.Logger.Info(actionMessage)
 			switch actionMessage.Type {
 
 			case services.ActionMessageType_PushData:
@@ -91,6 +91,8 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 						}()
 					}
 				}
+
+				return server.SendAndClose(&services.StatusResponse{Status: 1})
 			}
 		} else {
 			a.Logger.Error(err)
