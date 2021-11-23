@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"google.golang.org/protobuf/proto"
-	"time"
 	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
 	"tiops/common/logger"
@@ -28,47 +27,54 @@ type defaultStrictAction struct {
 
 func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 	for data := range nodeCache.actionDataMapQueue {
-		//for outputName, output := range data {
-		//
-		//}
 
 		for _, nextAction := range nodeCache.nextActions {
 			output := data[nextAction.OutputName]
 			outputData, _ := proto.Marshal(output)
 
 			for _, action := range nextAction.Actions {
-				if nodeCache.serviceClients[action.Service] == nil {
+
+
+				creatClient := func() {
 					nodeCache.serviceClients[action.Service] = actionClient.NewRemoteActionClient(action.Service, 5555)
+
+					pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.Background())
+
+					if err != nil {
+						a.logger.Error(err)
+					}
+
+					nodeCache.pushMessageClient[action.Service] = pushClient
 				}
 
-				//fmt.Println()
-
-				a.logger.Info(action.Service)
-
-				ctx, _ := context.WithTimeout(context.Background(), time.Second * 60)
-				//p, err := a.client.PushMessage(ctx)
-
-				pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(ctx)
-
-				if err != nil {
-					panic(err)
+				if nodeCache.serviceClients[action.Service] == nil {
+					creatClient()
 				}
 
-				nodeCache.pushMessageClient[action.Service] = pushClient
-
-				err = pushClient.Send(&services.ActionMessage{
-					NodeId:  action.NodeId,
-					Type:    0,
-					Message: action.Action,
-					Header: map[string]string{
-						"inputName": action.InputName,
-					},
-					Data: outputData,
-				})
-
-				if err != nil {
-					a.logger.Error(err)
+				send := func() error {
+					return nodeCache.pushMessageClient[action.Service].Send(&services.ActionMessage{
+						NodeId:  action.NodeId,
+						Type:    0,
+						Message: action.Action,
+						Header: map[string]string{
+							"inputName": action.InputName,
+						},
+						Data: outputData,
+					})
 				}
+
+				if nodeCache.pushMessageClient[action.Service] != nil {
+					if err := send(); err != nil {
+						a.logger.Error(err)
+						creatClient()
+						if nodeCache.pushMessageClient[action.Service] != nil {
+							if err := send(); err != nil {
+								a.logger.Error(err)
+							}
+						}
+					}
+				}
+
 			}
 
 		}
@@ -117,9 +123,6 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 	if nodeData0.messageCache[traceId] == nil {
 		nodeData0.messageCache[traceId] = map[string]*services.ActionData{}
-		//if nodeData0.serviceClients[nodeData0.nextActions] {
-		//
-		//}
 	}
 
 	dataCache := nodeData0.messageCache[traceId]
