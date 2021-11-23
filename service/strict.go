@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"github.com/qhzhyt/tiops-go-sdk/common/action-client"
 	"google.golang.org/protobuf/proto"
+	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
 	"tiops/common/services"
 )
@@ -77,7 +77,7 @@ func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
 		messageCache:       map[int32]map[string]*services.ActionData{},
 		actionOptions:      ctx.ActionOptions,
 		actionDataMapQueue: make(chan ServiceActionDataMap),
-		serviceClients: map[string]*action_client.RemoteActionClient{},
+		serviceClients:     map[string]*action_client.RemoteActionClient{},
 	}
 	a.nodeDataMap[ctx.NodeId] = nd
 	go a.sendOutputs(nd)
