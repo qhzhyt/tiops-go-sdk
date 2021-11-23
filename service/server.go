@@ -40,6 +40,8 @@ type actionServer struct {
 	apiClient            *apiClient.APIClient
 }
 
+var NoMoreDataError = errors.New("no more data")
+
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
 	for {
 		fmt.Println(server)
@@ -50,7 +52,6 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 
 			case services.ActionMessageType_PushData:
 				a.Logger.Info(actionMessage.Header)
-
 				actionName := actionMessage.Message //actionMessage.Header["actionName"]
 				action := a.actions[actionName]
 				if action == nil {
@@ -72,13 +73,22 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 					if action == nil {
 						a.Logger.Error(errors.New("action " + actionName + " not found"))
 					} else {
-						pushMessageContext := &PushMessageContext{
-							ActionContext: a.actionContextMap[actionName],
-							MessageHeader: actionMessage.Header,
-							MessageData:   actionMessage.Data,
-							NodeId: actionMessage.NodeId,
-						}
-						action.OnMessage(pushMessageContext)
+						go func() {
+							for  {
+								pushMessageContext := &PushMessageContext{
+									ActionContext: a.actionContextMap[actionName],
+									MessageHeader: actionMessage.Header,
+									MessageData:   actionMessage.Data,
+									NodeId: actionMessage.NodeId,
+								}
+								err := action.OnMessage(pushMessageContext)
+								a.Logger.Error(err)
+								if errors.Is(err, NoMoreDataError) {
+									break
+								}
+							}
+
+						}()
 					}
 				}
 			}
