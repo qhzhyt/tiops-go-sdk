@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"google.golang.org/protobuf/proto"
 	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
@@ -36,17 +37,20 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 			for _, action := range nextAction.Actions {
 				if nodeCache.serviceClients[action.Service] == nil {
 					nodeCache.serviceClients[action.Service] = actionClient.NewRemoteActionClient(action.Service, 5555)
-
-					pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.TODO())
-
-					if err != nil {
-						panic(err)
-					}
-
-					nodeCache.pushMessageClient[action.Service] = pushClient
 				}
 
-				err := nodeCache.pushMessageClient[action.Service].Send(&services.ActionMessage{
+
+				fmt.Println(action.Service)
+
+				pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.TODO())
+
+				if err != nil {
+					panic(err)
+				}
+
+				nodeCache.pushMessageClient[action.Service] = pushClient
+
+				err = pushClient.Send(&services.ActionMessage{
 					NodeId:  action.NodeId,
 					Type:    0,
 					Message: action.Action,
