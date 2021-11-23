@@ -22,7 +22,7 @@ func StandAloneActionServiceName(name string, nodeId string) string {
 	if len(nodeId) > 8 {
 		nodeId = nodeId[:8]
 	}
-	return fmt.Sprintf(WorkflowActionServerLabelBase, name+"-"+nodeId)
+	return CleanName(fmt.Sprintf(WorkflowActionServerLabelBase, name+"-"+nodeId))
 }
 
 func WorkflowActionServerImage(name string) string {
