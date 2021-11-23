@@ -78,10 +78,25 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 		allNextActions = append(allNextActions, nextActions)
 		for _, connection := range connections {
 			targetNode := connection.TargetNode
+
+			var inputName string
+
+			for in, inputConnections := range targetNode.Inputs {
+				for _, inputConnection := range inputConnections {
+					if inputConnection == connection {
+						inputName = in
+					}
+				}
+			}
+
+			fmt.Println(targetNode.Inputs)
+
+			
 			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
 				Service: getServiceName(targetNode.Info),
 				Action:  targetNode.Info.ActionName,
 				NodeId:  targetNode.ID,
+				InputName: inputName,
 			})
 		}
 	}
