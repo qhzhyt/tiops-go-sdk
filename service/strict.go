@@ -49,7 +49,7 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 				err := nodeCache.pushMessageClient[action.Service].Send(&services.ActionMessage{
 					NodeId:  action.NodeId,
 					Type:    0,
-					Message: action.Service,
+					Message: action.Action,
 					Header: map[string]string{
 						"inputName": action.InputName,
 					},
