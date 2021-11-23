@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"google.golang.org/protobuf/proto"
 	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
+	"tiops/common/logger"
 	"tiops/common/services"
 )
 
@@ -22,6 +22,7 @@ type nodeData struct {
 type defaultStrictAction struct {
 	action      Action
 	nodeDataMap map[string]*nodeData
+	logger      *logger.Logger
 }
 
 func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
@@ -39,10 +40,11 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 					nodeCache.serviceClients[action.Service] = actionClient.NewRemoteActionClient(action.Service, 5555)
 				}
 
+				//fmt.Println()
 
-				fmt.Println(action.Service)
+				a.logger.Info(action.Service)
 
-				pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.TODO())
+				pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.Background())
 
 				if err != nil {
 					panic(err)
@@ -61,7 +63,7 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 				})
 
 				if err != nil {
-					panic(err)
+					a.logger.Error(action.Service)
 				}
 			}
 
@@ -82,7 +84,7 @@ func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
 		actionOptions:      ctx.ActionOptions,
 		actionDataMapQueue: make(chan ServiceActionDataMap),
 		serviceClients:     map[string]*action_client.RemoteActionClient{},
-		pushMessageClient: map[string]services.ActionsService_PushMessageClient{},
+		pushMessageClient:  map[string]services.ActionsService_PushMessageClient{},
 	}
 	a.nodeDataMap[ctx.NodeId] = nd
 	go a.sendOutputs(nd)
@@ -142,5 +144,5 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 func newStrictAction(action Action) StrictAction {
 
-	return &defaultStrictAction{action: action}
+	return &defaultStrictAction{action: action, logger: logger.GetDefaultLogger()}
 }

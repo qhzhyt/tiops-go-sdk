@@ -44,9 +44,9 @@ var NoMoreDataError = errors.New("no more data")
 
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
 	for {
-		fmt.Println(server)
+		//fmt.Println(server)
 		if actionMessage, err := server.Recv(); err == nil {
-			fmt.Println(actionMessage)
+			//fmt.Println(actionMessage)
 			a.Logger.Info(actionMessage)
 			switch actionMessage.Type {
 
