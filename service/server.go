@@ -49,6 +49,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 			switch actionMessage.Type {
 
 			case services.ActionMessageType_PushData:
+				a.Logger.Info(actionMessage.Header)
 
 				actionName := actionMessage.Header["actionName"]
 				action := a.actions[actionName]
