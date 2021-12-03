@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"log"
 	"math"
@@ -63,7 +64,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 			switch actionMessage.Type {
 
 			case services.ActionMessageType_PushData:
-				a.Logger.Info(actionMessage.Header)
+				//a.Logger.Info(actionMessage.Header)
 				actionName := actionMessage.Message //actionMessage.Header["actionName"]
 				action := a.actions[actionName]
 				if action == nil {
@@ -85,12 +86,19 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 					if action == nil {
 						a.Logger.Error(errors.New("action " + actionName + " not found"))
 					} else {
+
+						actionData := &services.ActionData{}
 						go func() {
 							for {
+								id := utils.SnowflakeID()
+								idString := fmt.Sprintf("%x", id)
+								actionData.TraceId = id
+								actionData.Id = idString
+								messageData, _ := proto.Marshal(actionData)
 								pushMessageContext := &PushMessageContext{
 									ActionContext: a.actionContextMap[actionName],
 									MessageHeader: actionMessage.Header,
-									MessageData:   actionMessage.Data,
+									MessageData:   messageData,
 									NodeId:        actionMessage.NodeId,
 								}
 								err = action.OnMessage(pushMessageContext)
