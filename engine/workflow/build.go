@@ -137,27 +137,27 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		}
 	}
 
-	for _, nodeInfo := range spec.Nodes {
-		node := nodes[nodeInfo.Id]
-		toDelete := true
-		for _, input := range node.Inputs {
-			if len(input) > 0 {
-				toDelete = false
-				break
-			}
-		}
-		if toDelete {
-			for _, output := range node.Outputs {
-				if len(output) > 0 {
-					toDelete = false
-					break
-				}
-			}
-		}
-		if toDelete {
-			delete(nodes, nodeInfo.Id)
-		}
-	}
+	//for _, nodeInfo := range spec.Nodes {
+	//	node := nodes[nodeInfo.Id]
+	//	toDelete := true
+	//	for _, input := range node.Inputs {
+	//		if len(input) > 0 {
+	//			toDelete = false
+	//			break
+	//		}
+	//	}
+	//	if toDelete {
+	//		for _, output := range node.Outputs {
+	//			if len(output) > 0 {
+	//				toDelete = false
+	//				break
+	//			}
+	//		}
+	//	}
+	//	if toDelete {
+	//		delete(nodes, nodeInfo.Id)
+	//	}
+	//}
 
 	if spec.Outputs != nil && len(spec.Outputs) > 0 {
 		wf.OutputNode = &types.Node{ID: types.OutputNodeId, Inputs: types.InputConnectionsMap{}}
