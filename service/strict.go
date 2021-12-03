@@ -12,7 +12,7 @@ import (
 type nodeData struct {
 	nodeId             string
 	nextActions        []*services.NextActions
-	messageCache       map[int32]map[string]*services.ActionData
+	messageCache       map[int64]map[string]*services.ActionData
 	actionOptions      ActionOptions
 	actionDataMapQueue chan ServiceActionDataMap
 	serviceClients     map[string]*actionClient.RemoteActionClient
@@ -116,7 +116,7 @@ func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
 	nd := &nodeData{
 		nodeId:             ctx.NodeId,
 		nextActions:        ctx.NextActions,
-		messageCache:       map[int32]map[string]*services.ActionData{},
+		messageCache:       map[int64]map[string]*services.ActionData{},
 		actionOptions:      ctx.ActionOptions,
 		actionDataMapQueue: make(chan ServiceActionDataMap),
 		serviceClients:     map[string]*action_client.RemoteActionClient{},
