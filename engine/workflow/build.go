@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	models2 "github.com/qhzhyt/tiops-go-sdk/common/models"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
@@ -89,7 +88,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	}
 
 	inputNode := &types.Node{ID: types.InputNodeId, Outputs: types.OutputConnectionsMap{}, Info: &models.WorkflowNodeInfo{
-		Id: types.InputNodeId, ActionId: types.InputNodeId, ProjectId: types.InputNodeId, ActionName: types.InputNodeId, Inputs: map[string]*models2.WorkflowConnections{}, StandAlone: false,
+		Id: types.InputNodeId, ActionId: types.InputNodeId, ProjectId: types.InputNodeId, ActionName: types.InputNodeId, Inputs: map[string]*models.WorkflowConnections{}, StandAlone: false,
 	}}
 
 	//packages := map[string]*Package{}
@@ -164,8 +163,19 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	//}
 
 	if spec.Outputs != nil && len(spec.Outputs) > 0 {
-		wf.OutputNode = &types.Node{ID: types.OutputNodeId, Inputs: types.InputConnectionsMap{}}
+		outputNodeInfo := &models.WorkflowNodeInfo{
+			Id:         types.OutputNodeId,
+			ActionId:   types.OutputNodeId,
+			ProjectId:  types.OutputNodeId,
+			ActionName: types.OutputNodeId,
+			Inputs:     map[string]*models.WorkflowConnections{},
+		}
+
+		wf.OutputNode = &types.Node{ID: types.OutputNodeId, Inputs: types.InputConnectionsMap{}, Info: outputNodeInfo}
 		for _, input := range spec.Outputs {
+
+			outputNodeInfo.Inputs[input.Name] = input
+
 			for _, inputInfo := range input.InputInfos {
 				if inputInfo.NodeId == types.VariableNodeId {
 					connection := &types.Connection{TargetNode: wf.OutputNode, Variable: wf.Variables[inputInfo.OutputName]}
