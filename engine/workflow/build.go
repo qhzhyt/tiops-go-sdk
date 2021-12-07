@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	models2 "github.com/qhzhyt/tiops-go-sdk/common/models"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
@@ -87,7 +88,10 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		wf.Variables[_variable.Name] = variable.New(_variable.Name, _variable.Type, _variable.ValueType, _variable.Value)
 	}
 
-	inputNode := &types.Node{ID: types.InputNodeId, Outputs: types.OutputConnectionsMap{}}
+	inputNode := &types.Node{ID: types.InputNodeId, Outputs: types.OutputConnectionsMap{}, Info: &models.WorkflowNodeInfo{
+		Id: types.InputNodeId, ActionId: types.InputNodeId, ProjectId: types.InputNodeId, ActionName: types.InputNodeId, Inputs: map[string]*models2.WorkflowConnections{}, StandAlone: false,
+	}}
+
 	//packages := map[string]*Package{}
 	if spec.Inputs != nil && len(spec.Inputs) > 0 {
 		nodes[types.InputNodeId] = inputNode
