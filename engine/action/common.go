@@ -15,6 +15,7 @@ func New(actionInfo *models.ActionInfo, info *models.WorkflowNodeInfo) types.Act
 	case models.ActionType_EngineAction:
 		return NewRemoteServiceAction(actionInfo, info)
 	case models.ActionType_WorkflowAction:
+		return NewWorkflowAction(actionInfo, info)
 	default:
 
 	}
