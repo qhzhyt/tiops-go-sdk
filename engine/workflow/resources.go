@@ -42,6 +42,13 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 				app.MainContainer.ResourcesRequests = &models.ContainerResources{
 					Gpu:                  "1",
 				}
+			} else {
+				app.MainContainer.ResourcesLimits = &models.ContainerResources{
+					Gpu:                  "0",
+				}
+				app.MainContainer.ResourcesRequests = &models.ContainerResources{
+					Gpu:                  "0",
+				}
 			}
 		}
 	}
