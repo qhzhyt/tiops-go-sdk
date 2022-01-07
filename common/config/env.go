@@ -24,3 +24,4 @@ func init() {
 func InMainEngine() bool {
 	return inMainEngine != ""
 }
+
