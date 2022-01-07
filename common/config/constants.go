@@ -9,20 +9,20 @@ const (
 	WorkflowIdLabel               = "workflow-id"
 	ApiServerGrpcPort             = 5000
 	ApiServerHttpPort             = 8000
-	DefaultTiopsSystemNamespace       = "tiops-system"
+	DefaultTiopsSystemNamespace   = "tiops-system"
 	ActionServerPort              = 5555
 )
 
 const (
-	EnvNameLogId        = "LOG_ID"
-	EnvNameProjectId    = "PROJECT_ID"
-	EnvNameWorkflowId   = "WORKFLOW_ID"
-	EnvNameWorkflowType = "WORKFLOW_TYPE"
-	EnvNameExecutionId  = "EXECUTION_ID"
-	EnvNameAppType      = "APP_TYPE"
-	EnvNameLogLevel     = "LOG_LEVEL"
-	EnvNameEngineName   = "ENGINE_NAME"
-	EnvNameInMainEngine = "IN_MAIN_ENGINE"
+	EnvNameLogId                = "LOG_ID"
+	EnvNameProjectId            = "PROJECT_ID"
+	EnvNameWorkflowId           = "WORKFLOW_ID"
+	EnvNameWorkflowType         = "WORKFLOW_TYPE"
+	EnvNameExecutionId          = "EXECUTION_ID"
+	EnvNameAppType              = "APP_TYPE"
+	EnvNameLogLevel             = "LOG_LEVEL"
+	EnvNameEngineName           = "ENGINE_NAME"
+	EnvNameInMainEngine         = "IN_MAIN_ENGINE"
 	EnvNameTiopsSystemNamespace = "TIOPS_SYSTEM_NAMESPACE"
 )
 
@@ -34,4 +34,5 @@ const (
 const (
 	BuildinEngineImage = "tiops-buildin-projects/workflow-engines:latest"
 	DefaultEngineName  = "default"
+	MainWorkflowEngine = "main-workflow-engine"
 )

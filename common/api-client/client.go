@@ -26,6 +26,13 @@ func (c *APIClient) GetWorkflowById(id string) (*models.WorkflowInfo, error) {
 	return result, err
 }
 
+func (c *APIClient) GetActionById(id string) (*models.ActionInfo, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	result, err := c.APIServiceClient.GetActionById(ctx, &services.QueryRequest{Id: id})
+	return result, err
+}
+
 func (c *APIClient) GetWorkflowJobById(id string) *models.WorkflowJob {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
