@@ -103,11 +103,11 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	for _, nodeInfo := range spec.Nodes {
 		nodeInfos[nodeInfo.Id] = nodeInfo
 		node := &types.Node{
-			ID:      nodeInfo.Id,
-			Action:  wf.GetAction(nodeInfo.Id).Copy(),
-			Inputs:  types.InputConnectionsMap{},
-			Outputs: types.OutputConnectionsMap{},
-			Info:    nodeInfo,
+			ID:       nodeInfo.Id,
+			Action:   wf.GetAction(nodeInfo.Id).Copy(),
+			Inputs:   types.InputConnectionsMap{},
+			Outputs:  types.OutputConnectionsMap{},
+			Info:     nodeInfo,
 			SubNodes: map[string][]*types.Node{},
 		}
 		//fmt.Println(node)
@@ -141,7 +141,18 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 					node.Inputs[name] = append(node.Inputs[name], connection)
 				} else {
 					preNode := nodes[inputInfo.NodeId]
-					connection := &types.Connection{SourceNode: preNode, TargetNode: node, DataChan: make(chan *services.ActionData, 100000)}
+					connectionInfo := &types.ConnectionInfo{
+						OutputID:   preNode.ID,
+						OutputName: inputInfo.OutputName,
+						InputID:    node.ID,
+						InputName:  name,
+					}
+					connection := &types.Connection{
+						SourceNode: preNode,
+						TargetNode: node,
+						Info:       connectionInfo,
+						DataChan:   make(chan *services.ActionData, 100000),
+					}
 					node.Inputs[name] = append(node.Inputs[name], connection)
 					preNode.Outputs[inputInfo.OutputName] = append(preNode.Outputs[inputInfo.OutputName], connection)
 				}

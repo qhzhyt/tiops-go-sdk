@@ -7,11 +7,19 @@ import (
 	"tiops/common/services"
 )
 
+type ConnectionInfo struct {
+	OutputID   string
+	OutputName string
+	InputID    string
+	InputName  string
+}
+
 type Connection struct {
 	ID         string
 	Variable   Variable
 	SourceNode *Node
 	TargetNode *Node
+	Info       *ConnectionInfo
 	DataChan   chan *services.ActionData
 	hasDone    bool
 	rwLock     sync.RWMutex
@@ -22,7 +30,6 @@ type OutputConnections []*Connection
 
 type InputConnectionsMap map[string]InputConnections
 type OutputConnectionsMap map[string]OutputConnections
-
 
 func (ics InputConnections) VarCount() int {
 	count := 0
@@ -56,7 +63,6 @@ func (ics InputConnections) SelectInputOnce() (*services.ActionData, bool) {
 
 	//fmt.Println(ics)
 
-
 	for _, connection := range ics {
 		if connection.DataChan != nil {
 			if connection.HasDone() && len(connection.DataChan) < 1 {
@@ -89,7 +95,6 @@ func (ics InputConnections) SelectInput() (*services.ActionData, bool) {
 
 	//fmt.Println(ics)
 
-
 	for _, connection := range ics {
 		if connection.DataChan != nil {
 			if connection.HasDone() && len(connection.DataChan) < 1 {
@@ -108,7 +113,7 @@ func (ics InputConnections) SelectInput() (*services.ActionData, bool) {
 
 			if recv.Interface() == nil {
 				retryCount := 0
-				for data, _ := ics.SelectInputOnce(); data == nil || retryCount < 10; retryCount ++{
+				for data, _ := ics.SelectInputOnce(); data == nil || retryCount < 10; retryCount++ {
 					time.Sleep(100 * time.Millisecond)
 					data, _ = ics.SelectInput()
 				}
