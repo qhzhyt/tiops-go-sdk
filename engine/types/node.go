@@ -9,5 +9,6 @@ type Node struct {
 	Inputs          InputConnectionsMap
 	Outputs         OutputConnectionsMap
 	Info            *models.WorkflowNodeInfo
+	SubNodes        map[string][]*Node
 	HasVarInputOnly bool
 }

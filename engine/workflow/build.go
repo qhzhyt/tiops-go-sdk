@@ -108,6 +108,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 			Inputs:  types.InputConnectionsMap{},
 			Outputs: types.OutputConnectionsMap{},
 			Info:    nodeInfo,
+			SubNodes: map[string][]*types.Node{},
 		}
 		//fmt.Println(node)
 		if node.Action.Info().Inputs != nil {
@@ -124,6 +125,14 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	}
 	for _, nodeInfo := range spec.Nodes {
 		node := nodes[nodeInfo.Id]
+
+		for name, connections := range nodeInfo.SubActions {
+			node.SubNodes[name] = make([]*types.Node, len(connections.InputInfos))
+			for i, inputInfo := range connections.InputInfos {
+				node.SubNodes[name][i] = nodes[inputInfo.NodeId]
+			}
+		}
+
 		for name, input := range nodeInfo.Inputs {
 			for _, inputInfo := range input.InputInfos {
 				//inputInfo.NodeId
