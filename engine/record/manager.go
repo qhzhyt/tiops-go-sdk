@@ -11,10 +11,14 @@ type ExecutionRecordManager struct {
 	ExecutionRecordID string
 	updateInterval    time.Duration
 	ticker            *time.Ticker
-	*types.WorkflowContext
-	processRecords []*models.ProcessRecord
-	batchSizes     map[string]int32
+	//*types.WorkflowContext
+	processRecords    []*models.ProcessRecord
+	oldProcessRecords []*models.ProcessRecord
+	batchSizes        map[string]int32
+	countFactor       int
 }
+
+const maxRecordCount = 3600
 
 func (m *ExecutionRecordManager) Start() {
 	go func() {
@@ -49,24 +53,34 @@ func (m *ExecutionRecordManager) Start() {
 				}
 				record.BatchSize = m.batchSizes[record.NodeId]
 				record.RecordTime = utils.CurrentTimeStampMS()
-				_, err := m.AddProcessRecord(record)
+
+				m.oldProcessRecords = append(m.oldProcessRecords, record)
+
+				/*_, err := m.AddProcessRecord(record)
 				if err != nil {
 					m.Error(err.Error())
-				}
+				}*/
 			}
 		}
 	}()
 }
 
-func (m *ExecutionRecordManager) PushProcessRecord(record *models.ProcessRecord) {
+func (m *ExecutionRecordManager) Records() []*models.ProcessRecord {
+	result := m.oldProcessRecords
+	result = append(result, m.processRecords...)
+	return result
+}
+
+func (m *ExecutionRecordManager) AddProcessRecord(record *models.ProcessRecord) {
 	m.processRecords = append(m.processRecords, record)
 }
 
 func NewExecutionRecordManager(updateInterval time.Duration, ctx *types.WorkflowContext) *ExecutionRecordManager {
 	return &ExecutionRecordManager{
-		WorkflowContext: ctx,
-		updateInterval:  updateInterval,
-		ticker:          time.NewTicker(updateInterval),
-		batchSizes: map[string]int32{},
+		//WorkflowContext: ctx,
+		//updateInterval:  updateInterval,
+		//ticker:          time.NewTicker(updateInterval),
+		//batchSizes: map[string]int32{},
+		countFactor: 1,
 	}
 }

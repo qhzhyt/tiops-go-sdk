@@ -40,6 +40,10 @@ type actionServer struct {
 	apiClient            *apiClient.APIClient
 }
 
+func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services.EmptyRequest) (*models.ExecutionRecord, error) {
+	return a.getCurrentEngine().ExecutionRecord(), nil
+}
+
 func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
 	res := &services.ServiceStatus{ActionsStatus: map[string]*services.ActionStatus{}}
 	for name, action := range a.actions {
@@ -186,14 +190,7 @@ type actionServerCtl struct {
 }
 
 func (a *actionServer) Register(name string, action Action) *actionServer {
-	//a.actions[name] = action
-
-	//if sa, ok := action.(StrictAction); ok {
-	//	a.actions[name] = sa
-	//} else {
 	a.actions[name] = newStrictAction(action)
-	//}
-
 	return a
 }
 
@@ -253,21 +250,31 @@ func (a *actionServer) getCurrentEngine() types.WorkflowEngine {
 	return engines.NewBasicChanEngine()
 }
 
+func (a *actionServer) startServer() {
+	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	if err := a.server.Serve(sock); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+}
+
+func (a *actionServer) afterEngineExec() {
+	a.Logger.Info(a.getCurrentEngine().ExecutionRecord())
+}
+
 func (a *actionServer) Start() {
 	if tiopsConfigs.InMainEngine() {
 		//_workflow, err := workflow.Current()
 		//context := workflow.Context()
+		go a.startServer()
 		a.runMainEngine()
+		a.afterEngineExec()
 	} else {
 		a.init()
-		sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		if err := a.server.Serve(sock); err != nil {
-			log.Fatalf("failed to serve: %v", err)
-		}
+		a.startServer()
 	}
 }
 

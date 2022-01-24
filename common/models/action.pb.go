@@ -436,42 +436,177 @@ func (m *ActionSelector) GetExcludeNames() []string {
 	return nil
 }
 
+type StatusViewConfig struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	Label                string   `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty" bson:"label"`
+	Type                 string   `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty" bson:"type"`
+	Template             string   `protobuf:"bytes,4,opt,name=template,proto3" json:"template,omitempty" bson:"template"`
+	UpdateFunc           string   `protobuf:"bytes,5,opt,name=updateFunc,proto3" json:"updateFunc,omitempty" bson:"updateFunc"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" bson:"-"`
+	XXX_unrecognized     []byte   `json:"-" bson:"-"`
+	XXX_sizecache        int32    `json:"-" bson:"-"`
+}
+
+func (m *StatusViewConfig) Reset()         { *m = StatusViewConfig{} }
+func (m *StatusViewConfig) String() string { return proto.CompactTextString(m) }
+func (*StatusViewConfig) ProtoMessage()    {}
+func (*StatusViewConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3e156f56ecac6ad0, []int{5}
+}
+func (m *StatusViewConfig) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *StatusViewConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_StatusViewConfig.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *StatusViewConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StatusViewConfig.Merge(m, src)
+}
+func (m *StatusViewConfig) XXX_Size() int {
+	return m.Size()
+}
+func (m *StatusViewConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_StatusViewConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StatusViewConfig proto.InternalMessageInfo
+
+func (m *StatusViewConfig) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *StatusViewConfig) GetLabel() string {
+	if m != nil {
+		return m.Label
+	}
+	return ""
+}
+
+func (m *StatusViewConfig) GetType() string {
+	if m != nil {
+		return m.Type
+	}
+	return ""
+}
+
+func (m *StatusViewConfig) GetTemplate() string {
+	if m != nil {
+		return m.Template
+	}
+	return ""
+}
+
+func (m *StatusViewConfig) GetUpdateFunc() string {
+	if m != nil {
+		return m.UpdateFunc
+	}
+	return ""
+}
+
+type ActionDisplayConfig struct {
+	NodeContentTemplate  string              `protobuf:"bytes,1,opt,name=nodeContentTemplate,proto3" json:"nodeContentTemplate,omitempty" bson:"nodeContentTemplate"`
+	StatusViewConfigs    []*StatusViewConfig `protobuf:"bytes,2,rep,name=statusViewConfigs,proto3" json:"statusViewConfigs,omitempty" bson:"statusViewConfigs"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-" bson:"-"`
+	XXX_unrecognized     []byte              `json:"-" bson:"-"`
+	XXX_sizecache        int32               `json:"-" bson:"-"`
+}
+
+func (m *ActionDisplayConfig) Reset()         { *m = ActionDisplayConfig{} }
+func (m *ActionDisplayConfig) String() string { return proto.CompactTextString(m) }
+func (*ActionDisplayConfig) ProtoMessage()    {}
+func (*ActionDisplayConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3e156f56ecac6ad0, []int{6}
+}
+func (m *ActionDisplayConfig) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ActionDisplayConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ActionDisplayConfig.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ActionDisplayConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ActionDisplayConfig.Merge(m, src)
+}
+func (m *ActionDisplayConfig) XXX_Size() int {
+	return m.Size()
+}
+func (m *ActionDisplayConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_ActionDisplayConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ActionDisplayConfig proto.InternalMessageInfo
+
+func (m *ActionDisplayConfig) GetNodeContentTemplate() string {
+	if m != nil {
+		return m.NodeContentTemplate
+	}
+	return ""
+}
+
+func (m *ActionDisplayConfig) GetStatusViewConfigs() []*StatusViewConfig {
+	if m != nil {
+		return m.StatusViewConfigs
+	}
+	return nil
+}
+
 type ActionInfo struct {
-	XId                  string            `protobuf:"bytes,1,opt,name=_id,json=Id,proto3" json:"_id,omitempty" bson:"_id"`
-	ProjectId            string            `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
-	Type                 ActionType        `protobuf:"varint,3,opt,name=type,proto3,enum=models.ActionType" json:"type,omitempty" bson:"type"`
-	Name                 string            `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
-	Description          string            `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty" bson:"description"`
-	Path                 string            `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty" bson:"path"`
-	Func                 string            `protobuf:"bytes,7,opt,name=func,proto3" json:"func,omitempty" bson:"func"`
-	BatchFunc            string            `protobuf:"bytes,8,opt,name=batchFunc,proto3" json:"batchFunc,omitempty" bson:"batchFunc"`
-	Class                string            `protobuf:"bytes,9,opt,name=class,proto3" json:"class,omitempty" bson:"class"`
-	Inputs               []*Parameter      `protobuf:"bytes,10,rep,name=inputs,proto3" json:"inputs,omitempty" bson:"inputs"`
-	Outputs              []*Parameter      `protobuf:"bytes,11,rep,name=outputs,proto3" json:"outputs,omitempty" bson:"outputs"`
-	SubActions           []*SubAction      `protobuf:"bytes,12,rep,name=subActions,proto3" json:"subActions,omitempty" bson:"subActions"`
-	Options              []*ActionOption   `protobuf:"bytes,13,rep,name=options,proto3" json:"options,omitempty" bson:"options"`
-	TestCases            []*TestCase       `protobuf:"bytes,14,rep,name=testCases,proto3" json:"testCases,omitempty" bson:"testCases"`
-	Lang                 string            `protobuf:"bytes,15,opt,name=lang,proto3" json:"lang,omitempty" bson:"lang"`
-	Code                 string            `protobuf:"bytes,16,opt,name=code,proto3" json:"code,omitempty" bson:"code"`
-	IsPublic             bool              `protobuf:"varint,17,opt,name=isPublic,proto3" json:"isPublic,omitempty" bson:"isPublic"`
-	Tags                 []string          `protobuf:"bytes,18,rep,name=tags,proto3" json:"tags,omitempty" bson:"tags"`
-	Readme               string            `protobuf:"bytes,19,opt,name=readme,proto3" json:"readme,omitempty" bson:"readme"`
-	Extra                map[string]string `protobuf:"bytes,20,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"extra"`
-	Icon                 string            `protobuf:"bytes,21,opt,name=icon,proto3" json:"icon,omitempty" bson:"icon"`
-	ActionSelector       *ActionSelector   `protobuf:"bytes,22,opt,name=actionSelector,proto3" json:"actionSelector,omitempty" bson:"actionSelector"`
-	CreatedBy            string            `protobuf:"bytes,23,opt,name=createdBy,proto3" json:"createdBy,omitempty" bson:"createdBy"`
-	CreatedTime          int64             `protobuf:"varint,24,opt,name=createdTime,proto3" json:"createdTime,omitempty" bson:"createdTime"`
-	UpdatedTime          int64             `protobuf:"varint,25,opt,name=updatedTime,proto3" json:"updatedTime,omitempty" bson:"updatedTime"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-" bson:"-"`
-	XXX_unrecognized     []byte            `json:"-" bson:"-"`
-	XXX_sizecache        int32             `json:"-" bson:"-"`
+	XId                  string               `protobuf:"bytes,1,opt,name=_id,json=Id,proto3" json:"_id,omitempty" bson:"_id"`
+	ProjectId            string               `protobuf:"bytes,2,opt,name=projectId,proto3" json:"projectId,omitempty" bson:"projectId"`
+	Type                 ActionType           `protobuf:"varint,3,opt,name=type,proto3,enum=models.ActionType" json:"type,omitempty" bson:"type"`
+	Name                 string               `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	Description          string               `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty" bson:"description"`
+	Path                 string               `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty" bson:"path"`
+	Func                 string               `protobuf:"bytes,7,opt,name=func,proto3" json:"func,omitempty" bson:"func"`
+	BatchFunc            string               `protobuf:"bytes,8,opt,name=batchFunc,proto3" json:"batchFunc,omitempty" bson:"batchFunc"`
+	Class                string               `protobuf:"bytes,9,opt,name=class,proto3" json:"class,omitempty" bson:"class"`
+	Inputs               []*Parameter         `protobuf:"bytes,10,rep,name=inputs,proto3" json:"inputs,omitempty" bson:"inputs"`
+	Outputs              []*Parameter         `protobuf:"bytes,11,rep,name=outputs,proto3" json:"outputs,omitempty" bson:"outputs"`
+	SubActions           []*SubAction         `protobuf:"bytes,12,rep,name=subActions,proto3" json:"subActions,omitempty" bson:"subActions"`
+	Options              []*ActionOption      `protobuf:"bytes,13,rep,name=options,proto3" json:"options,omitempty" bson:"options"`
+	TestCases            []*TestCase          `protobuf:"bytes,14,rep,name=testCases,proto3" json:"testCases,omitempty" bson:"testCases"`
+	Lang                 string               `protobuf:"bytes,15,opt,name=lang,proto3" json:"lang,omitempty" bson:"lang"`
+	Code                 string               `protobuf:"bytes,16,opt,name=code,proto3" json:"code,omitempty" bson:"code"`
+	IsPublic             bool                 `protobuf:"varint,17,opt,name=isPublic,proto3" json:"isPublic,omitempty" bson:"isPublic"`
+	Tags                 []string             `protobuf:"bytes,18,rep,name=tags,proto3" json:"tags,omitempty" bson:"tags"`
+	Readme               string               `protobuf:"bytes,19,opt,name=readme,proto3" json:"readme,omitempty" bson:"readme"`
+	Extra                map[string]string    `protobuf:"bytes,20,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"extra"`
+	Icon                 string               `protobuf:"bytes,21,opt,name=icon,proto3" json:"icon,omitempty" bson:"icon"`
+	ActionSelector       *ActionSelector      `protobuf:"bytes,22,opt,name=actionSelector,proto3" json:"actionSelector,omitempty" bson:"actionSelector"`
+	DisplayConfig        *ActionDisplayConfig `protobuf:"bytes,23,opt,name=displayConfig,proto3" json:"displayConfig,omitempty" bson:"displayConfig"`
+	CreatedBy            string               `protobuf:"bytes,24,opt,name=createdBy,proto3" json:"createdBy,omitempty" bson:"createdBy"`
+	CreatedTime          int64                `protobuf:"varint,25,opt,name=createdTime,proto3" json:"createdTime,omitempty" bson:"createdTime"`
+	UpdatedTime          int64                `protobuf:"varint,26,opt,name=updatedTime,proto3" json:"updatedTime,omitempty" bson:"updatedTime"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-" bson:"-"`
+	XXX_unrecognized     []byte               `json:"-" bson:"-"`
+	XXX_sizecache        int32                `json:"-" bson:"-"`
 }
 
 func (m *ActionInfo) Reset()         { *m = ActionInfo{} }
 func (m *ActionInfo) String() string { return proto.CompactTextString(m) }
 func (*ActionInfo) ProtoMessage()    {}
 func (*ActionInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3e156f56ecac6ad0, []int{5}
+	return fileDescriptor_3e156f56ecac6ad0, []int{7}
 }
 func (m *ActionInfo) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -654,6 +789,13 @@ func (m *ActionInfo) GetActionSelector() *ActionSelector {
 	return nil
 }
 
+func (m *ActionInfo) GetDisplayConfig() *ActionDisplayConfig {
+	if m != nil {
+		return m.DisplayConfig
+	}
+	return nil
+}
+
 func (m *ActionInfo) GetCreatedBy() string {
 	if m != nil {
 		return m.CreatedBy
@@ -686,6 +828,8 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "models.SubAction.InputsEntry")
 	proto.RegisterMapType((map[string]string)(nil), "models.SubAction.OutputsEntry")
 	proto.RegisterType((*ActionSelector)(nil), "models.ActionSelector")
+	proto.RegisterType((*StatusViewConfig)(nil), "models.StatusViewConfig")
+	proto.RegisterType((*ActionDisplayConfig)(nil), "models.ActionDisplayConfig")
 	proto.RegisterType((*ActionInfo)(nil), "models.ActionInfo")
 	proto.RegisterMapType((map[string]string)(nil), "models.ActionInfo.ExtraEntry")
 }
@@ -693,64 +837,72 @@ func init() {
 func init() { proto.RegisterFile("tiops/common/models/action.proto", fileDescriptor_3e156f56ecac6ad0) }
 
 var fileDescriptor_3e156f56ecac6ad0 = []byte{
-	// 908 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0xcd, 0x8e, 0xe3, 0x44,
-	0x10, 0x5e, 0xe7, 0x3f, 0x95, 0x6c, 0x36, 0xd3, 0x0c, 0x43, 0x13, 0x2d, 0x91, 0x95, 0x03, 0x0a,
-	0x20, 0x79, 0xc4, 0x2c, 0x88, 0x61, 0x0e, 0x48, 0xcc, 0x6a, 0x90, 0x22, 0x21, 0x76, 0xe5, 0x19,
-	0x89, 0xe3, 0xd2, 0xb1, 0x7b, 0x32, 0x66, 0x6d, 0xb7, 0xe5, 0x6e, 0x2f, 0x9b, 0x3b, 0x42, 0x3c,
-	0x02, 0xe2, 0xc0, 0x91, 0x67, 0x41, 0xe2, 0xc2, 0x23, 0xa0, 0xe1, 0x05, 0x78, 0x04, 0xd4, 0x5d,
-	0xb6, 0x63, 0x67, 0x8c, 0xd0, 0x9c, 0xb8, 0x44, 0x55, 0x5f, 0x7d, 0x55, 0xdd, 0xfd, 0xa5, 0xaa,
-	0x64, 0xb0, 0x55, 0x20, 0x12, 0x79, 0xec, 0x89, 0x28, 0x12, 0xf1, 0x71, 0x24, 0x7c, 0x1e, 0xca,
-	0x63, 0xe6, 0xa9, 0x40, 0xc4, 0x4e, 0x92, 0x0a, 0x25, 0x48, 0x0f, 0xc1, 0x59, 0x23, 0x13, 0x3d,
-	0x64, 0x36, 0x33, 0x14, 0xdb, 0x6c, 0x78, 0x8a, 0x8c, 0xc5, 0x37, 0x30, 0xfd, 0xdc, 0xd4, 0x7e,
-	0x96, 0xe8, 0xdf, 0x95, 0xe2, 0x11, 0x39, 0x84, 0x6e, 0xc8, 0xd6, 0x3c, 0xa4, 0x96, 0x6d, 0x2d,
-	0x87, 0x2e, 0x3a, 0x1a, 0x7d, 0xc5, 0xc2, 0x8c, 0xd3, 0x16, 0xa2, 0xc6, 0x21, 0x36, 0x8c, 0x7c,
-	0x2e, 0xbd, 0x34, 0x30, 0xe9, 0xb4, 0x6d, 0x62, 0x55, 0x68, 0xf1, 0xab, 0x05, 0xe3, 0xea, 0x11,
-	0x84, 0x40, 0x27, 0x66, 0x11, 0xcf, 0xab, 0x1b, 0x5b, 0x63, 0x6a, 0x9b, 0x14, 0xb5, 0x8d, 0xfd,
-	0xdf, 0xa5, 0x09, 0x85, 0xbe, 0xcf, 0xaf, 0x59, 0x16, 0x2a, 0xda, 0x31, 0xd1, 0xc2, 0x25, 0x27,
-	0xd0, 0x17, 0x86, 0x23, 0x69, 0xd7, 0x6e, 0x2f, 0x47, 0x27, 0xd4, 0xc1, 0xd7, 0x3b, 0xfb, 0xaf,
-	0x75, 0x0b, 0xe2, 0xe2, 0x6f, 0x0b, 0x06, 0x57, 0x5c, 0xaa, 0xa7, 0x4c, 0x72, 0xf2, 0x11, 0xf4,
-	0x82, 0x38, 0xc9, 0x94, 0xa4, 0x96, 0xc9, 0x7f, 0x5c, 0xe4, 0x17, 0x0c, 0x67, 0x65, 0xc2, 0x17,
-	0xb1, 0x4a, 0xb7, 0x6e, 0xce, 0x25, 0x9f, 0x40, 0x5f, 0x64, 0xca, 0xa4, 0xb5, 0x4c, 0xda, 0x3b,
-	0x77, 0xd2, 0x9e, 0x61, 0x1c, 0xf3, 0x0a, 0xf6, 0xec, 0x53, 0x18, 0x55, 0xea, 0x91, 0x29, 0xb4,
-	0x5f, 0xf2, 0x6d, 0xae, 0x90, 0x36, 0x9b, 0xd5, 0x3f, 0x6b, 0x9d, 0x5a, 0xb3, 0x33, 0x18, 0x57,
-	0x6b, 0xde, 0x27, 0x77, 0xf1, 0x7b, 0x0b, 0x86, 0x97, 0xd9, 0x1a, 0x35, 0x69, 0xfc, 0x63, 0x3e,
-	0x2e, 0x75, 0xd8, 0x7b, 0x50, 0x99, 0xd6, 0x28, 0xc4, 0xe9, 0x4e, 0x88, 0xb6, 0xc9, 0x9b, 0xdf,
-	0xcd, 0x6b, 0x54, 0x62, 0xff, 0x5f, 0xef, 0xdc, 0xfd, 0xd7, 0x6d, 0x18, 0x29, 0xb6, 0xb9, 0xe4,
-	0x21, 0xf7, 0x94, 0x48, 0x69, 0x17, 0x19, 0x15, 0xe8, 0xff, 0x52, 0xf3, 0xc7, 0x16, 0x4c, 0xf0,
-	0x6d, 0xc5, 0x4d, 0x4c, 0x5f, 0xb3, 0x0d, 0x36, 0x91, 0xee, 0x6b, 0xb6, 0x91, 0x64, 0x09, 0x5d,
-	0xdd, 0xdf, 0xa8, 0xe8, 0xe4, 0x84, 0xd4, 0x3b, 0xf3, 0x6a, 0x9b, 0x70, 0x17, 0x09, 0x38, 0x88,
-	0xf1, 0x06, 0x35, 0x34, 0x83, 0x18, 0x6f, 0x8c, 0x42, 0xfc, 0xb5, 0x17, 0x66, 0x3e, 0xbf, 0xd2,
-	0xa5, 0x3b, 0x26, 0x56, 0x85, 0xc8, 0x02, 0xc6, 0x85, 0x6b, 0x0e, 0xea, 0x1a, 0x4a, 0x0d, 0xab,
-	0x70, 0xbe, 0x34, 0x47, 0xf4, 0x6a, 0x1c, 0x83, 0xe9, 0xf3, 0x75, 0x13, 0x48, 0xda, 0xc7, 0xf3,
-	0x8d, 0x53, 0xc9, 0xfc, 0xca, 0x04, 0x07, 0xb5, 0x4c, 0x83, 0x2d, 0x7e, 0xe8, 0x03, 0xe0, 0x7b,
-	0x56, 0xf1, 0xb5, 0x20, 0x36, 0xb4, 0x5f, 0x04, 0x3e, 0xaa, 0x78, 0xfe, 0xe8, 0xe7, 0xef, 0x7f,
-	0x69, 0xc3, 0x5a, 0x8a, 0xf8, 0x6c, 0xf1, 0x22, 0xf0, 0x17, 0x6e, 0x6b, 0xe5, 0x93, 0xc7, 0x30,
-	0x4c, 0x52, 0xf1, 0x2d, 0xf7, 0xd4, 0xca, 0xcf, 0x95, 0xdd, 0x01, 0xe4, 0xdd, 0x7c, 0x3d, 0xe8,
-	0x1d, 0xd0, 0xac, 0x18, 0xae, 0x8c, 0xa2, 0x83, 0x3b, 0x95, 0x0e, 0xde, 0x6b, 0xa8, 0xee, 0xdd,
-	0x86, 0x22, 0xd0, 0x49, 0x98, 0xba, 0xa1, 0x3d, 0xcc, 0xd2, 0xb6, 0xc6, 0xae, 0xb3, 0xd8, 0xa3,
-	0x7d, 0xc4, 0xb4, 0xad, 0xef, 0xb8, 0x66, 0xca, 0xbb, 0xf9, 0x42, 0x07, 0x06, 0x78, 0xc7, 0x12,
-	0xd0, 0x62, 0x79, 0x21, 0x93, 0x92, 0x0e, 0xb1, 0x2f, 0x8c, 0x43, 0xde, 0x2b, 0xe7, 0x07, 0xcc,
-	0x1c, 0x1c, 0x14, 0x77, 0x7f, 0xce, 0x52, 0x16, 0x71, 0xc5, 0xd3, 0x72, 0x66, 0x3e, 0xd8, 0xcd,
-	0xcc, 0xe8, 0xdf, 0xb8, 0xe5, 0x98, 0x7c, 0x08, 0x20, 0x8b, 0x49, 0x92, 0x74, 0x5c, 0xe7, 0x97,
-	0x33, 0xe6, 0x56, 0x48, 0xc4, 0xd9, 0xed, 0xc4, 0x87, 0x86, 0x7f, 0xd8, 0xb4, 0x13, 0xcb, 0x7d,
-	0x48, 0x1c, 0x18, 0xaa, 0x7c, 0x6b, 0x49, 0x3a, 0x31, 0x19, 0xd3, 0xfd, 0x75, 0xe6, 0xee, 0x28,
-	0x5a, 0x32, 0xdd, 0xa0, 0xf4, 0x11, 0x4a, 0xa6, 0x6d, 0x8d, 0x79, 0xc2, 0xe7, 0x74, 0x8a, 0x98,
-	0xb6, 0xc9, 0x0c, 0x06, 0x81, 0x7c, 0x9e, 0xad, 0xc3, 0xc0, 0xa3, 0x07, 0xb6, 0xb5, 0x1c, 0xb8,
-	0xa5, 0x5f, 0xce, 0x0b, 0xa9, 0xcc, 0xcb, 0x11, 0xf4, 0x52, 0xce, 0xfc, 0x88, 0xd3, 0x37, 0x4c,
-	0x95, 0xdc, 0x23, 0x4f, 0xa0, 0xcb, 0x5f, 0xab, 0x94, 0xd1, 0xc3, 0xfa, 0x66, 0xda, 0xf5, 0x9d,
-	0x73, 0xa1, 0xe3, 0xb8, 0x60, 0x90, 0xab, 0x0f, 0x08, 0x3c, 0x11, 0xd3, 0x37, 0xf1, 0x42, 0xda,
-	0x26, 0x9f, 0xc1, 0x84, 0xd5, 0xc6, 0x96, 0x1e, 0xd9, 0xd6, 0x72, 0x74, 0x72, 0x54, 0xaf, 0x58,
-	0x44, 0xdd, 0x3d, 0xb6, 0xee, 0x0b, 0x2f, 0xe5, 0x4c, 0x71, 0xff, 0x7c, 0x4b, 0xdf, 0xc2, 0xbe,
-	0x28, 0x01, 0xdd, 0x7f, 0xb9, 0x73, 0x15, 0x44, 0x9c, 0x52, 0xdb, 0x5a, 0xb6, 0xdd, 0x2a, 0xa4,
-	0x19, 0x59, 0xe2, 0x97, 0x8c, 0xb7, 0x91, 0x51, 0x81, 0x66, 0xa7, 0x00, 0xbb, 0xa7, 0xdc, 0x67,
-	0x27, 0xbd, 0x7f, 0x53, 0xcc, 0xa1, 0x9e, 0x12, 0x72, 0x00, 0x0f, 0x2f, 0x79, 0xfa, 0x2a, 0xf0,
-	0x38, 0x82, 0xd3, 0x07, 0x1a, 0x3a, 0xcf, 0x82, 0xd0, 0x5f, 0xc5, 0x39, 0x64, 0x91, 0x09, 0xc0,
-	0x53, 0xe1, 0x17, 0x94, 0x36, 0x99, 0xc2, 0xf8, 0x22, 0xde, 0x04, 0x71, 0x81, 0x74, 0x09, 0x81,
-	0xc9, 0xd7, 0x22, 0x7d, 0x79, 0x1d, 0x8a, 0xef, 0x72, 0xac, 0x77, 0xbe, 0xfc, 0xed, 0x76, 0x6e,
-	0xfd, 0x71, 0x3b, 0xb7, 0xfe, 0xbc, 0x9d, 0x5b, 0x3f, 0xfd, 0x35, 0x7f, 0x00, 0x47, 0x81, 0x70,
-	0xcc, 0x07, 0x88, 0x93, 0x7f, 0x94, 0xa0, 0x9c, 0xeb, 0x9e, 0xf9, 0xf4, 0x78, 0xf2, 0x4f, 0x00,
-	0x00, 0x00, 0xff, 0xff, 0x65, 0x7d, 0x35, 0xdc, 0xea, 0x08, 0x00, 0x00,
+	// 1029 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0x4f, 0x6f, 0xe3, 0x44,
+	0x14, 0x5f, 0xe7, 0x6f, 0xfb, 0x92, 0xcd, 0xa6, 0xd3, 0x52, 0x86, 0xb0, 0x44, 0x91, 0x0f, 0x28,
+	0x80, 0x94, 0x42, 0x17, 0x44, 0xe9, 0x01, 0x69, 0x5b, 0xba, 0x52, 0x24, 0xc4, 0xae, 0xdc, 0x08,
+	0x8e, 0xcb, 0xc4, 0x9e, 0xa4, 0x66, 0x1d, 0x8f, 0xe5, 0x19, 0xef, 0x6e, 0xee, 0x1c, 0x38, 0x20,
+	0x71, 0x45, 0x1c, 0x38, 0xf2, 0x59, 0x40, 0x5c, 0xf8, 0x08, 0xa8, 0x7c, 0x01, 0x3e, 0x02, 0x9a,
+	0x79, 0xb6, 0x63, 0x27, 0x46, 0x68, 0x4f, 0x5c, 0xa2, 0x79, 0xbf, 0xf9, 0xbd, 0xf9, 0xf3, 0x9b,
+	0xf7, 0x7e, 0x31, 0x8c, 0x94, 0x2f, 0x22, 0x79, 0xe2, 0x8a, 0xd5, 0x4a, 0x84, 0x27, 0x2b, 0xe1,
+	0xf1, 0x40, 0x9e, 0x30, 0x57, 0xf9, 0x22, 0x9c, 0x44, 0xb1, 0x50, 0x82, 0xb4, 0x10, 0x1c, 0x54,
+	0x32, 0x31, 0x42, 0x66, 0x35, 0x43, 0xb1, 0xe5, 0x92, 0xc7, 0xc8, 0xb0, 0xbf, 0x86, 0xfe, 0x43,
+	0xb3, 0xf6, 0xe3, 0x48, 0xff, 0x4e, 0x15, 0x5f, 0x91, 0x23, 0x68, 0x06, 0x6c, 0xce, 0x03, 0x6a,
+	0x8d, 0xac, 0xf1, 0xbe, 0x83, 0x81, 0x46, 0x9f, 0xb3, 0x20, 0xe1, 0xb4, 0x86, 0xa8, 0x09, 0xc8,
+	0x08, 0x3a, 0x1e, 0x97, 0x6e, 0xec, 0x9b, 0x74, 0x5a, 0x37, 0x73, 0x45, 0xc8, 0xfe, 0xc5, 0x82,
+	0x6e, 0x71, 0x0b, 0x42, 0xa0, 0x11, 0xb2, 0x15, 0x4f, 0x57, 0x37, 0x63, 0x8d, 0xa9, 0x75, 0x94,
+	0xad, 0x6d, 0xc6, 0xff, 0xbd, 0x34, 0xa1, 0xd0, 0xf6, 0xf8, 0x82, 0x25, 0x81, 0xa2, 0x0d, 0x33,
+	0x9b, 0x85, 0xe4, 0x14, 0xda, 0xc2, 0x70, 0x24, 0x6d, 0x8e, 0xea, 0xe3, 0xce, 0x29, 0x9d, 0xe0,
+	0xed, 0x27, 0xdb, 0xb7, 0x75, 0x32, 0xa2, 0xfd, 0xb7, 0x05, 0x7b, 0x33, 0x2e, 0xd5, 0x25, 0x93,
+	0x9c, 0x7c, 0x08, 0x2d, 0x3f, 0x8c, 0x12, 0x25, 0xa9, 0x65, 0xf2, 0xef, 0x67, 0xf9, 0x19, 0x63,
+	0x32, 0x35, 0xd3, 0x57, 0xa1, 0x8a, 0xd7, 0x4e, 0xca, 0x25, 0x1f, 0x43, 0x5b, 0x24, 0xca, 0xa4,
+	0xd5, 0x4c, 0xda, 0x5b, 0x3b, 0x69, 0x8f, 0x71, 0x1e, 0xf3, 0x32, 0xf6, 0xe0, 0x13, 0xe8, 0x14,
+	0xd6, 0x23, 0x7d, 0xa8, 0x3f, 0xe3, 0xeb, 0x54, 0x21, 0x3d, 0xac, 0x56, 0xff, 0xbc, 0x76, 0x66,
+	0x0d, 0xce, 0xa1, 0x5b, 0x5c, 0xf3, 0x55, 0x72, 0xed, 0xdf, 0x6b, 0xb0, 0x7f, 0x9d, 0xcc, 0x51,
+	0x93, 0xca, 0x87, 0xf9, 0x28, 0xd7, 0x61, 0xeb, 0x42, 0x79, 0x5a, 0xa5, 0x10, 0x67, 0x1b, 0x21,
+	0xea, 0x26, 0x6f, 0xb8, 0x9b, 0x57, 0xa9, 0xc4, 0xf6, 0xab, 0x37, 0x76, 0x5f, 0x7d, 0x04, 0x1d,
+	0xc5, 0x96, 0xd7, 0x3c, 0xe0, 0xae, 0x12, 0x31, 0x6d, 0x22, 0xa3, 0x00, 0xfd, 0x5f, 0x6a, 0x7e,
+	0x57, 0x83, 0x1e, 0xde, 0x2d, 0x3b, 0x89, 0xa9, 0x6b, 0xb6, 0xc4, 0x22, 0xd2, 0x75, 0xcd, 0x96,
+	0x92, 0x8c, 0xa1, 0xa9, 0xeb, 0x1b, 0x15, 0xed, 0x9d, 0x92, 0x72, 0x65, 0xce, 0xd6, 0x11, 0x77,
+	0x90, 0x80, 0x8d, 0x18, 0x2e, 0x51, 0x43, 0xd3, 0x88, 0xe1, 0xd2, 0x28, 0xc4, 0x5f, 0xba, 0x41,
+	0xe2, 0xf1, 0x99, 0x5e, 0xba, 0x61, 0xe6, 0x8a, 0x10, 0xb1, 0xa1, 0x9b, 0x85, 0x66, 0xa3, 0xa6,
+	0xa1, 0x94, 0xb0, 0x02, 0xe7, 0x73, 0xb3, 0x45, 0xab, 0xc4, 0x31, 0x98, 0xde, 0x5f, 0x17, 0x81,
+	0xa4, 0x6d, 0xdc, 0xdf, 0x04, 0x85, 0xcc, 0x2f, 0xcc, 0xe4, 0x5e, 0x29, 0xd3, 0x60, 0xf6, 0xf7,
+	0x16, 0xf4, 0xaf, 0x15, 0x53, 0x89, 0xfc, 0xd2, 0xe7, 0x2f, 0x2e, 0x45, 0xb8, 0xf0, 0x97, 0x95,
+	0xf5, 0x95, 0x7b, 0x4d, 0xad, 0xe8, 0x35, 0x99, 0x1d, 0xd4, 0x0b, 0x76, 0x30, 0x80, 0x3d, 0xc5,
+	0x57, 0x51, 0xc0, 0x14, 0x4f, 0xab, 0x22, 0x8f, 0xc9, 0x10, 0x20, 0x89, 0x3c, 0xa6, 0xf8, 0xa3,
+	0x24, 0x74, 0xd3, 0x8a, 0x28, 0x20, 0xf6, 0x0f, 0x16, 0x1c, 0xa2, 0xbc, 0x9f, 0xf9, 0x32, 0x0a,
+	0xd8, 0x3a, 0x3d, 0xd1, 0xfb, 0x70, 0x18, 0x0a, 0x8f, 0x5f, 0x8a, 0x50, 0xf1, 0x50, 0xcd, 0xb2,
+	0xe5, 0xf1, 0x80, 0x55, 0x53, 0xe4, 0x11, 0x1c, 0xc8, 0xad, 0x7b, 0x65, 0xad, 0x91, 0x5b, 0xcc,
+	0xf6, 0xc5, 0x9d, 0xdd, 0x14, 0xfb, 0xb7, 0x36, 0x00, 0x9e, 0x68, 0x1a, 0x2e, 0x04, 0x19, 0x41,
+	0xfd, 0xa9, 0xef, 0xe1, 0xc6, 0x17, 0xf7, 0x7e, 0xfa, 0xf6, 0xe7, 0x3a, 0xcc, 0xa5, 0x08, 0xcf,
+	0xed, 0xa7, 0xbe, 0x67, 0x3b, 0xb5, 0xa9, 0x47, 0xee, 0xc3, 0x7e, 0x14, 0x8b, 0x6f, 0xb8, 0xab,
+	0xa6, 0x5e, 0x2a, 0xd6, 0x06, 0x20, 0x6f, 0x17, 0x04, 0xab, 0x2e, 0x29, 0x14, 0x31, 0x7b, 0x82,
+	0x46, 0xe1, 0x09, 0xb6, 0x3a, 0xae, 0xb9, 0xdb, 0x71, 0x04, 0x1a, 0x11, 0x53, 0x37, 0xb4, 0x85,
+	0x59, 0x7a, 0xac, 0xb1, 0x85, 0x16, 0xbb, 0x8d, 0x98, 0x1e, 0xeb, 0x33, 0xce, 0x99, 0x72, 0x6f,
+	0xcc, 0x2b, 0xec, 0xe1, 0x19, 0x73, 0x40, 0x3f, 0xb5, 0x1b, 0x30, 0x29, 0xe9, 0x3e, 0x3e, 0xb5,
+	0x09, 0xc8, 0x3b, 0xb9, 0xc1, 0x80, 0x51, 0xf1, 0x20, 0x3b, 0xfb, 0x13, 0x16, 0xb3, 0x15, 0x57,
+	0x3c, 0xce, 0x4d, 0xe5, 0xbd, 0x8d, 0xa9, 0x74, 0xfe, 0x8d, 0x9b, 0xfb, 0xc8, 0x07, 0x00, 0x32,
+	0xb3, 0x1a, 0x49, 0xbb, 0x65, 0x7e, 0x6e, 0x42, 0x4e, 0x81, 0x44, 0x26, 0x9b, 0x3f, 0x8d, 0xbb,
+	0x86, 0x7f, 0x54, 0xf5, 0xa7, 0x91, 0xff, 0x61, 0x90, 0x09, 0xec, 0xab, 0xd4, 0xd6, 0x25, 0xed,
+	0x99, 0x8c, 0xfe, 0xb6, 0xdf, 0x3b, 0x1b, 0x8a, 0x96, 0x4c, 0x77, 0x30, 0xbd, 0x87, 0x92, 0xe9,
+	0xb1, 0xc6, 0x5c, 0xe1, 0x71, 0xda, 0x47, 0x4c, 0x8f, 0x75, 0xa5, 0xfb, 0xf2, 0x49, 0x32, 0x0f,
+	0x7c, 0x97, 0x1e, 0x8c, 0xac, 0xf1, 0x9e, 0x93, 0xc7, 0xb9, 0xa1, 0x90, 0x82, 0xa1, 0x1c, 0x43,
+	0x2b, 0xe6, 0xcc, 0x5b, 0x71, 0x7a, 0x68, 0x56, 0x49, 0x23, 0xf2, 0x00, 0x9a, 0xfc, 0xa5, 0x8a,
+	0x19, 0x3d, 0x2a, 0x5b, 0xf7, 0xa6, 0xee, 0x26, 0x57, 0x7a, 0x1e, 0x1d, 0x18, 0xb9, 0x7a, 0x03,
+	0xdf, 0x15, 0x21, 0x7d, 0x0d, 0x0f, 0xa4, 0xc7, 0xe4, 0x53, 0xe8, 0xb1, 0x92, 0xaf, 0xd1, 0xe3,
+	0x91, 0x35, 0xee, 0x9c, 0x1e, 0x97, 0x57, 0xcc, 0x66, 0x9d, 0x2d, 0x36, 0x79, 0x08, 0x77, 0xbd,
+	0x62, 0xdf, 0xd1, 0xd7, 0x4d, 0xfa, 0x9b, 0xe5, 0xf4, 0x52, 0x6b, 0x3a, 0xe5, 0x0c, 0x5d, 0x5a,
+	0x6e, 0xcc, 0x99, 0xe2, 0xde, 0xc5, 0x9a, 0x52, 0x2c, 0xad, 0x1c, 0xd0, 0x25, 0x9c, 0x06, 0x33,
+	0x7f, 0xc5, 0xe9, 0x1b, 0x23, 0x6b, 0x5c, 0x77, 0x8a, 0x90, 0x66, 0xa0, 0x1f, 0x20, 0x63, 0x80,
+	0x8c, 0x02, 0x34, 0x38, 0x03, 0xd8, 0xa8, 0xf1, 0x2a, 0xbe, 0xff, 0xee, 0x4d, 0xd6, 0xca, 0xba,
+	0xd1, 0xc8, 0x01, 0xdc, 0xbd, 0xe6, 0xf1, 0x73, 0xdf, 0xe5, 0x08, 0xf6, 0xef, 0x68, 0xe8, 0x22,
+	0xf1, 0x03, 0x6f, 0x1a, 0xa6, 0x90, 0x45, 0x7a, 0x00, 0x97, 0xc2, 0xcb, 0x28, 0x75, 0xd2, 0x87,
+	0xee, 0x55, 0xb8, 0xf4, 0xc3, 0x0c, 0x69, 0x12, 0x02, 0xbd, 0xaf, 0x44, 0xfc, 0x6c, 0x11, 0x88,
+	0x17, 0x29, 0xd6, 0xba, 0x18, 0xff, 0x7a, 0x3b, 0xb4, 0xfe, 0xb8, 0x1d, 0x5a, 0x7f, 0xde, 0x0e,
+	0xad, 0x1f, 0xff, 0x1a, 0xde, 0x81, 0x63, 0x5f, 0x4c, 0xcc, 0x47, 0xde, 0x24, 0xfd, 0xf0, 0x43,
+	0x49, 0xe7, 0x2d, 0xf3, 0x79, 0xf7, 0xe0, 0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x75, 0x01, 0x61,
+	0x80, 0x4e, 0x0a, 0x00, 0x00,
 }
 
 func (m *ActionOptionItem) Marshal() (dAtA []byte, err error) {
@@ -1129,6 +1281,116 @@ func (m *ActionSelector) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *StatusViewConfig) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *StatusViewConfig) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StatusViewConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.UpdateFunc) > 0 {
+		i -= len(m.UpdateFunc)
+		copy(dAtA[i:], m.UpdateFunc)
+		i = encodeVarintAction(dAtA, i, uint64(len(m.UpdateFunc)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.Template) > 0 {
+		i -= len(m.Template)
+		copy(dAtA[i:], m.Template)
+		i = encodeVarintAction(dAtA, i, uint64(len(m.Template)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Type) > 0 {
+		i -= len(m.Type)
+		copy(dAtA[i:], m.Type)
+		i = encodeVarintAction(dAtA, i, uint64(len(m.Type)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Label) > 0 {
+		i -= len(m.Label)
+		copy(dAtA[i:], m.Label)
+		i = encodeVarintAction(dAtA, i, uint64(len(m.Label)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintAction(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ActionDisplayConfig) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ActionDisplayConfig) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ActionDisplayConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.StatusViewConfigs) > 0 {
+		for iNdEx := len(m.StatusViewConfigs) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.StatusViewConfigs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAction(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.NodeContentTemplate) > 0 {
+		i -= len(m.NodeContentTemplate)
+		copy(dAtA[i:], m.NodeContentTemplate)
+		i = encodeVarintAction(dAtA, i, uint64(len(m.NodeContentTemplate)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *ActionInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1158,19 +1420,33 @@ func (m *ActionInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0xc8
+		dAtA[i] = 0xd0
 	}
 	if m.CreatedTime != 0 {
 		i = encodeVarintAction(dAtA, i, uint64(m.CreatedTime))
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0xc0
+		dAtA[i] = 0xc8
 	}
 	if len(m.CreatedBy) > 0 {
 		i -= len(m.CreatedBy)
 		copy(dAtA[i:], m.CreatedBy)
 		i = encodeVarintAction(dAtA, i, uint64(len(m.CreatedBy)))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xc2
+	}
+	if m.DisplayConfig != nil {
+		{
+			size, err := m.DisplayConfig.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintAction(dAtA, i, uint64(size))
+		}
 		i--
 		dAtA[i] = 0x1
 		i--
@@ -1600,6 +1876,60 @@ func (m *ActionSelector) Size() (n int) {
 	return n
 }
 
+func (m *StatusViewConfig) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovAction(uint64(l))
+	}
+	l = len(m.Label)
+	if l > 0 {
+		n += 1 + l + sovAction(uint64(l))
+	}
+	l = len(m.Type)
+	if l > 0 {
+		n += 1 + l + sovAction(uint64(l))
+	}
+	l = len(m.Template)
+	if l > 0 {
+		n += 1 + l + sovAction(uint64(l))
+	}
+	l = len(m.UpdateFunc)
+	if l > 0 {
+		n += 1 + l + sovAction(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ActionDisplayConfig) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.NodeContentTemplate)
+	if l > 0 {
+		n += 1 + l + sovAction(uint64(l))
+	}
+	if len(m.StatusViewConfigs) > 0 {
+		for _, e := range m.StatusViewConfigs {
+			l = e.Size()
+			n += 1 + l + sovAction(uint64(l))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
 func (m *ActionInfo) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1706,6 +2036,10 @@ func (m *ActionInfo) Size() (n int) {
 	}
 	if m.ActionSelector != nil {
 		l = m.ActionSelector.Size()
+		n += 2 + l + sovAction(uint64(l))
+	}
+	if m.DisplayConfig != nil {
+		l = m.DisplayConfig.Size()
 		n += 2 + l + sovAction(uint64(l))
 	}
 	l = len(m.CreatedBy)
@@ -3140,6 +3474,334 @@ func (m *ActionSelector) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *StatusViewConfig) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAction
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: StatusViewConfig: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: StatusViewConfig: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Label", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Label = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Type = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Template", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Template = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UpdateFunc", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.UpdateFunc = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAction(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAction
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ActionDisplayConfig) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAction
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ActionDisplayConfig: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ActionDisplayConfig: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NodeContentTemplate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NodeContentTemplate = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StatusViewConfigs", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.StatusViewConfigs = append(m.StatusViewConfigs, &StatusViewConfig{})
+			if err := m.StatusViewConfigs[len(m.StatusViewConfigs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAction(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAction
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *ActionInfo) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3959,6 +4621,42 @@ func (m *ActionInfo) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 23:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DisplayConfig", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAction
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DisplayConfig == nil {
+				m.DisplayConfig = &ActionDisplayConfig{}
+			}
+			if err := m.DisplayConfig.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 24:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedBy", wireType)
 			}
 			var stringLen uint64
@@ -3989,7 +4687,7 @@ func (m *ActionInfo) Unmarshal(dAtA []byte) error {
 			}
 			m.CreatedBy = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 24:
+		case 25:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedTime", wireType)
 			}
@@ -4008,7 +4706,7 @@ func (m *ActionInfo) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 25:
+		case 26:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UpdatedTime", wireType)
 			}

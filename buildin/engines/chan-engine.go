@@ -5,6 +5,7 @@ package engines
 */
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -22,22 +23,29 @@ type basicChanEngine struct {
 	recordManager *record.ExecutionRecordManager
 }
 
+func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
+	recordsData, _ := json.Marshal(w.recordManager.Records())
+	return &models.ExecutionRecord{
+		XId:                  w.ExecutionId,
+		ExecutionId:          w.ExecutionId,
+		ProcessRecords:       nil,
+		StatusRecords:        []*models.ExecutionStatusRecord{
+			{ConfigName: "cumulativeItem", Data: string(recordsData)},
+		},
+	}
+}
+
 func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) {
 	workflow.RegisterActionNodes()
+	w.recordManager.Start()
 }
 
 func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow) *models.WorkflowResources {
-
 	var apps []*models.K8SApp
-
 	nodes := workflowInfo.Nodes
-
 	processedProjects := map[string]bool{}
-
 	for _, node := range nodes {
-
 		serviceName := config.ActionServiceName(node.Info.ProjectId)
-
 		app := &models.K8SApp{
 			Name:      serviceName,
 			ProjectId: node.Info.ProjectId,
@@ -53,7 +61,6 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow) *model
 			apps = append(apps, app)
 			processedProjects[node.Info.ProjectId] = true
 		}
-
 	}
 	return &models.WorkflowResources{
 		Apps:                 apps,
@@ -181,7 +188,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 			processRecord.ElapsedTime = int32(processRecord.EndTime - processRecord.StartTime)
 			processRecord.ProcessRate = float32(processRecord.ItemCount) / float32(processRecord.ElapsedTime) * 1000
 
-			w.recordManager.PushProcessRecord(processRecord)
+			w.recordManager.AddProcessRecord(processRecord)
 
 			w.Logger.Info(outputLog(node.Action.Info(), requestId, res.Outputs))
 			//time.Sleep(time.Second * 10)
