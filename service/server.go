@@ -29,30 +29,32 @@ const (
 var _actionServer = newActionServer()
 
 type actionServer struct {
-	server               *grpc.Server
-	actions              map[string]StrictAction
-	engines              map[string]types.WorkflowEngine
-	actionInfoMap        map[string]*models.ActionInfo
-	actionNodeOptionsMap map[string]ActionOptions
-	actionContextMap     map[string]*ActionContext
-	projectInfo          *models.ProjectInfo
-	Logger               *logger.Logger
-	apiClient            *apiClient.APIClient
+	server                  *grpc.Server
+	actions                 map[string]StrictAction
+	engines                 map[string]types.WorkflowEngine
+	actionInfoMap           map[string]*models.ActionInfo
+	actionNodeOptionsMap    map[string]ActionOptions
+	actionContextMap        map[string]*ActionContext
+	projectInfo             *models.ProjectInfo
+	Logger                  *logger.Logger
+	apiClient               *apiClient.APIClient
 	updatingExecutionRecord bool
+}
+
+func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
+	if !a.updatingExecutionRecord {
+		a.updatingExecutionRecord = true
+		_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
+		if err != nil {
+			a.Logger.Error(err.Error())
+		}
+		a.updatingExecutionRecord = false
+	}
 }
 
 func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services.EmptyRequest) (*models.ExecutionRecord, error) {
 	record := a.getCurrentEngine().ExecutionRecord()
-	go func() {
-		if !a.updatingExecutionRecord {
-			a.updatingExecutionRecord = true
-			_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
-			if err != nil {
-				a.Logger.Error(err.Error())
-			}
-			a.updatingExecutionRecord = false
-		}
-	}()
+	go a.updateExecutionRecord(ctx, record)
 	return record, nil
 }
 
@@ -273,7 +275,10 @@ func (a *actionServer) startServer() {
 }
 
 func (a *actionServer) afterEngineExec() {
-	a.Logger.Info(a.getCurrentEngine().ExecutionRecord())
+
+	record := a.getCurrentEngine().ExecutionRecord()
+	a.Logger.Info(record)
+	go a.updateExecutionRecord(context.TODO(), record)
 }
 
 func (a *actionServer) Start() {
