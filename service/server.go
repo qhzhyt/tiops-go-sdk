@@ -38,10 +38,22 @@ type actionServer struct {
 	projectInfo          *models.ProjectInfo
 	Logger               *logger.Logger
 	apiClient            *apiClient.APIClient
+	updatingExecutionRecord bool
 }
 
 func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services.EmptyRequest) (*models.ExecutionRecord, error) {
-	return a.getCurrentEngine().ExecutionRecord(), nil
+	record := a.getCurrentEngine().ExecutionRecord()
+	go func() {
+		if !a.updatingExecutionRecord {
+			a.updatingExecutionRecord = true
+			_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
+			if err != nil {
+				a.Logger.Error(err.Error())
+			}
+			a.updatingExecutionRecord = false
+		}
+	}()
+	return record, nil
 }
 
 func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
@@ -49,7 +61,6 @@ func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.E
 	for name, action := range a.actions {
 		res.ActionsStatus[name] = action.Status()
 	}
-
 	return res, nil
 }
 
