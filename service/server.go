@@ -275,10 +275,9 @@ func (a *actionServer) startServer() {
 }
 
 func (a *actionServer) afterEngineExec() {
-
 	record := a.getCurrentEngine().ExecutionRecord()
 	a.Logger.Info(record)
-	go a.updateExecutionRecord(context.TODO(), record)
+	a.updateExecutionRecord(context.TODO(), record)
 }
 
 func (a *actionServer) Start() {
