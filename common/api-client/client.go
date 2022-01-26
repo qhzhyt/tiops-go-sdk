@@ -76,7 +76,7 @@ func (c *APIClient) CreateOrUpdateWorkflowExecution(execution *models.WorkflowEx
 func (c *APIClient) CreateExecutionRecord(record *models.ExecutionRecord) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-	result, err := c.APIServiceClient.CreateExecutionRecord(ctx, record)
+	result, err := c.APIServiceClient.CreateOrUpdateExecutionRecord(ctx, record)
 	if err != nil {
 		return false, err
 	}
