@@ -30,7 +30,7 @@ func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
 		ExecutionId:          w.ExecutionId,
 		ProcessRecords:       nil,
 		StatusRecords:        []*models.ExecutionStatusRecord{
-			{ConfigName: "cumulativeItem", Data: string(recordsData)},
+			{ConfigNames: []string{"cumulativeItem"}, Data: string(recordsData)},
 		},
 	}
 }
