@@ -17,6 +17,7 @@ const (
 	EnvNameLogId                = "LOG_ID"
 	EnvNameProjectId            = "PROJECT_ID"
 	EnvNameWorkflowId           = "WORKFLOW_ID"
+	EnvNameSubWorkflowId        = "SUB_WORKFLOW_ID"
 	EnvNameWorkflowType         = "WORKFLOW_TYPE"
 	EnvNameExecutionId          = "EXECUTION_ID"
 	EnvNameAppType              = "APP_TYPE"

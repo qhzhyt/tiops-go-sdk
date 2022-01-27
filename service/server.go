@@ -10,6 +10,7 @@ import (
 	"math"
 	"net"
 	"os"
+	"strconv"
 	"time"
 	"tiops/buildin/engines"
 	apiClient "tiops/common/api-client"
@@ -39,6 +40,7 @@ type actionServer struct {
 	Logger                  *logger.Logger
 	apiClient               *apiClient.APIClient
 	updatingExecutionRecord bool
+	requiredResourcesMap    map[int]*models.WorkflowResources
 }
 
 func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
@@ -140,8 +142,20 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 	}
 }
 
-func (a *actionServer) GetRequiredResources(ctx context.Context, info *models.WorkflowInfo) (*models.WorkflowResources, error) {
-	panic("implement me")
+func (a *actionServer) GetRequiredResources(ctx context.Context, query *services.QueryRequest) (*models.WorkflowResources, error) {
+	stage, _ := strconv.Atoi(query.Extra["stage"])
+	if res, ok := a.requiredResourcesMap[stage]; ok {
+		return res, nil
+	}
+	engine := a.getCurrentEngine()
+	wf, err := workflow.Current()
+	if err != nil {
+		return nil, err
+	}
+	requiredResources := engine.RequiredResources(wf, stage)
+	requiredResources = workflow.ResourcesPreProcess(requiredResources, wf)
+	a.requiredResourcesMap[stage] = requiredResources
+	return requiredResources, nil
 }
 
 func (a *actionServer) getActionOptions(nodeId string) ActionOptions {
@@ -233,20 +247,14 @@ func (a *actionServer) runMainEngine() {
 
 	engine.Init(_context)
 
-	requiredResources := engine.RequiredResources(_workflow)
-
-	requiredResources = workflow.ResourcesPreProcess(requiredResources, _workflow)
-
-	_context.Info(requiredResources)
-
-	if requiredResources != nil {
-		_, err := a.apiClient.CreateOrUpdateWorkflowExecution(
-			&models.WorkflowExecution{
-				XId:              tiopsConfigs.ExecutionID,
-				WorkflowResource: requiredResources,
-			})
-		_context.Error(err)
-	}
+	//if requiredResources != nil {
+	//	_, err := a.apiClient.CreateOrUpdateWorkflowExecution(
+	//		&models.WorkflowExecution{
+	//			XId:              tiopsConfigs.ExecutionID,
+	//			WorkflowResource: requiredResources,
+	//		})
+	//	_context.Error(err)
+	//}
 
 	engine.WaitForResources(_workflow)
 	//engine := engines.NewBasicChanEngine(context)

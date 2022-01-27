@@ -26,11 +26,11 @@ type basicChanEngine struct {
 func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
 	recordsData, _ := json.Marshal(w.recordManager.Records())
 	return &models.ExecutionRecord{
-		XId:                  w.ExecutionId,
-		ExecutionId:          w.ExecutionId,
-		ProcessRecords:       nil,
-		StatusRecords:        []*models.ExecutionStatusRecord{
-			{ConfigNames: []string{"cumulativeItem"}, Data: string(recordsData)},
+		XId:            w.ExecutionId,
+		ExecutionId:    w.ExecutionId,
+		ProcessRecords: nil,
+		StatusRecords: []*models.ExecutionStatusRecord{
+			{ConfigNames: []string{"cumulativeItem", "backlogItems", "processRate"}, Data: string(recordsData)},
 		},
 	}
 }
@@ -40,7 +40,7 @@ func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) {
 	w.recordManager.Start()
 }
 
-func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow) *models.WorkflowResources {
+func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage int) *models.WorkflowResources {
 	var apps []*models.K8SApp
 	nodes := workflowInfo.Nodes
 	processedProjects := map[string]bool{}
@@ -63,7 +63,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow) *model
 		}
 	}
 	return &models.WorkflowResources{
-		Apps:                 apps,
+		Apps: apps,
 	}
 }
 

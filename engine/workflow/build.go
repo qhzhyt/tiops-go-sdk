@@ -260,8 +260,15 @@ func New(id string) (*types.Workflow, error) {
 	return buildWorkflow(wfi, _apiClient)
 }
 
+var currentWorkflow *types.Workflow
+
 func Current() (*types.Workflow, error) {
-	return New(tiopsConfigs.WorkflowId)
+	if currentWorkflow != nil {
+		return currentWorkflow, nil
+	}
+	wf, err := New(tiopsConfigs.WorkflowId)
+	currentWorkflow = wf
+	return wf, err
 }
 
 func Context() *types.WorkflowContext {

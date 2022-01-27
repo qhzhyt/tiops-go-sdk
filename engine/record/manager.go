@@ -78,9 +78,9 @@ func (m *ExecutionRecordManager) AddProcessRecord(record *models.ProcessRecord) 
 func NewExecutionRecordManager(updateInterval time.Duration, ctx *types.WorkflowContext) *ExecutionRecordManager {
 	return &ExecutionRecordManager{
 		//WorkflowContext: ctx,
-		//updateInterval:  updateInterval,
-		//ticker:          time.NewTicker(updateInterval),
-		//batchSizes: map[string]int32{},
-		countFactor: 1,
+		updateInterval: updateInterval,
+		ticker:         time.NewTicker(updateInterval),
+		batchSizes:     map[string]int32{},
+		countFactor:    1,
 	}
 }
