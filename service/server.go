@@ -327,6 +327,7 @@ func newActionServer() *actionServer {
 		Logger:               remoteLogger,
 		actionNodeOptionsMap: map[string]ActionOptions{},
 		actionContextMap:     map[string]*ActionContext{},
+		requiredResourcesMap: map[int]*models.WorkflowResources{},
 	}
 
 	myServer.projectInfo = &models.ProjectInfo{}
