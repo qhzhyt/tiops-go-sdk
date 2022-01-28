@@ -264,7 +264,7 @@ var (
 		"str":    true,
 		"string": true,
 		"text":   true,
-		//"json":   true,
+		"json":   true,
 	}
 )
 
