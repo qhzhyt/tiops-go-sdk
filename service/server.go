@@ -289,6 +289,7 @@ func (a *actionServer) runMainEngine() {
 }
 
 func (a *actionServer) getCurrentEngine() types.WorkflowEngine {
+	a.Logger.Info("current engine: " + tiopsConfigs.EngineName)
 	if a.engines[tiopsConfigs.EngineName] != nil {
 		return a.engines[tiopsConfigs.EngineName]
 	}
