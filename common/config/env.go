@@ -13,6 +13,7 @@ var (
 	ProjectId            = os.Getenv(EnvNameProjectId)
 	EngineName           = os.Getenv(EnvNameEngineName)
 	inMainEngine         = os.Getenv(EnvNameInMainEngine)
+	runEngine            = os.Getenv(EnvNameRunEngine)
 	TiopsSystemNamespace = os.Getenv(EnvNameTiopsSystemNamespace)
 )
 
@@ -28,4 +29,8 @@ func InMainEngine() bool {
 
 func InSubMainEngine() bool {
 	return SubWorkflowId != ""
+}
+
+func RunEngineAtStartup() bool {
+	return runEngine != ""
 }

@@ -43,6 +43,33 @@ type actionServer struct {
 	requiredResourcesMap    map[int]*models.WorkflowResources
 }
 
+func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngineRequest) (*services.StatusResponse, error) {
+	engine := a.engines[request.EngineName]
+	if engine == nil {
+		return &services.StatusResponse{Status: 404, Message: "Engine " + request.EngineName + " Not Found"}, nil
+	}
+	_workflow, err := workflow.New(request.WorkflowId)
+	if err != nil {
+		return &services.StatusResponse{Status: 404, Message: err.Error()}, nil
+	}
+	go func() {
+		_context := workflow.Context()
+		engine.Init(_context)
+		engine.WaitForResources(_workflow)
+		engine.Exec(_workflow)
+	}()
+	return &services.StatusResponse{Status: 200, Message: "ok"}, nil
+}
+
+func (a *actionServer) GetEngineStatus(ctx context.Context, request *services.EngineStatusRequest) (*services.EngineStatusResponse, error) {
+	engine := a.engines[request.EngineName]
+	if engine == nil {
+		return &services.EngineStatusResponse{Code: -1, Message: "Engine " + request.EngineName + " Not Found"}, nil
+	}
+	status, msg := engine.Status()
+	return &services.EngineStatusResponse{Code: int32(status), Message: msg}, nil
+}
+
 func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
 	if !a.updatingExecutionRecord {
 		a.updatingExecutionRecord = true
@@ -289,7 +316,7 @@ func (a *actionServer) afterEngineExec() {
 }
 
 func (a *actionServer) Start() {
-	if tiopsConfigs.InMainEngine() {
+	if tiopsConfigs.InMainEngine() || tiopsConfigs.RunEngineAtStartup() {
 		//_workflow, err := workflow.Current()
 		//context := workflow.Context()
 		go a.startServer()

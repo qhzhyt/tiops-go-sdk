@@ -21,6 +21,14 @@ type basicChanEngine struct {
 	wg sync.WaitGroup
 	*types.WorkflowContext
 	recordManager *record.ExecutionRecordManager
+	running       bool
+}
+
+func (w *basicChanEngine) Status() (EngineStatusCode int, msg string) {
+	if w.running {
+		return types.EngineStatusBusy, "busy"
+	}
+	return types.EngineStatusIdle, "idle"
 }
 
 func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
@@ -222,7 +230,10 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 }
 
 func (w *basicChanEngine) Exec(workflow *types.Workflow) {
-
+	w.running = true
+	defer func() {
+		w.running = false
+	}()
 	w.recordManager.Start()
 
 	waitCount := 0

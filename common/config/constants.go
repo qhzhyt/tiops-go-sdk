@@ -25,6 +25,7 @@ const (
 	EnvNameEngineName           = "ENGINE_NAME"
 	EnvNameInMainEngine         = "IN_MAIN_ENGINE"
 	EnvNameTiopsSystemNamespace = "TIOPS_SYSTEM_NAMESPACE"
+	EnvNameRunEngine            = "RUN_ENGINE"
 )
 
 const (
