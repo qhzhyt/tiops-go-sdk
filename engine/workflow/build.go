@@ -217,6 +217,14 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	return wf, nil
 }
 
+func GetWorkflowInfoByID(id string) (*models.WorkflowInfo, error) {
+	wfi, err := _apiClient.GetWorkflowById(id)
+	if err != nil {
+		return nil, err
+	}
+	return wfi, nil
+}
+
 func New(id string) (*types.Workflow, error) {
 	workflowId := id
 	//global.Logger.Info("connecting to api server")
