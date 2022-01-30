@@ -23,6 +23,14 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 			app.MainContainer.Image = config.WorkflowActionServerImage(app.ProjectId)
 		}
 
+		if app.MainContainer.ResourcesLimits == nil {
+			app.MainContainer.ResourcesLimits = &models.ContainerResources{}
+		}
+
+		if app.MainContainer.ResourcesRequests == nil {
+			app.MainContainer.ResourcesRequests = &models.ContainerResources{}
+		}
+
 		if projectConfig != nil {
 			if projectConfig.UseAllDatasetVolumes {
 				app.Volumes = map[string]string{
@@ -33,14 +41,6 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 				for _, volume := range projectConfig.DatasetVolumes {
 					app.Volumes[path.Join("tiops-datasets", volume.DatasetId)] = volume.MountPath
 				}
-			}
-
-			if app.MainContainer.ResourcesLimits == nil {
-				app.MainContainer.ResourcesLimits = &models.ContainerResources{}
-			}
-
-			if app.MainContainer.ResourcesRequests == nil {
-				app.MainContainer.ResourcesRequests = &models.ContainerResources{}
 			}
 
 			if projectConfig.UseGPU {
