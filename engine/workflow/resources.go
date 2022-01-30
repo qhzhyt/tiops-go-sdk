@@ -35,20 +35,20 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 				}
 			}
 
+			if app.MainContainer.ResourcesLimits == nil {
+				app.MainContainer.ResourcesLimits = &models.ContainerResources{}
+			}
+
+			if app.MainContainer.ResourcesRequests == nil {
+				app.MainContainer.ResourcesRequests = &models.ContainerResources{}
+			}
+
 			if projectConfig.UseGPU {
-				app.MainContainer.ResourcesLimits = &models.ContainerResources{
-					Gpu:                  "1",
-				}
-				app.MainContainer.ResourcesRequests = &models.ContainerResources{
-					Gpu:                  "1",
-				}
+				app.MainContainer.ResourcesLimits.Gpu = "1"
+				app.MainContainer.ResourcesRequests.Gpu = "1"
 			} else {
-				app.MainContainer.ResourcesLimits = &models.ContainerResources{
-					Gpu:                  "0",
-				}
-				app.MainContainer.ResourcesRequests = &models.ContainerResources{
-					Gpu:                  "0",
-				}
+				app.MainContainer.ResourcesLimits.Gpu = "0"
+				app.MainContainer.ResourcesRequests.Gpu = "0"
 			}
 		}
 	}
