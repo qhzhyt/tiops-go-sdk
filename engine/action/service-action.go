@@ -101,7 +101,10 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 		}
 	}
 
-	_, err := a.client.RegisterActionNode(context.TODO(), &services.RegisterActionNodeRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
+	defer cancel()
+
+	_, err := a.client.RegisterActionNode(ctx, &services.RegisterActionNodeRequest{
 		ActionName:    a.info.Name,
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
