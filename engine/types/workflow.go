@@ -17,7 +17,7 @@ type Workflow struct {
 	ID         string
 	Nodes      map[string]*Node
 	Actions    map[string]Action
-	Projects   map[string]*models.ProjectInfo
+	//Projects   map[string]*models.ProjectInfo
 	InputNode  *Node
 	OutputNode *Node
 	Variables  map[string]Variable

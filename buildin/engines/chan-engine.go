@@ -54,23 +54,34 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 		nodes := workflowInfo.Nodes
 		processedProjects := map[string]bool{}
 		for _, node := range nodes {
-			serviceName := config.ActionServiceName(node.Info.ProjectId)
+
+
+			nodeInfo := node.Info
+			actionInfo := node.Action.Info()
+
+			if node.Info.ActionExecutor != "" {
+				actionInfo = node.ActionExecutor
+			}
+
+			serviceName := config.ActionServiceName(actionInfo.ProjectId)
+
 			app := &models.K8SApp{
 				Name:      serviceName,
-				ProjectId: node.Info.ProjectId,
+				ProjectId: actionInfo.ProjectId,
 				MainContainer: &models.K8SContainer{
 				},
 				Replica:     1,
 				ServiceMode: models.ServiceMode_One,
 			}
 			if node.Info.StandAlone {
-				app.Name = config.StandAloneActionServiceName(node.Info.ActionName, node.ID)
+				app.Name = config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID)
 				apps = append(apps, app)
-			} else if !processedProjects[node.Info.ProjectId] {
+			} else if !processedProjects[actionInfo.ProjectId] {
 				apps = append(apps, app)
-				processedProjects[node.Info.ProjectId] = true
+				processedProjects[actionInfo.ProjectId] = true
 			}
 		}
+
 		return &models.WorkflowResources{
 			Apps: apps,
 		}
