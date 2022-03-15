@@ -55,7 +55,6 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 		processedProjects := map[string]bool{}
 		for _, node := range nodes {
 
-
 			nodeInfo := node.Info
 			actionInfo := node.Action.Info()
 
@@ -67,9 +66,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 
 			app := &models.K8SApp{
 				Name:      serviceName,
-				ProjectId: actionInfo.ProjectId,
-				MainContainer: &models.K8SContainer{
-				},
+				ActionId: actionInfo.XId,
 				Replica:     1,
 				ServiceMode: models.ServiceMode_One,
 			}

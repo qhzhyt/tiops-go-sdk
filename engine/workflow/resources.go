@@ -11,44 +11,59 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 	apps := resources.Apps
 
 	for _, app := range apps {
-		projectInfo := workflow.Projects[app.ProjectId]
+		//projectInfo := workflow.Projects[app.ProjectId]
 
-		projectConfig := projectInfo.Config
+		action := workflow.GetAction(app.ActionId)
 
-		if app.MainContainer == nil {
-			app.MainContainer = &models.K8SContainer{}
+		if action == nil {
+			continue
 		}
 
-		if app.MainContainer.Image == "" {
-			app.MainContainer.Image = config.WorkflowActionServerImage(app.ProjectId)
+		actionInfo := action.Info()
+
+		runtimeConfig := action.Info().RuntimeConfig
+
+		if len(app.WorkContainers) < 1{
+			app.WorkContainers = append(app.WorkContainers, &models.K8SContainer{})
 		}
 
-		if app.MainContainer.ResourcesLimits == nil {
-			app.MainContainer.ResourcesLimits = &models.ContainerResources{}
+		mainContainer := app.WorkContainers[0]
+
+		if mainContainer.Image == "" {
+			switch actionInfo.Source {
+			case models.ActionSource_FromImage:
+				mainContainer.Image = actionInfo.Image
+			case models.ActionSource_FromProject:
+				mainContainer.Image = config.WorkflowActionServerImage(actionInfo.ProjectId)
+			}
 		}
 
-		if app.MainContainer.ResourcesRequests == nil {
-			app.MainContainer.ResourcesRequests = &models.ContainerResources{}
+		if mainContainer.ResourcesLimits == nil {
+			mainContainer.ResourcesLimits = &models.ContainerResources{}
 		}
 
-		if projectConfig != nil {
-			if projectConfig.UseAllDatasetVolumes {
+		if mainContainer.ResourcesRequests == nil {
+			mainContainer.ResourcesRequests = &models.ContainerResources{}
+		}
+
+		if runtimeConfig != nil {
+			if runtimeConfig.UseAllDatasetVolumes {
 				app.Volumes = map[string]string{
 					"tiops-datasets": "/datasets",
 				}
-			} else if projectConfig.UseVolume && len(projectConfig.DatasetVolumes) > 0{
+			} else if runtimeConfig.UseVolume && len(runtimeConfig.DatasetVolumes) > 0{
 				app.Volumes = map[string]string{}
-				for _, volume := range projectConfig.DatasetVolumes {
+				for _, volume := range runtimeConfig.DatasetVolumes {
 					app.Volumes[path.Join("tiops-datasets", volume.DatasetId)] = volume.MountPath
 				}
 			}
 
-			if projectConfig.UseGPU {
-				app.MainContainer.ResourcesLimits.Gpu = "1"
-				app.MainContainer.ResourcesRequests.Gpu = "1"
+			if runtimeConfig.UseGPU {
+				mainContainer.ResourcesLimits.Gpu = "1"
+				mainContainer.ResourcesRequests.Gpu = "1"
 			} else {
-				app.MainContainer.ResourcesLimits.Gpu = "0"
-				app.MainContainer.ResourcesRequests.Gpu = "0"
+				mainContainer.ResourcesLimits.Gpu = "0"
+				mainContainer.ResourcesRequests.Gpu = "0"
 			}
 		}
 	}
