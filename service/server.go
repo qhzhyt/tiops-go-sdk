@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"github.com/qhzhyt/tiops-go-sdk/common/stores"
 	"google.golang.org/grpc"
 	"log"
 	"math"
@@ -19,6 +18,7 @@ import (
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
+	"tiops/common/stores"
 	"tiops/common/utils"
 	"tiops/engine/types"
 	"tiops/engine/workflow"
@@ -42,7 +42,7 @@ type actionServer struct {
 	apiClient               *apiClient.APIClient
 	updatingExecutionRecord bool
 	requiredResourcesMap    map[int]*models.WorkflowResources
-	nodeStores map[string]stores.DataStore
+	nodeStores              map[string]stores.DataStore
 	//workspaceDataStore      stores.DataStore
 	//workflowDataStore       DataStore
 	//jobDataStore            DataStore
@@ -207,7 +207,7 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 				ActionContext: actionContext,
 				NodeId:        request.NodeId,
 				Inputs:        inputDataMap,
-				Store: a.nodeStores[request.NodeId],
+				Store:         a.nodeStores[request.NodeId],
 				ActionOptions: a.getActionOptions(request.NodeId),
 			})
 	} else {
@@ -234,7 +234,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 		err := action.RegisterNode(&NodeRegisterContext{
 			ActionContext: a.actionContextMap[actionName],
 			NodeId:        request.NodeId,
-			Store: nodeStore,
+			Store:         nodeStore,
 			ActionOptions: request.ActionOptions,
 			NextActions:   request.NextActions,
 		},
@@ -341,8 +341,6 @@ func (a *actionServer) Start() {
 
 func newActionServer() *actionServer {
 
-
-
 	tiopsApiClient := apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 	remoteLogger := logger.NewRemoteLogger(
 		"action-server",
@@ -363,7 +361,7 @@ func newActionServer() *actionServer {
 		server:               s,
 		actions:              map[string]StrictAction{},
 		engines:              map[string]types.WorkflowEngine{},
-		nodeStores: map[string]stores.DataStore{},
+		nodeStores:           map[string]stores.DataStore{},
 		apiClient:            tiopsApiClient,
 		Logger:               remoteLogger,
 		actionNodeOptionsMap: map[string]ActionOptions{},
