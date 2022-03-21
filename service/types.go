@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/qhzhyt/tiops-go-sdk/common/stores"
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
@@ -16,6 +17,7 @@ type ActionContext struct {
 
 type RequestContext struct {
 	*ActionContext
+	Store         stores.DataStore
 	NodeId        string
 	Input         ActionDataItem
 	ActionOptions ActionOptions
@@ -23,6 +25,7 @@ type RequestContext struct {
 
 type BatchRequestContext struct {
 	*ActionContext
+	Store         stores.DataStore
 	NodeId        string
 	Inputs        ActionDataMap
 	ActionOptions ActionOptions
@@ -35,6 +38,7 @@ type InitContext struct {
 
 type NodeRegisterContext struct {
 	*ActionContext
+	Store         stores.DataStore
 	NodeId        string
 	ActionOptions ActionOptions
 	NextActions   []*services.NextActions

@@ -72,6 +72,8 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		return nil, err
 	}
 
+	wf.ActionInfos = actionInfos
+
 	//wf.Projects, err = loadProjectInfos(wi.Spec.Nodes, client)
 
 	//if err != nil {
@@ -251,8 +253,8 @@ func New(id string) (*types.Workflow, error) {
 	_logger.Info("get workflow info success")
 
 	_, err = _apiClient.CreateExecutionRecord(&models.ExecutionRecord{
-		XId:         tiopsConfigs.ExecutionID,
-		ExecutionId: tiopsConfigs.ExecutionID,
+		XId:         tiopsConfigs.ExecutionId,
+		ExecutionId: tiopsConfigs.ExecutionId,
 		ProcessRecords: []*models.ProcessRecord{
 			{
 				RecordTime: utils.CurrentTimeStampMS(),
@@ -290,8 +292,8 @@ func Context() *types.WorkflowContext {
 	return &types.WorkflowContext{
 		WorkflowType: tiopsConfigs.WorkflowType,
 		WorkflowId:   tiopsConfigs.WorkflowId,
-		ExecutionId:  tiopsConfigs.ExecutionID,
-		RecordId:     tiopsConfigs.ExecutionID,
+		ExecutionId:  tiopsConfigs.ExecutionId,
+		RecordId:     tiopsConfigs.ExecutionId,
 		Logger:       logger.GetDefaultLogger(),
 		APIClient:    _apiClient,
 	}

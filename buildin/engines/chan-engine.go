@@ -52,7 +52,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 	if stage == 0 {
 		var apps []*models.K8SApp
 		nodes := workflowInfo.Nodes
-		processedProjects := map[string]bool{}
+		//processedProjects := map[string]bool{}
 		for _, node := range nodes {
 
 			nodeInfo := node.Info
@@ -62,22 +62,24 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 				actionInfo = node.ActionExecutor
 			}
 
-			serviceName := config.ActionServiceName(actionInfo.ProjectId)
+			serviceName := config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
 
 			app := &models.K8SApp{
-				Name:      serviceName,
-				ActionId: actionInfo.XId,
+				Name:        serviceName,
+				ActionId:    actionInfo.XId,
 				Replica:     1,
 				ServiceMode: models.ServiceMode_One,
 			}
-			if node.Info.StandAlone {
-				app.Name = config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID)
-				apps = append(apps, app)
-			} else if !processedProjects[actionInfo.ProjectId] {
-				apps = append(apps, app)
-				processedProjects[actionInfo.ProjectId] = true
-			}
+			//if node.Info.StandAlone {
+			//	app.Name = config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID)
+			apps = append(apps, app)
+			//} else if !processedProjects[actionInfo.ProjectId] {
+			//	apps = append(apps, app)
+			//	processedProjects[actionInfo.ProjectId] = true
+			//}
 		}
+
+		w.Info(apps)
 
 		return &models.WorkflowResources{
 			Apps: apps,

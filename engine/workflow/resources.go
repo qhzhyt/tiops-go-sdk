@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"fmt"
 	"path"
 	"tiops/common/config"
 	"tiops/common/models"
@@ -13,15 +14,17 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 	for _, app := range apps {
 		//projectInfo := workflow.Projects[app.ProjectId]
 
-		action := workflow.GetAction(app.ActionId)
+		actionInfo := workflow.GetActionInfo(app.ActionId)
 
-		if action == nil {
+		fmt.Println(actionInfo)
+
+		if actionInfo == nil {
 			continue
 		}
 
-		actionInfo := action.Info()
+		//actionInfo := action.Info()
 
-		runtimeConfig := action.Info().RuntimeConfig
+		runtimeConfig := actionInfo.RuntimeConfig
 
 		if len(app.WorkContainers) < 1{
 			app.WorkContainers = append(app.WorkContainers, &models.K8SContainer{})

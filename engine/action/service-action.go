@@ -21,7 +21,7 @@ type RemoteServiceAction struct {
 func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]string) error {
 	switch ctrl {
 	case types.ActionControlStream:
-		ctx, _ := context.WithTimeout(context.Background(), time.Second * 60)
+		ctx, _ := context.WithTimeout(context.Background(), time.Second*60)
 		p, err := a.client.PushMessage(ctx)
 		if err != nil {
 			return err
@@ -34,7 +34,7 @@ func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]
 			Header: map[string]string{
 				"actionName": a.info.GetName(),
 			},
-			Data:    nil,
+			Data: nil,
 		})
 	}
 	return nil
@@ -91,11 +91,10 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 
 			fmt.Println(targetNode.Inputs)
 
-			
 			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
-				Service: getServiceName(targetNode.Info),
-				Action:  targetNode.Info.ActionName,
-				NodeId:  targetNode.ID,
+				Service:   getServiceName(targetNode.Info),
+				Action:    targetNode.Info.ActionName,
+				NodeId:    targetNode.ID,
 				InputName: inputName,
 			})
 		}
@@ -135,11 +134,11 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 var _actionClientMap = map[string]*actionClient.RemoteActionClient{}
 
 func getServiceName(nodeInfo *models.WorkflowNodeInfo) string {
-	serviceName := tiopsConfigs.ActionServiceName(nodeInfo.ProjectId)
+	//serviceName := tiopsConfigs.ActionServiceName(nodeInfo.ProjectId)
 
-	if nodeInfo.StandAlone {
-		serviceName = tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, nodeInfo.Id)
-	}
+	//if nodeInfo.StandAlone {
+	serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, nodeInfo.Id)
+	//}
 
 	return serviceName
 }

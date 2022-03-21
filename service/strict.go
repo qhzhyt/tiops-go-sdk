@@ -142,7 +142,7 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 		a.processedCount += int64(ctx.Inputs.Count())
 		return ba.CallBatch(ctx)
 	}
-	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions}
+	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store}
 	return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
 		requestContext.Input = item
 		return a.Call(requestContext)

@@ -19,7 +19,7 @@ func (af ActionFunction) CallBatch(ctx *BatchRequestContext) ActionDataBatch {
 
 	}, ctx.Info.Inputs)*/
 
-	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions}
+	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store,}
 
 	return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
 		requestContext.Input = item

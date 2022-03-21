@@ -12,20 +12,19 @@ import (
 
 type ExecutionAction struct {
 	RemoteServiceAction
-	innerActionInfo *models.ActionInfo
+	innerActionInfo     *models.ActionInfo
 	executionActionInfo *models.ActionInfo
 }
 
 func getServiceNameByAction(nodeInfo *models.WorkflowNodeInfo, executionInfo *models.ActionInfo) string {
-	serviceName := tiopsConfigs.ActionServiceName(executionInfo.ProjectId)
+	//serviceName := tiopsConfigs.ActionServiceName(executionInfo.ProjectId)
 
-	if nodeInfo.StandAlone {
-		serviceName = tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, nodeInfo.Id)
-	}
+	//if nodeInfo.StandAlone {
+	serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, nodeInfo.Id)
+	//}
 
 	return serviceName
 }
-
 
 func (a *ExecutionAction) Copy() types.Action {
 	return &ExecutionAction{
@@ -35,7 +34,7 @@ func (a *ExecutionAction) Copy() types.Action {
 			node:     nil,
 			nodeInfo: a.nodeInfo,
 		},
-		innerActionInfo: a.innerActionInfo,
+		innerActionInfo:     a.innerActionInfo,
 		executionActionInfo: a.executionActionInfo,
 	}
 }
@@ -72,9 +71,9 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 			}
 			//fmt.Println(targetNode.Inputs)
 			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
-				Service: getServiceName(targetNode.Info),
-				Action:  targetNode.Info.ActionName,
-				NodeId:  targetNode.ID,
+				Service:   getServiceName(targetNode.Info),
+				Action:    targetNode.Info.ActionName,
+				NodeId:    targetNode.ID,
 				InputName: inputName,
 			})
 		}
@@ -88,7 +87,7 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
 		NextActions:   allNextActions,
-		InnerAction: a.innerActionInfo,
+		InnerAction:   a.innerActionInfo,
 	})
 	return err
 }
@@ -113,12 +112,12 @@ func (a *ExecutionAction) Call(request *types.ActionRequest) (*types.ActionRespo
 	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
 }
 
-func NewExecutionAction(actionInfo, executionActionInfo *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action{
+func NewExecutionAction(actionInfo, executionActionInfo *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
 	return &ExecutionAction{
 		RemoteServiceAction: RemoteServiceAction{
 			nodeInfo: nodeInfo,
 		},
-		innerActionInfo: actionInfo,
+		innerActionInfo:     actionInfo,
 		executionActionInfo: executionActionInfo,
 	}
 }

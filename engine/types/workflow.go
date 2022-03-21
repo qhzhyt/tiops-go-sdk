@@ -13,18 +13,19 @@ const RegisterActionRetryTimes = 120
 
 // Workflow 工作流
 type Workflow struct {
-	Name       string
-	ID         string
-	Nodes      map[string]*Node
-	Actions    map[string]Action
+	Name    string
+	ID      string
+	Nodes   map[string]*Node
+	Actions map[string]Action
 	//Projects   map[string]*models.ProjectInfo
 	InputNode  *Node
 	OutputNode *Node
 	Variables  map[string]Variable
 	//Packages   map[string]*Package
-	Logger    *logger.Logger
-	ApiClient *apiClient.APIClient
-	info      *models.WorkflowInfo
+	Logger      *logger.Logger
+	ApiClient   *apiClient.APIClient
+	info        *models.WorkflowInfo
+	ActionInfos map[string]*models.ActionInfo
 }
 
 func (w *Workflow) Info() *models.WorkflowInfo {
@@ -34,6 +35,11 @@ func (w *Workflow) Info() *models.WorkflowInfo {
 func (w *Workflow) GetAction(aId string) Action {
 	//return w.Packages[pId].GetAction(aName)
 	return w.Actions[aId]
+}
+
+func (w *Workflow) GetActionInfo(aId string) *models.ActionInfo {
+	//return w.Packages[pId].GetAction(aName)
+	return w.ActionInfos[aId]
 }
 
 func (w *Workflow) RegisterActionNodes() bool {
@@ -75,13 +81,14 @@ func (w *Workflow) Init() {
 
 func NewWorkflow(info *models.WorkflowInfo) *Workflow {
 	return &Workflow{
-		ID:        info.XId,
-		Name:      info.Name,
-		Logger:    logger.GetDefaultLogger(),
-		Nodes:     map[string]*Node{},
-		Actions:   map[string]Action{},
-		Variables: map[string]Variable{},
-		info:      info,
+		ID:          info.XId,
+		Name:        info.Name,
+		Logger:      logger.GetDefaultLogger(),
+		Nodes:       map[string]*Node{},
+		Actions:     map[string]Action{},
+		ActionInfos: map[string]*models.ActionInfo{},
+		Variables:   map[string]Variable{},
+		info:        info,
 	}
 	//sync.NewCond(&sync.Mutex{})
 }
