@@ -87,7 +87,7 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
 		NextActions:   allNextActions,
-		InnerAction:   a.innerActionInfo,
+		InnerActionInfo:   a.innerActionInfo,
 	})
 	return err
 }
