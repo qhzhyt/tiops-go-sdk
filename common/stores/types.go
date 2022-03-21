@@ -2,7 +2,7 @@ package stores
 
 import "tiops/common/config"
 
-type DataStore interface {
+type BasicDataStore interface {
 	// PutValue 保存k,v到当前store
 	PutValue(k string, v interface{})
 	// SetValue 向上寻找k，找到设k为v，返回true，否则返回false
@@ -47,4 +47,17 @@ type PersistentStore interface {
 	SaveValue(p, k string, v interface{}) error
 	LoadAll(p string) (map[string]interface{}, error)
 	SaveAll(p string, v map[string]interface{}) error
+}
+
+type TypedGetter interface {
+	GetInt(k string) int
+	GetString(k string) string
+	GetIntOrDefault(k string, d int) int
+	GetStringOrDefault(k string, d string) string
+}
+
+type DataStore interface {
+	BasicDataStore
+	TypedGetter
+	GetValueOrDefault(k string, d interface{}) interface{}
 }

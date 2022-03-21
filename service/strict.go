@@ -9,6 +9,12 @@ import (
 	"tiops/common/services"
 )
 
+const (
+	BatchSizeName = "batchSize"
+	BatchesName   = "batches"
+	BatchName     = "batch"
+)
+
 type nodeData struct {
 	nodeId             string
 	nextActions        []*services.NextActions
@@ -20,10 +26,10 @@ type nodeData struct {
 }
 
 type defaultStrictAction struct {
-	action      Action
-	nodeDataMap map[string]*nodeData
-	logger      *logger.Logger
-	done        bool
+	action         Action
+	nodeDataMap    map[string]*nodeData
+	logger         *logger.Logger
+	done           bool
 	processedCount int64
 }
 
@@ -39,9 +45,9 @@ func (a *defaultStrictAction) Status() *services.ActionStatus {
 	}
 
 	res := &services.ActionStatus{
-		RestCount: int64(count),
+		RestCount:      int64(count),
 		ProcessedCount: a.processedCount,
-		Done: a.done,
+		Done:           a.done,
 	}
 
 	return res
@@ -55,23 +61,17 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 			outputData, _ := proto.Marshal(output)
 
 			for _, action := range nextAction.Actions {
-
 				creatClient := func() {
 					nodeCache.serviceClients[action.Service] = actionClient.NewRemoteActionClient(action.Service, 5555)
-
 					pushClient, err := nodeCache.serviceClients[action.Service].PushMessage(context.Background())
-
 					if err != nil {
 						a.logger.Error(err)
 					}
-
 					nodeCache.pushMessageClient[action.Service] = pushClient
 				}
-
 				if nodeCache.serviceClients[action.Service] == nil {
 					creatClient()
 				}
-
 				send := func() error {
 					return nodeCache.pushMessageClient[action.Service].Send(&services.ActionMessage{
 						NodeId:  action.NodeId,
@@ -83,7 +83,6 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 						Data: outputData,
 					})
 				}
-
 				if nodeCache.pushMessageClient[action.Service] != nil {
 					if err := send(); err != nil {
 						a.logger.Error(err)
@@ -143,10 +142,29 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 		return ba.CallBatch(ctx)
 	}
 	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store}
-	return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
-		requestContext.Input = item
-		return a.Call(requestContext)
-	})
+
+	if len(ctx.Inputs) < 1 {
+		//	数据源
+		batchSize := ctx.ActionOptions.GetIntOrDefault(BatchSizeName, 1)
+		batches := ctx.ActionOptions.GetIntOrDefault(BatchesName, 1)
+		batch := ctx.Store.GetIntOrDefault(BatchName, 0)
+		result := make(ActionDataBatch, batchSize)
+		for i := 0; i < batchSize; i++ {
+			result[i] = a.Call(requestContext)
+		}
+		batch++
+		if batch >= batches {
+			ctx.Done()
+		}
+		ctx.Store.SetValue(BatchName, batch)
+
+		return result
+	} else {
+		return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
+			requestContext.Input = item
+			return a.Call(requestContext)
+		})
+	}
 }
 
 func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {

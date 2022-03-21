@@ -227,7 +227,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 	a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
 	a.Logger.Info(fmt.Sprint("register node ", request.NodeId, " with options", request.ActionOptions))
 
-	nodeStore := stores.NewNodeStore(request.NodeId)
+	nodeStore := stores.NewActionNodeStore(request.NodeId)
 	a.nodeStores[request.NodeId] = nodeStore
 
 	if action := a.actions[actionName]; action != nil {

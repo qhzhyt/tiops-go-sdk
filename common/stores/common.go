@@ -1,14 +1,8 @@
 package stores
 
-var (
-	GlobalStore    = NewCommonDataStore(nil, GlobalStoreName, Always)
-	WorkspaceStore = NewCommonDataStore(GlobalStore, WorkspaceStoreName, Always)
-	WorkflowStore  = NewCommonDataStore(WorkspaceStore, WorkflowStoreName, OnSet)
-	JobStore       = NewCommonDataStore(WorkflowStore, JobStoreName, OnSet)
-	ExecutionStore = NewCommonDataStore(JobStore, ExecutionStoreName, Once)
-)
 
-type commonDataStore struct {
+
+type basicDataStore struct {
 	store     map[string]interface{}
 	upstream  DataStore
 	name      string
@@ -18,7 +12,7 @@ type commonDataStore struct {
 	changed   bool
 }
 
-func (c *commonDataStore) LoadAll() bool {
+func (c *basicDataStore) LoadAll() bool {
 	data, err := c.apiStore.LoadAll(c.path)
 	if err != nil {
 		return false
@@ -31,7 +25,7 @@ func (c *commonDataStore) LoadAll() bool {
 	return true
 }
 
-func (c *commonDataStore) SaveAll() bool {
+func (c *basicDataStore) SaveAll() bool {
 	if !c.changed {
 		return true
 	}
@@ -43,7 +37,7 @@ func (c *commonDataStore) SaveAll() bool {
 	return true
 }
 
-func (c *commonDataStore) SetValueWithName(n, k string, v interface{}) bool {
+func (c *basicDataStore) SetValueWithName(n, k string, v interface{}) bool {
 	if c.name == n {
 		c.PutValue(k, v)
 		return true
@@ -54,7 +48,7 @@ func (c *commonDataStore) SetValueWithName(n, k string, v interface{}) bool {
 	return false
 }
 
-func (c *commonDataStore) GetValueWithName(n, k string) interface{} {
+func (c *basicDataStore) GetValueWithName(n, k string) interface{} {
 	if c.name == n {
 		return c.GetValue(k)
 	}
@@ -64,7 +58,7 @@ func (c *commonDataStore) GetValueWithName(n, k string) interface{} {
 	return nil
 }
 
-func (c *commonDataStore) loadValue(k string) interface{} {
+func (c *basicDataStore) loadValue(k string) interface{} {
 	value, err := c.apiStore.LoadValue(c.path, k)
 	if err != nil {
 		return nil
@@ -72,7 +66,7 @@ func (c *commonDataStore) loadValue(k string) interface{} {
 	return value
 }
 
-func (c *commonDataStore) saveValue(k string, v interface{}) bool {
+func (c *basicDataStore) saveValue(k string, v interface{}) bool {
 	err := c.apiStore.SaveValue(c.path, k, v)
 	if err != nil {
 		return false
@@ -80,7 +74,7 @@ func (c *commonDataStore) saveValue(k string, v interface{}) bool {
 	return true
 }
 
-func (c *commonDataStore) LoadValue(k string) interface{} {
+func (c *basicDataStore) LoadValue(k string) interface{} {
 	if c.storeMode > Once {
 		v := c.loadValue(k)
 		if v != nil {
@@ -96,11 +90,11 @@ func (c *commonDataStore) LoadValue(k string) interface{} {
 	return nil
 }
 
-func (c *commonDataStore) Path() string {
+func (c *basicDataStore) Path() string {
 	return c.path
 }
 
-func (c *commonDataStore) LookupValue(k string) interface{} {
+func (c *basicDataStore) LookupValue(k string) interface{} {
 
 	if _, ok := c.store[k]; ok {
 		return c.GetValue(k)
@@ -111,7 +105,7 @@ func (c *commonDataStore) LookupValue(k string) interface{} {
 	return nil
 }
 
-func (c *commonDataStore) SetValue(k string, v interface{}) bool {
+func (c *basicDataStore) SetValue(k string, v interface{}) bool {
 	if _, ok := c.store[k]; ok {
 		c.PutValue(k, v)
 		return true
@@ -122,7 +116,7 @@ func (c *commonDataStore) SetValue(k string, v interface{}) bool {
 	return false
 }
 
-func (c *commonDataStore) PutValue(k string, v interface{}) {
+func (c *basicDataStore) PutValue(k string, v interface{}) {
 	v0 := c.store[k]
 	if v0 != v {
 		c.changed = true
@@ -133,7 +127,7 @@ func (c *commonDataStore) PutValue(k string, v interface{}) {
 	}
 }
 
-func (c *commonDataStore) GetValue(k string) interface{} {
+func (c *basicDataStore) GetValue(k string) interface{} {
 
 	if c.storeMode >= Always {
 		return c.LoadValue(k)
@@ -149,7 +143,7 @@ func (c *commonDataStore) GetValue(k string) interface{} {
 
 }
 
-func (c *commonDataStore) SaveValue(k string, v interface{}) bool {
+func (c *basicDataStore) SaveValue(k string, v interface{}) bool {
 	if _, ok := c.store[k]; ok {
 		c.PutValue(k, v)
 	} else {
@@ -165,30 +159,28 @@ func (c *commonDataStore) SaveValue(k string, v interface{}) bool {
 	return false
 }
 
-//func (c *commonDataStore) CanSaveValue() bool {
+//func (c *basicDataStore) CanSaveValue() bool {
 //	return false
 //}
 
-func (c *commonDataStore) Upstream() DataStore {
+func (c *basicDataStore) Upstream() DataStore {
 	return c.upstream
 }
 
-func NewCommonDataStore(upstream DataStore, name string, mode StoreMode) DataStore {
+func NewBasicDataStore(upstream DataStore, name string, mode StoreMode) BasicDataStore {
 	storePath := name
 	if upstream != nil {
 		storePath = upstream.Path() + "/" + name
 	}
-	store := &commonDataStore{store: map[string]interface{}{}, upstream: upstream, name: name, path: storePath, storeMode: mode}
+	store := &basicDataStore{store: map[string]interface{}{}, upstream: upstream, name: name, path: storePath, storeMode: mode}
 	if mode == Once {
 		store.LoadAll()
 	}
 	return store
 }
 
-func NewNodeStore(nodeId string) DataStore {
-	return NewCommonDataStore(ExecutionStore, nodeId, Never)
-}
+
 
 //func DownstreamCommonDataStore(upstream DataStore) DataStore {
-//	return &commonDataStore{store: map[string]interface{}{}, upstream: upstream}
+//	return &basicDataStore{store: map[string]interface{}{}, upstream: upstream}
 //}
