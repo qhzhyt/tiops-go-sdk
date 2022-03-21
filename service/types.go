@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/qhzhyt/tiops-go-sdk/common/stores"
+	"tiops/common/stores"
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
