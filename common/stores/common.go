@@ -1,19 +1,17 @@
 package stores
 
-
-
 type basicDataStore struct {
-	store     map[string]interface{}
-	upstream  DataStore
-	name      string
-	path      string
-	storeMode StoreMode
-	apiStore  APIStore
-	changed   bool
+	store           map[string]interface{}
+	upstream        DataStore
+	name            string
+	path            string
+	storeMode       StoreMode
+	persistentStore PersistentStore
+	changed         bool
 }
 
 func (c *basicDataStore) LoadAll() bool {
-	data, err := c.apiStore.LoadAll(c.path)
+	data, err := c.persistentStore.LoadAll(c.path)
 	if err != nil {
 		return false
 	}
@@ -29,7 +27,7 @@ func (c *basicDataStore) SaveAll() bool {
 	if !c.changed {
 		return true
 	}
-	err := c.apiStore.SaveAll(c.path, c.store)
+	err := c.persistentStore.SaveAll(c.path, c.store)
 	if err != nil {
 		return false
 	}
@@ -59,7 +57,7 @@ func (c *basicDataStore) GetValueWithName(n, k string) interface{} {
 }
 
 func (c *basicDataStore) loadValue(k string) interface{} {
-	value, err := c.apiStore.LoadValue(c.path, k)
+	value, err := c.persistentStore.LoadValue(c.path, k)
 	if err != nil {
 		return nil
 	}
@@ -67,7 +65,7 @@ func (c *basicDataStore) loadValue(k string) interface{} {
 }
 
 func (c *basicDataStore) saveValue(k string, v interface{}) bool {
-	err := c.apiStore.SaveValue(c.path, k, v)
+	err := c.persistentStore.SaveValue(c.path, k, v)
 	if err != nil {
 		return false
 	}
@@ -172,14 +170,12 @@ func NewBasicDataStore(upstream DataStore, name string, mode StoreMode) BasicDat
 	if upstream != nil {
 		storePath = upstream.Path() + "/" + name
 	}
-	store := &basicDataStore{store: map[string]interface{}{}, upstream: upstream, name: name, path: storePath, storeMode: mode}
+	store := &basicDataStore{store: map[string]interface{}{}, upstream: upstream, name: name, path: storePath, storeMode: mode, persistentStore: NewAPIStore()}
 	if mode == Once {
 		store.LoadAll()
 	}
 	return store
 }
-
-
 
 //func DownstreamCommonDataStore(upstream DataStore) DataStore {
 //	return &basicDataStore{store: map[string]interface{}{}, upstream: upstream}
