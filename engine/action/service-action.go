@@ -108,6 +108,7 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
 		NextActions:   allNextActions,
+		ActionInfo: a.info,
 	})
 	return err
 }

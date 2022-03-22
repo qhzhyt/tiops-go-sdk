@@ -11,9 +11,16 @@ import (
 )
 
 type ExecutionAction struct {
-	RemoteServiceAction
+	//RemoteServiceAction
+	client              *actionClient.RemoteActionClient
+	node                *types.Node
+	nodeInfo            *models.WorkflowNodeInfo
 	innerActionInfo     *models.ActionInfo
 	executionActionInfo *models.ActionInfo
+}
+
+func (a *ExecutionAction) Control(ctrl types.ActionControl, args map[string]string) error {
+	panic("implement me")
 }
 
 func getServiceNameByAction(nodeInfo *models.WorkflowNodeInfo, executionInfo *models.ActionInfo) string {
@@ -28,12 +35,9 @@ func getServiceNameByAction(nodeInfo *models.WorkflowNodeInfo, executionInfo *mo
 
 func (a *ExecutionAction) Copy() types.Action {
 	return &ExecutionAction{
-		RemoteServiceAction: RemoteServiceAction{
-			info:     a.info,
-			client:   a.client,
-			node:     nil,
-			nodeInfo: a.nodeInfo,
-		},
+		client:              a.client,
+		node:                a.node,
+		nodeInfo:            a.nodeInfo,
 		innerActionInfo:     a.innerActionInfo,
 		executionActionInfo: a.executionActionInfo,
 	}
@@ -83,17 +87,18 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 	defer cancel()
 
 	_, err := a.client.RegisterActionNode(ctx, &services.RegisterActionNodeRequest{
-		ActionName:    a.info.Name,
-		NodeId:        node.Info.Id,
-		ActionOptions: node.Info.ActionOptions,
-		NextActions:   allNextActions,
-		InnerActionInfo:   a.innerActionInfo,
+		ActionName:      a.executionActionInfo.Name,
+		NodeId:          node.Info.Id,
+		ActionOptions:   node.Info.ActionOptions,
+		NextActions:     allNextActions,
+		InnerActionInfo: a.innerActionInfo,
+		ActionInfo:      a.executionActionInfo,
 	})
 	return err
 }
 
 func (a *ExecutionAction) Info() *models.ActionInfo {
-	return a.info
+	return a.innerActionInfo
 }
 
 func (a *ExecutionAction) Type() types.ActionType {
@@ -103,7 +108,7 @@ func (a *ExecutionAction) Type() types.ActionType {
 func (a *ExecutionAction) Call(request *types.ActionRequest) (*types.ActionResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
 	defer cancel()
-	res, err := a.client.CallAction(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
+	res, err := a.client.CallAction(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.executionActionInfo.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
 
 	if err != nil {
 		return nil, err
@@ -114,9 +119,7 @@ func (a *ExecutionAction) Call(request *types.ActionRequest) (*types.ActionRespo
 
 func NewExecutionAction(actionInfo, executionActionInfo *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
 	return &ExecutionAction{
-		RemoteServiceAction: RemoteServiceAction{
-			nodeInfo: nodeInfo,
-		},
+		nodeInfo:            nodeInfo,
 		innerActionInfo:     actionInfo,
 		executionActionInfo: executionActionInfo,
 	}

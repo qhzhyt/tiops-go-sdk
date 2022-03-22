@@ -45,9 +45,12 @@ func (w *Workflow) GetActionInfo(aId string) *models.ActionInfo {
 func (w *Workflow) RegisterActionNodes() bool {
 	result := true
 	wg := &sync.WaitGroup{}
+	w.Logger.Info("before RegisterActionNodes")
 	for _, node := range w.Nodes {
 		wg.Add(1)
 		node0 := node
+
+		w.Logger.Error(fmt.Sprintf("before register node %s for action %s", node0.Info.Id, node0.Info.ActionName))
 
 		go func() {
 			defer wg.Done()
@@ -65,11 +68,13 @@ func (w *Workflow) RegisterActionNodes() bool {
 				w.Logger.Error(fmt.Sprintf("register node %s for action %s failed, %s", node0.Info.Id, node0.Info.ActionName, err))
 				result = false
 			}
+			w.Logger.Error(fmt.Sprintf("after register node %s for action %s", node0.Info.Id, node0.Info.ActionName))
 		}()
-
-		wg.Wait()
-
 	}
+	wg.Wait()
+
+	w.Logger.Info("after RegisterActionNodes")
+
 	return result
 }
 
