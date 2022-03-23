@@ -50,7 +50,7 @@ func (w *Workflow) RegisterActionNodes() bool {
 		wg.Add(1)
 		node0 := node
 
-		w.Logger.Error(fmt.Sprintf("before register node %s for action %s", node0.Info.Id, node0.Info.ActionName))
+		//w.Logger.Error(fmt.Sprintf("before register node %s for action %s", node0.Info.Id, node0.Info.ActionName))
 
 		go func() {
 			defer wg.Done()
@@ -63,12 +63,15 @@ func (w *Workflow) RegisterActionNodes() bool {
 				} else {
 					break
 				}
+				if retryTimes%10 == 5 {
+					w.Logger.Error(fmt.Sprintf("register node %s for action %s failed, %s", node0.Info.Id, node0.Info.ActionName, err))
+				}
 			}
 			if retryTimes == RegisterActionRetryTimes {
 				w.Logger.Error(fmt.Sprintf("register node %s for action %s failed, %s", node0.Info.Id, node0.Info.ActionName, err))
 				result = false
 			}
-			w.Logger.Error(fmt.Sprintf("after register node %s for action %s", node0.Info.Id, node0.Info.ActionName))
+			//w.Logger.Error(fmt.Sprintf("after register node %s for action %s", node0.Info.Id, node0.Info.ActionName))
 		}()
 	}
 	wg.Wait()

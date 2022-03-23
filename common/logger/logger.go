@@ -122,43 +122,43 @@ func (l *Logger) Emit(log *models.Log) {
 	l.logChan <- log
 }
 
-func (l *Logger) Debug(msg interface{}) {
+func (l *Logger) Debug(msg ...interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_DEBUG {
-		l.logChan <- l.newLog(msg, models.LogLevel_DEBUG)
+		l.logChan <- l.newLog(fmt.Sprint(msg...), models.LogLevel_DEBUG)
 	}
 }
 
-func (l *Logger) Info(msg interface{}) {
+func (l *Logger) Info(msg ...interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_INFO {
-		l.logChan <- l.newLog(msg, models.LogLevel_INFO)
+		l.logChan <- l.newLog(fmt.Sprint(msg...), models.LogLevel_INFO)
 	}
 }
 
-func (l *Logger) Warning(msg interface{}) {
+func (l *Logger) Warning(msg ...interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_WARNING {
-		l.logChan <- l.newLog(msg, models.LogLevel_WARNING)
+		l.logChan <- l.newLog(fmt.Sprint(msg...), models.LogLevel_WARNING)
 	}
 }
 
-func (l *Logger) Error(msg interface{}) {
+func (l *Logger) Error(msg ...interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_ERROR {
-		l.logChan <- l.newLog(msg, models.LogLevel_ERROR)
+		l.logChan <- l.newLog(fmt.Sprint(msg...), models.LogLevel_ERROR)
 	}
 }
 
-func (l *Logger) Critical(msg interface{}) {
+func (l *Logger) Critical(msg ...interface{}) {
 	//logger := zap.New(core, zap.AddCaller())
 	if l.Level <= models.LogLevel_CRITICAL {
-		l.logChan <- l.newLog(msg, models.LogLevel_CRITICAL)
+		l.logChan <- l.newLog(fmt.Sprint(msg...), models.LogLevel_CRITICAL)
 	}
 }
 
-func (l *Logger) Println(msg interface{}) {
-	_log := l.newLog(msg, models.LogLevel_DEBUG)
+func (l *Logger) Println(msg ...interface{}) {
+	_log := l.newLog(fmt.Sprint(msg...), models.LogLevel_DEBUG)
 	fmt.Printf("%s", _log.Content)
 	//logger := zap.New(core, zap.AddCaller())
 }
@@ -202,4 +202,45 @@ func init() {
 
 func GetDefaultLogger() *Logger {
 	return _defaultLogger
+}
+
+func Debug(msg ...interface{}) {
+	//logger := zap.New(core, zap.AddCaller())
+	if _defaultLogger.Level <= models.LogLevel_DEBUG {
+		_defaultLogger.logChan <- _defaultLogger.newLog(fmt.Sprint(msg...), models.LogLevel_DEBUG)
+	}
+}
+
+func Info(msg ...interface{}) {
+	//logger := zap.New(core, zap.AddCaller())
+	if _defaultLogger.Level <= models.LogLevel_INFO {
+		_defaultLogger.logChan <- _defaultLogger.newLog(fmt.Sprint(msg...), models.LogLevel_INFO)
+	}
+}
+
+func Warning(msg ...interface{}) {
+	//logger := zap.New(core, zap.AddCaller())
+	if _defaultLogger.Level <= models.LogLevel_WARNING {
+		_defaultLogger.logChan <- _defaultLogger.newLog(fmt.Sprint(msg...), models.LogLevel_WARNING)
+	}
+}
+
+func Error(msg ...interface{}) {
+	//logger := zap.New(core, zap.AddCaller())
+	if _defaultLogger.Level <= models.LogLevel_ERROR {
+		_defaultLogger.logChan <- _defaultLogger.newLog(fmt.Sprint(msg...), models.LogLevel_ERROR)
+	}
+}
+
+func Critical(msg ...interface{}) {
+	//logger := zap.New(core, zap.AddCaller())
+	if _defaultLogger.Level <= models.LogLevel_CRITICAL {
+		_defaultLogger.logChan <- _defaultLogger.newLog(fmt.Sprint(msg...), models.LogLevel_CRITICAL)
+	}
+}
+
+func Println(msg ...interface{}) {
+	_log := _defaultLogger.newLog(fmt.Sprint(msg...), models.LogLevel_DEBUG)
+	fmt.Printf("%s", _log.Content)
+	//logger := zap.New(core, zap.AddCaller())
 }

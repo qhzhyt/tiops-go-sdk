@@ -6,6 +6,7 @@ import (
 	"time"
 	actionClient "tiops/common/action-client"
 	tiopsConfigs "tiops/common/config"
+	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/engine/types"
@@ -89,7 +90,7 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 				}
 			}
 
-			fmt.Println(targetNode.Inputs)
+			//fmt.Println(targetNode.Inputs)
 
 			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
 				Service:   getServiceName(targetNode.Info),
@@ -108,8 +109,9 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 		NodeId:        node.Info.Id,
 		ActionOptions: node.Info.ActionOptions,
 		NextActions:   allNextActions,
-		ActionInfo: a.info,
+		ActionInfo:    a.info,
 	})
+	logger.Error(err)
 	return err
 }
 

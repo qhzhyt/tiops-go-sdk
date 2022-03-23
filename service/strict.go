@@ -143,15 +143,15 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 	}
 	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store}
 
-	a.logger.Warning(len(ctx.Inputs))
+	//a.logger.Warning(len(ctx.Inputs))
 
 	if len(ctx.Inputs) < 1 {
 		//	数据源
 		batchSize := ctx.ActionOptions.GetIntOrDefault(BatchSizeName, 1)
 		batches := ctx.ActionOptions.GetIntOrDefault(BatchesName, 1)
 
-		a.logger.Warning(batchSize)
-		a.logger.Warning(batches)
+		//a.logger.Warning(batchSize)
+		//a.logger.Warning(batches)
 
 		batch := ctx.Store.GetIntOrDefault(BatchName, 0)
 		result := make(ActionDataBatch, batchSize)
@@ -162,7 +162,7 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 		if batch >= batches {
 			ctx.Done()
 		}
-		ctx.Store.SetValue(BatchName, batch)
+		ctx.Store.PutValue(BatchName, batch)
 
 		return result
 	} else {

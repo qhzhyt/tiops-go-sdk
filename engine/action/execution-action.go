@@ -5,6 +5,7 @@ import (
 	"time"
 	actionClient "tiops/common/action-client"
 	tiopsConfigs "tiops/common/config"
+	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/engine/types"
@@ -45,7 +46,7 @@ func (a *ExecutionAction) Copy() types.Action {
 
 func (a *ExecutionAction) Init(node *types.Node) error {
 	// 初始化时再创建 action 客户端
-	serviceName := getServiceNameByAction(node.Info, a.executionActionInfo)
+	serviceName := getServiceNameByAction(node.Info, a.innerActionInfo)
 
 	//if nodeInfo.StandAlone {
 	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
@@ -54,6 +55,11 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 	if _actionClientMap[serviceName] == nil {
 		_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
 	}
+
+	//logger.Info("node:", node)
+	//logger.Info("innerActionInfo:", a.innerActionInfo)
+	//logger.Info("executorActionInfo:", a.executionActionInfo)
+	//logger.Info("service name:", serviceName)
 
 	a.client = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
 
@@ -85,7 +91,6 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
 	defer cancel()
-
 	_, err := a.client.RegisterActionNode(ctx, &services.RegisterActionNodeRequest{
 		ActionName:      a.executionActionInfo.Name,
 		NodeId:          node.Info.Id,
@@ -94,6 +99,7 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 		InnerActionInfo: a.innerActionInfo,
 		ActionInfo:      a.executionActionInfo,
 	})
+	logger.Error(err)
 	return err
 }
 
