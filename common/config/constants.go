@@ -41,3 +41,11 @@ const (
 	DefaultEngineName  = "default"
 	MainWorkflowEngine = "main-workflow-engine"
 )
+
+const (
+	LoglevelDebug    = "DEBUG"
+	LoglevelInfo     = "INFO"
+	LoglevelWarning  = "WARNING"
+	LoglevelError    = "ERROR"
+	LoglevelCritical = "CRITICAL"
+)

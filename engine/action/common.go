@@ -5,9 +5,11 @@ import (
 	"tiops/engine/types"
 )
 
-func New(nodeInfo *models.WorkflowNodeInfo, actionInfos map[string]*models.ActionInfo) types.Action{
+func New(nodeInfo *models.WorkflowNodeInfo, actionInfos map[string]*models.ActionInfo) types.Action {
 	actionInfo := actionInfos[nodeInfo.ActionId]
 	switch actionInfo.Type {
+	case models.ActionType_ExecutorAction:
+		return NewRemoteServiceAction(actionInfo, nodeInfo)
 	case models.ActionType_ServiceAction:
 		return NewRemoteServiceAction(actionInfo, nodeInfo)
 	case models.ActionType_BuildInAction:

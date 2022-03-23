@@ -13,14 +13,6 @@ import (
 	"tiops/common/utils"
 )
 
-const (
-	LoglevelDebug    = "DEBUG"
-	LoglevelInfo     = "INFO"
-	LoglevelWarning  = "WARNING"
-	LoglevelError    = "ERROR"
-	LoglevelCritical = "CRITICAL"
-)
-
 var (
 	projectRoot = ""
 )
@@ -165,15 +157,15 @@ func (l *Logger) Println(msg ...interface{}) {
 
 func StringToLogLevel(level string) models.LogLevel {
 	switch level {
-	case LoglevelCritical:
+	case tiopsConfigs.LoglevelCritical:
 		return models.LogLevel_CRITICAL
-	case LoglevelError:
+	case tiopsConfigs.LoglevelError:
 		return models.LogLevel_ERROR
-	case LoglevelWarning:
+	case tiopsConfigs.LoglevelWarning:
 		return models.LogLevel_WARNING
-	case LoglevelInfo:
+	case tiopsConfigs.LoglevelInfo:
 		return models.LogLevel_INFO
-	case LoglevelDebug:
+	case tiopsConfigs.LoglevelDebug:
 		return models.LogLevel_DEBUG
 	default:
 		return models.LogLevel_INFO
