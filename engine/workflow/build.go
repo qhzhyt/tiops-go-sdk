@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"time"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
@@ -27,6 +28,7 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	for name, _ := range actionNameSet {
 		actionIds = append(actionIds, name)
 	}
+	logger.Info(actionIds)
 	//fmt.Println(actionIds)
 	//fmt.Println(nodeInfos)
 	actionInfos, err := client.GetActionListByIds(actionIds)
@@ -34,6 +36,7 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	for _, actionInfo := range actionInfos {
 		result[actionInfo.XId] = actionInfo
 	}
+	logger.Info(actionInfos)
 	return result, err
 }
 
@@ -82,6 +85,8 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 
 	for _, nodeInfo := range wi.Spec.Nodes {
 		wf.Actions[nodeInfo.Id] = action.New(nodeInfo, actionInfos)
+		logger.Info(wf.Actions[nodeInfo.Id])
+		time.Sleep(time.Second)
 	}
 
 	spec := wi.Spec
@@ -108,15 +113,14 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	for _, nodeInfo := range spec.Nodes {
 		nodeInfos[nodeInfo.Id] = nodeInfo
 		node := &types.Node{
-			ID:       nodeInfo.Id,
-			Action:   wf.GetAction(nodeInfo.Id).Copy(),
-			Inputs:   types.InputConnectionsMap{},
-			Outputs:  types.OutputConnectionsMap{},
-			Info:     nodeInfo,
-			SubNodes: map[string][]*types.Node{},
+			ID:             nodeInfo.Id,
+			Action:         wf.GetAction(nodeInfo.Id).Copy(),
+			Inputs:         types.InputConnectionsMap{},
+			Outputs:        types.OutputConnectionsMap{},
+			Info:           nodeInfo,
+			SubNodes:       map[string][]*types.Node{},
 			ActionExecutor: actionInfos[nodeInfo.ActionExecutor],
 		}
-
 
 		//fmt.Println(node)
 		if node.Action.Info().Inputs != nil {
