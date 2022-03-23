@@ -20,7 +20,7 @@ const (
 	EnvNameWorkspaceId          = "WORKSPACE_ID"
 	EnvNameSubWorkflowId        = "SUB_WORKFLOW_ID"
 	EnvNameWorkflowType         = "WORKFLOW_TYPE"
-	EnvNameJobId          = "JOB_ID"
+	EnvNameJobId                = "JOB_ID"
 	EnvNameExecutionId          = "EXECUTION_ID"
 	EnvNameAppType              = "APP_TYPE"
 	EnvNameLogLevel             = "LOG_LEVEL"
@@ -28,6 +28,7 @@ const (
 	EnvNameInMainEngine         = "IN_MAIN_ENGINE"
 	EnvNameTiopsSystemNamespace = "TIOPS_SYSTEM_NAMESPACE"
 	EnvNameRunEngine            = "RUN_ENGINE"
+	EnvNameAppName              = "APP_NAME"
 )
 
 const (

@@ -185,12 +185,17 @@ var _defaultLogger *Logger
 func init() {
 	apiClient := client.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 	source := "unknown"
-	switch tiopsConfigs.AppType {
-	case tiopsConfigs.AppTypeWorkflowEngine:
-		source = "workflow-engine"
-	case tiopsConfigs.AppTypeActionServer:
-		source = fmt.Sprintf("action-server-%s", tiopsConfigs.ProjectId)
+	if tiopsConfigs.InMainEngine() {
+		source = "main-engine"
+	} else {
+		source = tiopsConfigs.AppName
 	}
+	//switch tiopsConfigs.AppType {
+	//case tiopsConfigs.AppTypeWorkflowEngine:
+	//	source = "workflow-engine"
+	//case tiopsConfigs.AppTypeActionServer:
+	//	source = fmt.Sprintf("action-server-%s", tiopsConfigs.ProjectId)
+	//}
 	_defaultLogger = NewRemoteLogger(
 		tiopsConfigs.AppType,
 		tiopsConfigs.LogId,

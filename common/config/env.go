@@ -17,6 +17,7 @@ var (
 	inMainEngine         = os.Getenv(EnvNameInMainEngine)
 	runEngine            = os.Getenv(EnvNameRunEngine)
 	TiopsSystemNamespace = os.Getenv(EnvNameTiopsSystemNamespace)
+	AppName              = os.Getenv(EnvNameAppName)
 )
 
 func init() {

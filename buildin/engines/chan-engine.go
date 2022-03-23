@@ -79,7 +79,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 			//}
 		}
 
-		w.Info(apps)
+		w.Debug(apps)
 
 		return &models.WorkflowResources{
 			Apps: apps,
@@ -144,6 +144,25 @@ func inputLog(info *models.ActionInfo, requestId string, inputData map[string]*s
 	return fmt.Sprintf("Action request %s to %s with inputs: %v", requestId, info.Name, infos)
 }
 
+func errorLog(info *models.ActionInfo, err error, inputData map[string]*services.ActionData) string {
+	infos := map[string]map[string]interface{}{}
+	for k, v := range inputData {
+		if v != nil {
+			infos[k] = map[string]interface{}{
+				"id":      v.Id,
+				"count":   v.Count,
+				"example": v.Data[0],
+			}
+		} else {
+			infos[k] = map[string]interface{}{
+				"id":    "no data",
+				"count": "0",
+			}
+		}
+	}
+	return fmt.Sprintf("Call action %s get error %s with inputs: %v", info.Name, err.Error(), infos)
+}
+
 func outputLog(info *models.ActionInfo, responseId string, outputData map[string]*services.ActionData) string {
 	infos := map[string]map[string]interface{}{}
 	for k, v := range outputData {
@@ -178,7 +197,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 		if !done {
 			requestId := fmt.Sprintf("%x", utils.SnowflakeID())
-			w.Logger.Info(inputLog(node.Action.Info(), requestId, inputData))
+			w.Logger.Debug(inputLog(node.Action.Info(), requestId, inputData))
 
 			processRecord := &models.ProcessRecord{
 				StartTime:      utils.CurrentTimeStampMS(),
@@ -193,7 +212,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 			res, err := node.Action.Call(&types.ActionRequest{Inputs: inputData, ID: requestId})
 			if err != nil {
-				w.Logger.Error(fmt.Sprintf("Call %s get error: %s\nCurrent inputs: %v", node.Action.Info().Name, err.Error(), inputData))
+				w.Logger.Error(errorLog(node.Action.Info(), err, inputData))
 				continue
 				//utils.SleepAndExit(time.Second*3, 1)
 				//return
@@ -258,7 +277,7 @@ func (w *basicChanEngine) Exec(workflow *types.Workflow) {
 	if workflow.OutputNode != nil {
 		for k, outputs := range workflow.OutputNode.Inputs {
 			for _, output := range outputs {
-				w.Logger.Info(fmt.Sprintln("Output", k, <-output.DataChan))
+				w.Logger.Debug(fmt.Sprintln("Output", k, <-output.DataChan))
 				//fmt.Println(k, <-output.DataChan)
 			}
 		}

@@ -5,7 +5,6 @@ import (
 	"time"
 	actionClient "tiops/common/action-client"
 	tiopsConfigs "tiops/common/config"
-	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/engine/types"
@@ -99,7 +98,6 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 		InnerActionInfo: a.innerActionInfo,
 		ActionInfo:      a.executionActionInfo,
 	})
-	logger.Error(err)
 	return err
 }
 
