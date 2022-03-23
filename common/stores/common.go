@@ -137,8 +137,7 @@ func (c *basicDataStore) GetValue(k string) interface{} {
 		return c.LoadValue(k)
 	}
 
-	return nil
-
+	return v
 }
 
 func (c *basicDataStore) SaveValue(k string, v interface{}) bool {
@@ -153,6 +152,7 @@ func (c *basicDataStore) SaveValue(k string, v interface{}) bool {
 		if c.storeMode > Never {
 			return c.saveValue(k, v)
 		}
+		return true
 	}
 	return false
 }
