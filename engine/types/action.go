@@ -33,6 +33,7 @@ type ActionResponse struct {
 type Action interface {
 	Init(node *Node) error
 	Call(request *ActionRequest) (*ActionResponse, error)
+	CallStream(request *ActionRequest, callback func(res *ActionResponse, err error)) error
 	Info() *models.ActionInfo
 	Control(ctrl ActionControl, args map[string]string) error
 	Type() ActionType

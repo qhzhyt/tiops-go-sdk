@@ -1,14 +1,14 @@
 package service
 
-func (ac *ActionContext) Done() {
+func (ac *ActionNodeContext) Done() {
 	ac.done = true
 }
 
-func (ac *ActionContext) HasDone() bool {
+func (ac *ActionNodeContext) HasDone() bool {
 	return ac.done
 }
 
-func (ac *ActionContext) Copy() *ActionContext {
-	return &ActionContext{Logger: ac.Logger}
+func (ac *ActionNodeContext) Copy() *ActionNodeContext {
+	return &ActionNodeContext{Logger: ac.Logger}
 }
 

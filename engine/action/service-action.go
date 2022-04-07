@@ -132,6 +132,33 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
 }
 
+func (a *RemoteServiceAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error)) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
+	defer cancel()
+	stream, err := a.client.CallActionStream(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
+
+	if err != nil {
+		return err
+	}
+
+	for {
+		res, err := stream.Recv()
+		if err != nil {
+			callback(nil, err)
+			continue
+		}
+		if res == nil {
+			return nil
+		}
+		callback(&types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil)
+		if res.Done {
+			break
+		}
+	}
+
+	return nil
+}
+
 var _actionClientMap = map[string]*actionClient.RemoteActionClient{}
 
 func getServiceName(nodeInfo *models.WorkflowNodeInfo) string {

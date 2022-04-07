@@ -1,10 +1,10 @@
 package service
 
 import (
-	"tiops/common/stores"
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
+	"tiops/common/stores"
 )
 
 type ActionContext struct {
@@ -12,35 +12,49 @@ type ActionContext struct {
 	Info        *models.ActionInfo
 	InputNames  []string
 	OutputNames []string
-	done        bool
+}
+
+type ActionNodeContext struct {
+	*ActionContext
+	Store         stores.DataStore
+	NodeId        string
+	ActionOptions ActionOptions
+	done bool
 }
 
 type RequestContext struct {
-	*ActionContext
-	Store         stores.DataStore
-	NodeId        string
+	*ActionNodeContext
+	//Store         stores.DataStore
+	//NodeId        string
 	Input         ActionDataItem
-	ActionOptions ActionOptions
+	//ActionOptions ActionOptions
 }
 
 type BatchRequestContext struct {
-	*ActionContext
-	Store         stores.DataStore
-	NodeId        string
+	*ActionNodeContext
 	Inputs        ActionDataMap
-	ActionOptions ActionOptions
+	//ActionOptions ActionOptions
 	done          bool
 }
 
+type StreamRequestContext struct {
+	BatchRequestContext
+	Push func(data ActionDataBatch) error
+}
+
+/*func (s *StreamRequestContext) Push(data ActionData) error {
+
+}*/
+
 type InitContext struct {
-	*ActionContext
+	*ActionNodeContext
 }
 
 type NodeRegisterContext struct {
-	*ActionContext
-	Store         stores.DataStore
-	NodeId        string
-	ActionOptions ActionOptions
+	*ActionNodeContext
+	//Store         stores.DataStore
+	//NodeId        string
+	//ActionOptions ActionOptions
 	NextActions   []*services.NextActions
 }
 
@@ -66,7 +80,7 @@ type ActionInit interface {
 }
 
 type ActionApplication interface {
-	PieceProcess
+	//PieceProcess
 }
 
 type StatusProvider interface {
@@ -75,16 +89,22 @@ type StatusProvider interface {
 
 type ActionItemFunc func(item ActionDataItem) ActionDataItem
 
-type Action ActionApplication
+type Action interface {
+}
 
 type BatchAction interface {
 	Action
 	BatchProcess
 }
 
+type PullStreamAction interface {
+	CallPullStream(ctx *StreamRequestContext) error
+}
+
 type StrictAction interface {
 	BatchAction
 	ActionInit
+	PullStreamAction
 	PushMessageProcess
 	StatusProvider
 	RegisterNode
@@ -99,7 +119,7 @@ type BatchProcess interface {
 }
 
 type PushMessageContext struct {
-	*ActionContext
+	*ActionNodeContext
 	NodeId        string
 	MessageHeader ActionOptions
 	MessageData   []byte

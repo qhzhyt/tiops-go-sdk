@@ -33,6 +33,30 @@ type defaultStrictAction struct {
 	processedCount int64
 }
 
+func (a *defaultStrictAction) CallPullStream(ctx *StreamRequestContext) error {
+	streamAction := a.action.(PullStreamAction)
+	if streamAction != nil {
+		return streamAction.CallPullStream(ctx)
+	}
+
+	for {
+		res := a.CallBatch(&ctx.BatchRequestContext)
+		if res == nil || len(res) < 1 {
+			ctx.Done()
+			break
+		}
+		err := ctx.Push(res)
+		if err != nil {
+			return err
+		}
+		if ctx.HasDone() {
+			break
+		}
+	}
+
+	return nil
+}
+
 func (a *defaultStrictAction) Status() *services.ActionStatus {
 	if sp, ok := a.action.(StatusProvider); ok {
 		return sp.Status()
@@ -133,7 +157,14 @@ func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
 
 func (a *defaultStrictAction) Call(ctx *RequestContext) ActionDataItem {
 	a.processedCount++
-	return a.action.Call(ctx)
+
+	action := a.action.(PieceProcess)
+
+	if action != nil {
+		return action.Call(ctx)
+	}
+
+	return nil
 }
 
 func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatch {
@@ -141,7 +172,12 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 		a.processedCount += int64(ctx.Inputs.Count())
 		return ba.CallBatch(ctx)
 	}
-	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store}
+	requestContext := &RequestContext{
+		ActionNodeContext: ctx.ActionNodeContext,
+		//NodeId: ctx.NodeId,
+		//ActionOptions: ctx.ActionOptions,
+		//Store: ctx.Store,
+	}
 
 	//a.logger.Warning(len(ctx.Inputs))
 
@@ -150,8 +186,8 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 		batchSize := ctx.ActionOptions.GetIntOrDefault(BatchSizeName, 1)
 		batches := ctx.ActionOptions.GetIntOrDefault(BatchesName, 1)
 
-		//a.logger.Warning(batchSize)
-		//a.logger.Warning(batches)
+		a.logger.Warning(batchSize)
+		a.logger.Warning(batches)
 
 		batch := ctx.Store.GetIntOrDefault(BatchName, 0)
 		result := make(ActionDataBatch, batchSize)
@@ -159,6 +195,7 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 			result[i] = a.Call(requestContext)
 		}
 		batch++
+		a.logger.Warning(batch)
 		if batch >= batches {
 			ctx.Done()
 		}
@@ -201,18 +238,18 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 	if len(dataCache) >= len(ctx.InputNames) {
 		delete(nodeData0.messageCache, traceId)
-		inputDataMap := TransActionDataMap(dataCache, ctx.ActionContext.Info.Inputs)
+		inputDataMap := TransActionDataMap(dataCache, ctx.ActionNodeContext.Info.Inputs)
 
 		batchCtx := &BatchRequestContext{
-			ActionContext: ctx.ActionContext,
-			NodeId:        ctx.NodeId,
-			Inputs:        inputDataMap,
-			ActionOptions: nodeData0.actionOptions,
+			ActionNodeContext: ctx.ActionNodeContext,
+			//NodeId:            ctx.NodeId,
+			Inputs:            inputDataMap,
+			//ActionOptions:     nodeData0.actionOptions,
 		}
 
 		result := a.CallBatch(batchCtx)
 
-		outputs := ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionContext.Info.Outputs)
+		outputs := ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionNodeContext.Info.Outputs)
 		nodeData0.actionDataMapQueue <- outputs
 
 		if batchCtx.HasDone() {

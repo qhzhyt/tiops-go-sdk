@@ -19,7 +19,7 @@ func (af ActionFunction) Call(ctx *RequestContext) ActionDataItem {
 //
 //	}, ctx.Info.Inputs)*/
 //
-//	requestContext := &RequestContext{ActionContext: ctx.ActionContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store,}
+//	requestContext := &RequestContext{ActionNodeContext: ctx.ActionNodeContext, NodeId: ctx.NodeId, ActionOptions: ctx.ActionOptions, Store: ctx.Store,}
 //
 //	return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
 //		requestContext.Input = item

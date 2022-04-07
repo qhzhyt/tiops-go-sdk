@@ -35,14 +35,15 @@ type actionServer struct {
 	actions                 map[string]StrictAction
 	engines                 map[string]types.WorkflowEngine
 	actionInfoMap           map[string]*models.ActionInfo
-	actionNodeOptionsMap    map[string]ActionOptions
+	//actionNodeOptionsMap    map[string]ActionOptions
+	actionNodeContextMap    map[string]*ActionNodeContext
 	actionContextMap        map[string]*ActionContext
 	projectInfo             *models.ProjectInfo
 	Logger                  *logger.Logger
 	apiClient               *apiClient.APIClient
 	updatingExecutionRecord bool
 	requiredResourcesMap    map[int]*models.WorkflowResources
-	nodeStores              map[string]stores.DataStore
+	//nodeStores              map[string]stores.DataStore
 	//workspaceDataStore      stores.DataStore
 	//workflowDataStore       DataStore
 	//jobDataStore            DataStore
@@ -122,10 +123,10 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 					a.Logger.Error(errors.New("action " + actionName + " not found"))
 				} else {
 					pushMessageContext := &PushMessageContext{
-						ActionContext: a.actionContextMap[actionName],
-						MessageHeader: actionMessage.Header,
-						MessageData:   actionMessage.Data,
-						NodeId:        actionMessage.NodeId,
+						ActionNodeContext: a.actionNodeContextMap[actionName],
+						MessageHeader:     actionMessage.Header,
+						MessageData:       actionMessage.Data,
+						NodeId:            actionMessage.NodeId,
 					}
 					action.OnMessage(pushMessageContext)
 				}
@@ -147,10 +148,10 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 								actionData.Id = idString
 								messageData, _ := proto.Marshal(actionData)
 								pushMessageContext := &PushMessageContext{
-									ActionContext: a.actionContextMap[actionName],
-									MessageHeader: actionMessage.Header,
-									MessageData:   messageData,
-									NodeId:        actionMessage.NodeId,
+									ActionNodeContext: a.actionNodeContextMap[actionName],
+									MessageHeader:     actionMessage.Header,
+									MessageData:       messageData,
+									NodeId:            actionMessage.NodeId,
 								}
 								err = action.OnMessage(pushMessageContext)
 								if err != nil {
@@ -190,25 +191,25 @@ func (a *actionServer) GetRequiredResources(ctx context.Context, query *services
 	return requiredResources, nil
 }
 
-func (a *actionServer) getActionOptions(nodeId string) ActionOptions {
-	return a.actionNodeOptionsMap[nodeId]
-}
+//func (a *actionServer) getActionOptions(nodeId string) ActionOptions {
+//	return a.actionNodeOptionsMap[nodeId]
+//}
 
 func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (*services.ActionResponse, error) {
 	actionName := request.ActionName
 	a.Logger.Info(inputLog(actionName, request.Inputs))
 	inputDataMap := TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
-	actionContext := a.actionContextMap[actionName]
+	actionNodeContext := a.actionNodeContextMap[request.NodeId]
 
 	var result ActionDataBatch
 	if a.actions[actionName] != nil {
 		result = a.actions[actionName].CallBatch(
 			&BatchRequestContext{
-				ActionContext: actionContext,
-				NodeId:        request.NodeId,
-				Inputs:        inputDataMap,
-				Store:         a.nodeStores[request.NodeId],
-				ActionOptions: a.getActionOptions(request.NodeId),
+				ActionNodeContext: actionNodeContext,
+				//NodeId:            request.NodeId,
+				Inputs:            inputDataMap,
+				//Store:             a.nodeStores[request.NodeId],
+				//ActionOptions:     a.getActionOptions(request.NodeId),
 			})
 	} else {
 		return nil, errors.New("action " + actionName + " not found")
@@ -217,26 +218,69 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 	outputs := ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
 	a.Logger.Info(outputLog(actionName, outputs))
 
-	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionContext.HasDone(), TraceId: request.TraceId}, nil
+	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}, nil
+}
+
+func (a *actionServer) CallActionPullStream(request *services.ActionRequest, server services.ActionsService_CallActionPullStreamServer) error {
+	actionName := request.ActionName
+	a.Logger.Info(inputLog(actionName, request.Inputs))
+	inputDataMap := TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
+	actionNodeContext := a.actionNodeContextMap[request.NodeId]
+
+	//var result ActionDataBatch
+
+	if a.actions[actionName] != nil {
+		return a.actions[actionName].CallPullStream(&StreamRequestContext{
+			BatchRequestContext: BatchRequestContext{
+				ActionNodeContext: actionNodeContext,
+				//Store:         a.nodeStores[request.NodeId],
+				//NodeId:        request.NodeId,
+				Inputs:        inputDataMap,
+				//ActionOptions: a.getActionOptions(request.NodeId),
+				done:          false,
+			},
+			Push: func(data ActionDataBatch) error {
+				outputs := ToServiceActionDataMap(request.Id, request.TraceId, data, a.actionInfoMap[actionName].Outputs)
+				a.Logger.Info(outputLog(actionName, outputs))
+
+				res := &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}
+
+				return server.Send(res)
+			},
+		})
+	}
+
+	return errors.New("action " + actionName + " not found")
+
 }
 
 func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (*services.StatusResponse, error) {
 
 	actionName := request.ActionName
 
-	a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
+	//a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
 	a.Logger.Info(fmt.Sprint("register node ", request.NodeId, " with options ", request.ActionOptions))
 
-	nodeStore := stores.NewActionNodeStore(request.NodeId)
-	a.nodeStores[request.NodeId] = nodeStore
+
+	//a.nodeStores[request.NodeId] = nodeStore
 
 	if action := a.actions[actionName]; action != nil {
-		err := action.RegisterNode(&NodeRegisterContext{
+
+		nodeStore := stores.NewActionNodeStore(request.NodeId)
+
+		actionNodeContext := &ActionNodeContext{
 			ActionContext: a.actionContextMap[actionName],
-			NodeId:        request.NodeId,
-			Store:         nodeStore,
-			ActionOptions: request.ActionOptions,
-			NextActions:   request.NextActions,
+			done:          false,
+			ActionOptions:     request.ActionOptions,
+			NodeId:            request.NodeId,
+			Store:             nodeStore,
+		}
+
+		a.actionNodeContextMap[request.NodeId] = actionNodeContext
+
+		err := action.RegisterNode(&NodeRegisterContext{
+			ActionNodeContext: actionNodeContext,
+			NextActions:       request.NextActions,
 		},
 		)
 		if err != nil {
@@ -269,7 +313,7 @@ func (a *actionServer) RegisterEngine(name string, engine types.WorkflowEngine) 
 
 func (a *actionServer) init() {
 	for name, app := range a.actions {
-		app.Init(&InitContext{a.actionContextMap[name]})
+		app.Init(&InitContext{a.actionNodeContextMap[name]})
 	}
 }
 
@@ -361,11 +405,12 @@ func newActionServer() *actionServer {
 		server:               s,
 		actions:              map[string]StrictAction{},
 		engines:              map[string]types.WorkflowEngine{},
-		nodeStores:           map[string]stores.DataStore{},
+		//nodeStores:           map[string]stores.DataStore{},
 		apiClient:            tiopsApiClient,
 		Logger:               remoteLogger,
-		actionNodeOptionsMap: map[string]ActionOptions{},
-		actionContextMap:     map[string]*ActionContext{},
+		actionContextMap: map[string]*ActionContext{},
+		//actionNodeOptionsMap: map[string]ActionOptions{},
+		actionNodeContextMap: map[string]*ActionNodeContext{},
 		requiredResourcesMap: map[int]*models.WorkflowResources{},
 	}
 

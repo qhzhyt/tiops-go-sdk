@@ -70,6 +70,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 				Replica:     1,
 				ServiceMode: models.ServiceMode_One,
 			}
+
 			//if node.Info.StandAlone {
 			//	app.Name = config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID)
 			apps = append(apps, app)
@@ -177,6 +178,8 @@ func outputLog(info *models.ActionInfo, responseId string, outputData map[string
 func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 	done := false
 
+	actionInfo := node.Action.Info()
+
 	for !done {
 		maxBacklog := 0
 		inputData := map[string]*services.ActionData{}
@@ -210,39 +213,59 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				BacklogBatches: int32(maxBacklog),
 			}
 
-			res, err := node.Action.Call(&types.ActionRequest{Inputs: inputData, ID: requestId})
-			if err != nil {
-				w.Logger.Error(errorLog(node.Action.Info(), err, inputData))
-				continue
-				//utils.SleepAndExit(time.Second*3, 1)
-				//return
-			}
+			processResponse := func(res *types.ActionResponse, err error) {
+				if err != nil {
+					w.Logger.Error(errorLog(node.Action.Info(), err, inputData))
+					return
+					//utils.SleepAndExit(time.Second*3, 1)
+					//return
+				}
 
-			processRecord.EndTime = utils.CurrentTimeStampMS()
-			if processRecord.ItemCount == 0 {
-				processRecord.ItemCount = itemCount(res.Outputs)
+				processRecord.EndTime = utils.CurrentTimeStampMS()
 				if processRecord.ItemCount == 0 {
-					processRecord.ItemCount = 1
+					processRecord.ItemCount = itemCount(res.Outputs)
+					if processRecord.ItemCount == 0 {
+						processRecord.ItemCount = 1
+					}
+				}
+				//processRecord.BatchSize = processRecord.ItemCount
+
+				processRecord.ElapsedTime = int32(processRecord.EndTime - processRecord.StartTime)
+				processRecord.ProcessRate = float32(processRecord.ItemCount) / float32(processRecord.ElapsedTime) * 1000
+
+				w.recordManager.AddProcessRecord(processRecord)
+
+				w.Logger.Info(outputLog(node.Action.Info(), requestId, res.Outputs))
+				//time.Sleep(time.Second * 10)
+				for k, outputs := range node.Outputs {
+					for _, output := range outputs {
+						output.DataChan <- res.Outputs[k]
+					}
+				}
+
+				if res.Done {
+					done = true
 				}
 			}
-			//processRecord.BatchSize = processRecord.ItemCount
 
-			processRecord.ElapsedTime = int32(processRecord.EndTime - processRecord.StartTime)
-			processRecord.ProcessRate = float32(processRecord.ItemCount) / float32(processRecord.ElapsedTime) * 1000
+			if actionInfo.CallMode == models.CallMode_OnceCall {
 
-			w.recordManager.AddProcessRecord(processRecord)
+			}
 
-			w.Logger.Info(outputLog(node.Action.Info(), requestId, res.Outputs))
-			//time.Sleep(time.Second * 10)
-			for k, outputs := range node.Outputs {
-				for _, output := range outputs {
-					output.DataChan <- res.Outputs[k]
+			actionRequest := &types.ActionRequest{Inputs: inputData, ID: requestId}
+
+			switch actionInfo.CallMode {
+			case models.CallMode_PullStreamCall:
+				err := node.Action.CallStream(actionRequest, func(res *types.ActionResponse, err error) {
+					processResponse(res, err)
+				})
+				if err != nil {
+					w.Logger.Error(err)
 				}
+			default:
+				processResponse(node.Action.Call(actionRequest))
 			}
 
-			if res.Done {
-				done = true
-			}
 		}
 
 		if done {
