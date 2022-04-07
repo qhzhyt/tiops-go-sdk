@@ -45,39 +45,6 @@ func NewRemoteActionClient(ip string, port int) *RemoteActionClient {
 	}
 
 	client := &RemoteActionClient{ActionsServiceClient: services.NewActionsServiceClient(conn), conn: conn}
-	//defer conn.Close()
-	//client :=
-
-	//ctx, cancel := context.WithTimeout(context.Background(), 10000*time.Second)
-	//defer cancel()
-	//startTime := time.Now().Unix()
-	//n := 0
-	//for i := 0 ; i < 10000; i++ {
-	//
-	//	go func() {
-	//		_, err := client.CallAction(ctx, &ActionRequest{Name: "square", Args: &ActionArguments{Type: ArgumentsType_JSON, Value: "[1]"}})
-	//
-	//		if err != nil {
-	//			fmt.Printf("error %v", err)
-	//			return
-	//		}
-	//		n++
-	//	}()
-	//
-	//	//fmt.Printf("%v\n", stream)
-	//	if i % 1000 == 999 {
-	//		fmt.Println(i, "/", 10000)
-	//	}
-	//}
-	//
-	//for true {
-	//	time.Sleep(time.Millisecond * 500)
-	//	if n > 9990 {
-	//		break
-	//	}
-	//}
-	//
-	//fmt.Println("used time", time.Now().Unix() - startTime)
 
 	return client
 }

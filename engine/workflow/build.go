@@ -15,7 +15,6 @@ import (
 var _apiClient = apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 
 func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.APIClient) (map[string]*models.ActionInfo, error) {
-	//return w.Packages[pId].GetAction(aName)
 	actionNameSet := map[string]bool{}
 	for _, nodeInfo := range nodeInfos {
 		actionNameSet[nodeInfo.ActionId] = true
@@ -27,9 +26,6 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	for name, _ := range actionNameSet {
 		actionIds = append(actionIds, name)
 	}
-	//logger.Info(actionIds)
-	//fmt.Println(actionIds)
-	//fmt.Println(nodeInfos)
 	actionInfos, err := client.GetActionListByIds(actionIds)
 	result := map[string]*models.ActionInfo{}
 	for _, actionInfo := range actionInfos {
@@ -39,28 +35,8 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	return result, err
 }
 
-//func loadProjectInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.APIClient) (map[string]*models.ProjectInfo, error) {
-//	//return w.Packages[pId].GetAction(aName)
-//	projectNameSet := map[string]bool{}
-//	for _, nodeInfo := range nodeInfos {
-//		projectNameSet[nodeInfo.ProjectId] = true
-//	}
-//	projectIds := make([]string, 0, len(projectNameSet))
-//	for name, _ := range projectNameSet {
-//		projectIds = append(projectIds, name)
-//	}
-//	projectInfos, err := client.GetProjectListByIds(projectIds)
-//	result := map[string]*models.ProjectInfo{}
-//	for _, projectInfo := range projectInfos {
-//		result[projectInfo.XId] = projectInfo
-//	}
-//	return result, err
-//}
-
 // buildWorkflow 根据 models.WorkflowInfo 构建相应的 Workflow 对象
 func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types.Workflow, error) {
-
-	//wi.Spec.Nodes
 
 	wf := types.NewWorkflow(wi)
 
@@ -68,24 +44,14 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 
 	actionInfos, err := loadActionInfos(wi.Spec.Nodes, client)
 
-	//fmt.Println(actionInfos)
-
 	if err != nil {
 		return nil, err
 	}
 
 	wf.ActionInfos = actionInfos
 
-	//wf.Projects, err = loadProjectInfos(wi.Spec.Nodes, client)
-
-	//if err != nil {
-	//	return nil, err
-	//}
-
 	for _, nodeInfo := range wi.Spec.Nodes {
 		wf.Actions[nodeInfo.Id] = action.New(nodeInfo, actionInfos)
-		//logger.Info(wf.Actions[nodeInfo.Id])
-		//time.Sleep(time.Second)
 	}
 
 	spec := wi.Spec
@@ -268,14 +234,6 @@ func New(id string) (*types.Workflow, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	//workflowSpec := wfi.Spec
-	//packages := map[string]*workflow.Package{}
-	//for _, info := range workflowSpec.Nodes {
-	//	if packages[info.ProjectId] == nil {
-	//		packages[info.ProjectId] = workflow.BuildPackage(client.GetProjectByID(info.ProjectId))
-	//	}
-	//}
 
 	return buildWorkflow(wfi, _apiClient)
 }

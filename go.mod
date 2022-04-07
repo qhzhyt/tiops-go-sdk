@@ -10,6 +10,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/robfig/cron/v3 v3.0.1
+	go.uber.org/atomic v1.4.0
 	google.golang.org/grpc v1.37.0
 	google.golang.org/protobuf v1.26.0
 	tiops v0.0.0
