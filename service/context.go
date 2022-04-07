@@ -9,6 +9,5 @@ func (ac *ActionNodeContext) HasDone() bool {
 }
 
 func (ac *ActionNodeContext) Copy() *ActionNodeContext {
-	return &ActionNodeContext{Logger: ac.Logger}
+	return &ActionNodeContext{ActionContext: ac.ActionContext}
 }
-

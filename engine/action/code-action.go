@@ -14,6 +14,10 @@ type CodeAction struct {
 	funcName string
 }
 
+func (c *CodeAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
+	panic("implement me")
+}
+
 func (c *CodeAction) Control(ctrl types.ActionControl, args map[string]string) error {
 	panic("implement me")
 }

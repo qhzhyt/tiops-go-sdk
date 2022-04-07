@@ -256,8 +256,12 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 			switch actionInfo.CallMode {
 			case models.CallMode_PullStreamCall:
-				err := node.Action.CallStream(actionRequest, func(res *types.ActionResponse, err error) {
+				err := node.Action.CallStream(actionRequest, func(res *types.ActionResponse, err error) bool {
 					processResponse(res, err)
+					if done || (res != nil && res.Done) {
+						return false
+					}
+					return true
 				})
 				if err != nil {
 					w.Logger.Error(err)

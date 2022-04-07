@@ -121,6 +121,29 @@ func (a *ExecutionAction) Call(request *types.ActionRequest) (*types.ActionRespo
 	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
 }
 
+func (a *ExecutionAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
+	defer cancel()
+	client, err := a.client.CallActionPullStream(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.executionActionInfo.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
+
+	if err != nil {
+		return err
+	}
+
+	for {
+		res, err := client.Recv()
+
+		if !callback(&types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, err) {
+			return err
+		}
+
+		if res != nil && res.Done {
+			return err
+		}
+	}
+	return nil
+}
+
 func NewExecutionAction(actionInfo, executionActionInfo *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
 	return &ExecutionAction{
 		nodeInfo:            nodeInfo,

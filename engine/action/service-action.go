@@ -132,10 +132,10 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
 }
 
-func (a *RemoteServiceAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error)) error {
+func (a *RemoteServiceAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
 	defer cancel()
-	stream, err := a.client.CallActionStream(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
+	stream, err := a.client.CallActionPullStream(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
 
 	if err != nil {
 		return err
@@ -150,7 +150,9 @@ func (a *RemoteServiceAction) CallStream(request *types.ActionRequest, callback 
 		if res == nil {
 			return nil
 		}
-		callback(&types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil)
+		if !callback(&types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil) {
+			return err
+		}
 		if res.Done {
 			break
 		}
