@@ -1,4 +1,4 @@
-package service
+package types
 
 import (
 	"encoding/json"
@@ -7,6 +7,20 @@ import (
 	"tiops/common/models"
 	"tiops/common/services"
 )
+
+
+type ActionDataItem map[string]interface{}
+
+type ActionDataBatch []ActionDataItem
+
+//type ActionResult ActionDataItemMap
+//type BatchResult ActionDataBatch
+
+
+
+type ServiceActionDataMap map[string]*services.ActionData
+
+//type
 
 func repeat(item interface{}, count int) []interface{} {
 	result := make([]interface{}, count)

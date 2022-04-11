@@ -5,23 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"github.com/qhzhyt/tiops-go-sdk/action"
 	"google.golang.org/grpc"
 	"log"
 	"math"
 	"net"
 	"os"
-	"strconv"
-	"time"
-	"tiops/buildin/engines"
+	actionTypes "tiops/action/types"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
-	"tiops/common/stores"
 	"tiops/common/utils"
-	"tiops/engine/types"
-	"tiops/engine/workflow"
+	engineTypes "tiops/engine/types"
 )
 
 const (
@@ -31,13 +28,13 @@ const (
 var _actionServer = newActionServer()
 
 type actionServer struct {
-	server                  *grpc.Server
-	actions                 map[string]StrictAction
-	engines                 map[string]types.WorkflowEngine
-	actionInfoMap           map[string]*models.ActionInfo
+	server        *grpc.Server
+	actions       map[string]actionTypes.StrictAction
+	engines       map[string]engineTypes.WorkflowEngine
+	actionInfoMap map[string]*models.ActionInfo
 	//actionNodeOptionsMap    map[string]ActionOptions
-	actionNodeContextMap    map[string]*ActionNodeContext
-	actionContextMap        map[string]*ActionContext
+	actionNodeContextMap    map[string]*actionTypes.ActionNodeContext
+	actionContextMap        map[string]*actionTypes.ActionContext
 	projectInfo             *models.ProjectInfo
 	Logger                  *logger.Logger
 	apiClient               *apiClient.APIClient
@@ -49,63 +46,16 @@ type actionServer struct {
 	//jobDataStore            DataStore
 }
 
-func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngineRequest) (*services.StatusResponse, error) {
-	engine := a.engines[request.EngineName]
-	if engine == nil {
-		return &services.StatusResponse{Status: 404, Message: "Engine " + request.EngineName + " Not Found"}, nil
-	}
-	_workflow, err := workflow.New(request.WorkflowId)
-	if err != nil {
-		return &services.StatusResponse{Status: 404, Message: err.Error()}, nil
-	}
-	go func() {
-		_context := workflow.Context()
-		engine.Init(_context)
-		engine.WaitForResources(_workflow)
-		engine.Exec(_workflow)
-	}()
-	return &services.StatusResponse{Status: 200, Message: "ok"}, nil
-}
 
-func (a *actionServer) GetEngineStatus(ctx context.Context, request *services.EngineStatusRequest) (*services.EngineStatusResponse, error) {
-	engine := a.engines[request.EngineName]
-	if engine == nil {
-		return &services.EngineStatusResponse{Code: -1, Message: "Engine " + request.EngineName + " Not Found"}, nil
-	}
-	status, msg := engine.Status()
-	return &services.EngineStatusResponse{Code: int32(status), Message: msg}, nil
-}
-
-func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
-	if !a.updatingExecutionRecord {
-		a.updatingExecutionRecord = true
-		_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
-		if err != nil {
-			a.Logger.Error(err.Error())
-		}
-		a.updatingExecutionRecord = false
-	}
-}
-
-func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services.EmptyRequest) (*models.ExecutionRecord, error) {
-	record := a.getCurrentEngine().ExecutionRecord()
-	go a.updateExecutionRecord(ctx, record)
-	return record, nil
-}
 
 func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
 	res := &services.ServiceStatus{ActionsStatus: map[string]*services.ActionStatus{}}
-	for name, action := range a.actions {
-		res.ActionsStatus[name] = action.Status()
+	for name, action0 := range a.actions {
+		res.ActionsStatus[name] = action0.Status()
 	}
 	return res, nil
 }
 
-func (a *actionServer) CallHttpAction(ctx context.Context, request *services.HttpRequest) (*services.HttpResponse, error) {
-	panic("implement me")
-}
-
-var NoMoreDataError = errors.New("no more data")
 
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
 	for {
@@ -118,24 +68,24 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 			case services.ActionMessageType_PushData:
 				//a.Logger.Info(actionMessage.Header)
 				actionName := actionMessage.Message //actionMessage.Header["actionName"]
-				action := a.actions[actionName]
-				if action == nil {
+				action0 := a.actions[actionName]
+				if action0 == nil {
 					a.Logger.Error(errors.New("action " + actionName + " not found"))
 				} else {
-					pushMessageContext := &PushMessageContext{
+					pushMessageContext := &actionTypes.PushMessageContext{
 						ActionNodeContext: a.actionNodeContextMap[actionName],
 						MessageHeader:     actionMessage.Header,
 						MessageData:       actionMessage.Data,
 						NodeId:            actionMessage.NodeId,
 					}
-					action.OnMessage(pushMessageContext)
+					action0.OnMessage(pushMessageContext)
 				}
 			case services.ActionMessageType_StreamCmd:
 				actionName := actionMessage.Header["actionName"]
-				action := a.actions[actionName]
+				action0 := a.actions[actionName]
 				if actionMessage.Message == "start" {
 
-					if action == nil {
+					if action0 == nil {
 						a.Logger.Error(errors.New("action " + actionName + " not found"))
 					} else {
 
@@ -147,13 +97,13 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 								actionData.TraceId = id
 								actionData.Id = idString
 								messageData, _ := proto.Marshal(actionData)
-								pushMessageContext := &PushMessageContext{
+								pushMessageContext := &actionTypes.PushMessageContext{
 									ActionNodeContext: a.actionNodeContextMap[actionName],
 									MessageHeader:     actionMessage.Header,
 									MessageData:       messageData,
 									NodeId:            actionMessage.NodeId,
 								}
-								err = action.OnMessage(pushMessageContext)
+								err = action0.OnMessage(pushMessageContext)
 								if err != nil {
 									a.Logger.Error(err)
 								}
@@ -175,183 +125,26 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 	}
 }
 
-func (a *actionServer) GetRequiredResources(ctx context.Context, query *services.QueryRequest) (*models.WorkflowResources, error) {
-	stage, _ := strconv.Atoi(query.Extra["stage"])
-	if res, ok := a.requiredResourcesMap[stage]; ok {
-		return res, nil
-	}
-	engine := a.getCurrentEngine()
-	wf, err := workflow.Current()
-	if err != nil {
-		return nil, err
-	}
-	requiredResources := engine.RequiredResources(wf, stage)
-	requiredResources = workflow.ResourcesPreProcess(requiredResources, wf)
-	a.requiredResourcesMap[stage] = requiredResources
-	return requiredResources, nil
-}
-
-//func (a *actionServer) getActionOptions(nodeId string) ActionOptions {
-//	return a.actionNodeOptionsMap[nodeId]
-//}
-
-func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (*services.ActionResponse, error) {
-	actionName := request.ActionName
-	a.Logger.Info(inputLog(actionName, request.Inputs))
-	inputDataMap := TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
-	actionNodeContext := a.actionNodeContextMap[request.NodeId]
-
-	var result ActionDataBatch
-	if a.actions[actionName] != nil {
-		result = a.actions[actionName].CallBatch(
-			&BatchRequestContext{
-				ActionNodeContext: actionNodeContext,
-				//NodeId:            request.NodeId,
-				Inputs:            inputDataMap,
-				//Store:             a.nodeStores[request.NodeId],
-				//ActionOptions:     a.getActionOptions(request.NodeId),
-			})
-	} else {
-		return nil, errors.New("action " + actionName + " not found")
-	}
-
-	outputs := ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
-	a.Logger.Info(outputLog(actionName, outputs))
-
-	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}, nil
-}
-
-func (a *actionServer) CallActionPullStream(request *services.ActionRequest, server services.ActionsService_CallActionPullStreamServer) error {
-	actionName := request.ActionName
-	a.Logger.Info(inputLog(actionName, request.Inputs))
-	inputDataMap := TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
-	actionNodeContext := a.actionNodeContextMap[request.NodeId]
-
-	//var result ActionDataBatch
-
-	if a.actions[actionName] != nil {
-		return a.actions[actionName].CallPullStream(&StreamRequestContext{
-			BatchRequestContext: BatchRequestContext{
-				ActionNodeContext: actionNodeContext,
-				//Store:         a.nodeStores[request.NodeId],
-				//NodeId:        request.NodeId,
-				Inputs:        inputDataMap,
-				//ActionOptions: a.getActionOptions(request.NodeId),
-				done:          false,
-			},
-			Push: func(data ActionDataBatch) error {
-				outputs := ToServiceActionDataMap(request.Id, request.TraceId, data, a.actionInfoMap[actionName].Outputs)
-				a.Logger.Info(outputLog(actionName, outputs))
-
-				res := &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}
-
-				return server.Send(res)
-			},
-		})
-	}
-
-	return errors.New("action " + actionName + " not found")
-
-}
-
-func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (*services.StatusResponse, error) {
-
-	actionName := request.ActionName
-
-	//a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
-	a.Logger.Info(fmt.Sprint("register node ", request.NodeId, " with options ", request.ActionOptions))
-
-
-	//a.nodeStores[request.NodeId] = nodeStore
-
-	if action := a.actions[actionName]; action != nil {
-
-		nodeStore := stores.NewActionNodeStore(request.NodeId)
-
-		actionNodeContext := &ActionNodeContext{
-			ActionContext: a.actionContextMap[actionName],
-			done:          false,
-			ActionOptions:     request.ActionOptions,
-			NodeId:            request.NodeId,
-			Store:             nodeStore,
-		}
-
-		a.actionNodeContextMap[request.NodeId] = actionNodeContext
-
-		err := action.RegisterNode(&NodeRegisterContext{
-			ActionNodeContext: actionNodeContext,
-			NextActions:       request.NextActions,
-		},
-		)
-		if err != nil {
-			return &services.StatusResponse{Status: services.Status_Failed}, err
-		}
-	} else {
-		return nil, errors.New("action " + actionName + " not found")
-	}
-
-	return &services.StatusResponse{Status: services.Status_Ok}, nil
-}
-
-type actionServerCtl struct {
-	actionServer *actionServer
-}
-
-func (a *actionServer) Register(name string, action Action) *actionServer {
-	a.actions[name] = newStrictAction(action)
+func (a *actionServer) RegisterAction(name string, action0 actionTypes.Action) *actionServer {
+	a.actions[name] = action.NewStrictAction(action0)
 	return a
 }
 
-func (a *actionServer) RegisterFunction(name string, function ActionFunction) *actionServer {
-	return a.Register(name, function)
-}
+//func (a *actionServer) RegisterFunction(name string, function actionTypes.ActionFunction) *actionServer {
+//	return a.Register(name, function)
+//}
 
-func (a *actionServer) RegisterEngine(name string, engine types.WorkflowEngine) *actionServer {
+func (a *actionServer) RegisterEngine(name string, engine engineTypes.WorkflowEngine) *actionServer {
 	a.engines[name] = engine
 	return a
 }
 
 func (a *actionServer) init() {
 	for name, app := range a.actions {
-		app.Init(&InitContext{a.actionNodeContextMap[name]})
+		app.Init(&actionTypes.InitContext{ActionNodeContext: a.actionNodeContextMap[name]})
 	}
 }
 
-func (a *actionServer) runMainEngine() {
-	engine := a.getCurrentEngine()
-	_workflow, err := workflow.Current()
-	_context := workflow.Context()
-	if err != nil {
-		_context.Error(err)
-		utils.SleepAndExit(time.Second*6, 3)
-	}
-
-	engine.Init(_context)
-
-	//if requiredResources != nil {
-	//	_, err := a.apiClient.CreateOrUpdateWorkflowExecution(
-	//		&models.WorkflowExecution{
-	//			XId:              tiopsConfigs.ExecutionId,
-	//			WorkflowResource: requiredResources,
-	//		})
-	//	_context.Error(err)
-	//}
-
-	engine.WaitForResources(_workflow)
-	//engine := engines.NewBasicChanEngine(context)
-	engine.Exec(_workflow)
-}
-
-func (a *actionServer) getCurrentEngine() types.WorkflowEngine {
-	//a.Logger.Info("current engine: " + tiopsConfigs.EngineName)
-	if a.engines[tiopsConfigs.EngineName] != nil {
-		return a.engines[tiopsConfigs.EngineName]
-	}
-	for _, engine := range a.engines {
-		return engine
-	}
-	return engines.NewBasicChanEngine()
-}
 
 func (a *actionServer) startServer() {
 	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
@@ -364,11 +157,6 @@ func (a *actionServer) startServer() {
 	}
 }
 
-func (a *actionServer) afterEngineExec() {
-	record := a.getCurrentEngine().ExecutionRecord()
-	a.Logger.Info(record)
-	a.updateExecutionRecord(context.TODO(), record)
-}
 
 func (a *actionServer) Start() {
 	if tiopsConfigs.InMainEngine() || tiopsConfigs.RunEngineAtStartup() {
@@ -402,15 +190,15 @@ func newActionServer() *actionServer {
 	s := grpc.NewServer(options...)
 
 	myServer := &actionServer{
-		server:               s,
-		actions:              map[string]StrictAction{},
-		engines:              map[string]types.WorkflowEngine{},
+		server:  s,
+		actions: map[string]actionTypes.StrictAction{},
+		engines: map[string]engineTypes.WorkflowEngine{},
 		//nodeStores:           map[string]stores.DataStore{},
-		apiClient:            tiopsApiClient,
-		Logger:               remoteLogger,
-		actionContextMap: map[string]*ActionContext{},
+		apiClient:        tiopsApiClient,
+		Logger:           remoteLogger,
+		actionContextMap: map[string]*actionTypes.ActionContext{},
 		//actionNodeOptionsMap: map[string]ActionOptions{},
-		actionNodeContextMap: map[string]*ActionNodeContext{},
+		actionNodeContextMap: map[string]*actionTypes.ActionNodeContext{},
 		requiredResourcesMap: map[int]*models.WorkflowResources{},
 	}
 
@@ -427,30 +215,9 @@ func newActionServer() *actionServer {
 		for i, input := range actionInfo.Inputs {
 			inputs[i] = input.Name
 		}
-		myServer.actionContextMap[actionInfo.Name] = &ActionContext{Logger: remoteLogger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
+		myServer.actionContextMap[actionInfo.Name] = &actionTypes.ActionContext{Logger: remoteLogger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
 	}
 	services.RegisterActionsServiceServer(s, myServer)
 	return myServer
 }
 
-func ActionServer() *actionServerCtl {
-	return &actionServerCtl{actionServer: _actionServer}
-}
-
-func (a *actionServerCtl) Register(name string, action Action) *actionServerCtl {
-	a.actionServer.Register(name, action)
-	return a
-}
-
-func (a *actionServerCtl) RegisterFunction(name string, function ActionFunction) *actionServerCtl {
-	return a.Register(name, function)
-}
-
-func (a *actionServerCtl) Start() {
-	a.actionServer.Start()
-}
-
-func (a *actionServerCtl) RegisterEngine(name string, engine types.WorkflowEngine) *actionServerCtl {
-	a.actionServer.RegisterEngine(name, engine)
-	return a
-}

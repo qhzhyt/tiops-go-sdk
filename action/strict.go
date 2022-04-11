@@ -1,7 +1,8 @@
-package service
+package action
 
 import (
 	"context"
+	"github.com/qhzhyt/tiops-go-sdk/action/types"
 	"google.golang.org/protobuf/proto"
 	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
@@ -19,22 +20,22 @@ type nodeData struct {
 	nodeId             string
 	nextActions        []*services.NextActions
 	messageCache       map[int64]map[string]*services.ActionData
-	actionOptions      ActionOptions
-	actionDataMapQueue chan ServiceActionDataMap
+	actionOptions      types.ActionOptions
+	actionDataMapQueue chan types.ServiceActionDataMap
 	serviceClients     map[string]*actionClient.RemoteActionClient
 	pushMessageClient  map[string]services.ActionsService_PushMessageClient
 }
 
 type defaultStrictAction struct {
-	action         Action
+	action         types.Action
 	nodeDataMap    map[string]*nodeData
 	logger         *logger.Logger
 	done           bool
 	processedCount int64
 }
 
-func (a *defaultStrictAction) CallPullStream(ctx *StreamRequestContext) error {
-	streamAction := a.action.(PullStreamAction)
+func (a *defaultStrictAction) CallPullStream(ctx *types.StreamRequestContext) error {
+	streamAction := a.action.(types.PullStreamAction)
 	if streamAction != nil {
 		return streamAction.CallPullStream(ctx)
 	}
@@ -58,7 +59,7 @@ func (a *defaultStrictAction) CallPullStream(ctx *StreamRequestContext) error {
 }
 
 func (a *defaultStrictAction) Status() *services.ActionStatus {
-	if sp, ok := a.action.(StatusProvider); ok {
+	if sp, ok := a.action.(types.StatusProvider); ok {
 		return sp.Status()
 	}
 
@@ -125,9 +126,9 @@ func (a *defaultStrictAction) sendOutputs(nodeCache *nodeData) {
 	}
 }
 
-func (a *defaultStrictAction) Init(ctx *InitContext) {
+func (a *defaultStrictAction) Init(ctx *types.InitContext) {
 
-	if i, ok := a.action.(ActionInit); ok {
+	if i, ok := a.action.(types.ActionInit); ok {
 		i.Init(ctx)
 	}
 
@@ -135,30 +136,30 @@ func (a *defaultStrictAction) Init(ctx *InitContext) {
 	a.nodeDataMap = map[string]*nodeData{}
 }
 
-func (a *defaultStrictAction) RegisterNode(ctx *NodeRegisterContext) error {
+func (a *defaultStrictAction) RegisterNode(ctx *types.NodeRegisterContext) error {
 	nd := &nodeData{
 		nodeId:             ctx.NodeId,
 		nextActions:        ctx.NextActions,
 		messageCache:       map[int64]map[string]*services.ActionData{},
 		actionOptions:      ctx.ActionOptions,
-		actionDataMapQueue: make(chan ServiceActionDataMap),
+		actionDataMapQueue: make(chan types.ServiceActionDataMap),
 		serviceClients:     map[string]*action_client.RemoteActionClient{},
 		pushMessageClient:  map[string]services.ActionsService_PushMessageClient{},
 	}
 	a.nodeDataMap[ctx.NodeId] = nd
 	go a.sendOutputs(nd)
 
-	if rn, ok := a.action.(RegisterNode); ok {
+	if rn, ok := a.action.(types.RegisterNode); ok {
 		return rn.RegisterNode(ctx)
 	}
 
 	return nil
 }
 
-func (a *defaultStrictAction) Call(ctx *RequestContext) ActionDataItem {
+func (a *defaultStrictAction) Call(ctx *types.RequestContext) types.ActionDataItem {
 	a.processedCount++
 
-	action := a.action.(PieceProcess)
+	action := a.action.(types.PieceProcess)
 
 	if action != nil {
 		return action.Call(ctx)
@@ -167,12 +168,12 @@ func (a *defaultStrictAction) Call(ctx *RequestContext) ActionDataItem {
 	return nil
 }
 
-func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatch {
-	if ba, ok := a.action.(BatchAction); ok {
+func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.ActionDataBatch {
+	if ba, ok := a.action.(types.BatchAction); ok {
 		a.processedCount += int64(ctx.Inputs.Count())
 		return ba.CallBatch(ctx)
 	}
-	requestContext := &RequestContext{
+	requestContext := &types.RequestContext{
 		ActionNodeContext: ctx.ActionNodeContext,
 		//NodeId: ctx.NodeId,
 		//ActionOptions: ctx.ActionOptions,
@@ -190,7 +191,7 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 		a.logger.Warning(batches)
 
 		batch := ctx.Store.GetIntOrDefault(BatchName, 0)
-		result := make(ActionDataBatch, batchSize)
+		result := make(types.ActionDataBatch, batchSize)
 		for i := 0; i < batchSize; i++ {
 			result[i] = a.Call(requestContext)
 		}
@@ -203,16 +204,16 @@ func (a *defaultStrictAction) CallBatch(ctx *BatchRequestContext) ActionDataBatc
 
 		return result
 	} else {
-		return ctx.Inputs.Map(func(item ActionDataItem) ActionDataItem {
+		return ctx.Inputs.Map(func(item types.ActionDataItem) types.ActionDataItem {
 			requestContext.Input = item
 			return a.Call(requestContext)
 		})
 	}
 }
 
-func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
+func (a *defaultStrictAction) OnMessage(ctx *types.PushMessageContext) error {
 
-	if pmp, ok := a.action.(PushMessageProcess); ok {
+	if pmp, ok := a.action.(types.PushMessageProcess); ok {
 		return pmp.OnMessage(ctx)
 	}
 
@@ -238,9 +239,9 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 	if len(dataCache) >= len(ctx.InputNames) {
 		delete(nodeData0.messageCache, traceId)
-		inputDataMap := TransActionDataMap(dataCache, ctx.ActionNodeContext.Info.Inputs)
+		inputDataMap := types.TransActionDataMap(dataCache, ctx.ActionNodeContext.Info.Inputs)
 
-		batchCtx := &BatchRequestContext{
+		batchCtx := &types.BatchRequestContext{
 			ActionNodeContext: ctx.ActionNodeContext,
 			//NodeId:            ctx.NodeId,
 			Inputs:            inputDataMap,
@@ -249,7 +250,7 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 
 		result := a.CallBatch(batchCtx)
 
-		outputs := ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionNodeContext.Info.Outputs)
+		outputs := types.ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionNodeContext.Info.Outputs)
 		nodeData0.actionDataMapQueue <- outputs
 
 		if batchCtx.HasDone() {
@@ -260,7 +261,7 @@ func (a *defaultStrictAction) OnMessage(ctx *PushMessageContext) error {
 	return nil
 }
 
-func newStrictAction(action Action) StrictAction {
+func NewStrictAction(action types.Action) types.StrictAction {
 
 	return &defaultStrictAction{
 		action: action,

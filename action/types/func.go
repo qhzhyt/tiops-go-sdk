@@ -1,4 +1,4 @@
-package service
+package types
 
 type ActionFunction func(requestContext *RequestContext) ActionDataItem
 
