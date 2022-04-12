@@ -1,9 +1,5 @@
 package types
 
-import (
-	"tiops/common/services"
-)
-
 type Action interface{}
 
 type RegisterNode interface {
@@ -19,13 +15,13 @@ type ActionInit interface {
 //}
 
 type StatusProvider interface {
-	Status() *services.ActionStatus
+	Status(ctx *ActionNodeContext) *ActionStatus
 }
 
 type ActionItemFunc func(item ActionDataItem) ActionDataItem
 
 type PieceProcess interface {
-	Call(ctx *RequestContext) ActionDataItem
+	Call(ctx *PieceRequestContext) ActionDataItem
 }
 
 type BatchProcess interface {

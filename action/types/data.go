@@ -8,6 +8,13 @@ import (
 	"tiops/common/services"
 )
 
+type ActionStatus struct {
+	ProcessedCount int64             `protobuf:"varint,1,opt,name=processedCount,proto3" json:"processedCount,omitempty" bson:"processedCount"`
+	RestCount      int64             `protobuf:"varint,2,opt,name=restCount,proto3" json:"restCount,omitempty" bson:"restCount"`
+	Done           bool              `protobuf:"varint,3,opt,name=done,proto3" json:"done,omitempty" bson:"done"`
+	Message        string            `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty" bson:"message"`
+	Extra          map[string]string `protobuf:"bytes,5,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"extra"`
+}
 
 type ActionDataItem map[string]interface{}
 
@@ -212,7 +219,7 @@ func (m ActionDataMap) Map(f func(item ActionDataItem) ActionDataItem) ActionDat
 	return result
 }
 
-func (m ActionDataMap) MapTrans(f func(map[string]interface{}) map[string]interface{}, keys []string) map[string][]interface{} {
+func (m ActionDataMap) MapTrans(f func(ActionDataItem) ActionDataItem, keys []string) map[string][]interface{} {
 	result := map[string][]interface{}{}
 	count := m.Count()
 
@@ -229,7 +236,7 @@ func (m ActionDataMap) MapTrans(f func(map[string]interface{}) map[string]interf
 	return result
 }
 
-func (m ActionDataMap) Foreach(f func(map[string]interface{})) {
+func (m ActionDataMap) Foreach(f func(ActionDataItem)) {
 	count := m.Count()
 	for i := 0; i < count; i++ {
 		f(m.Item(i))
@@ -246,8 +253,8 @@ func (m ActionDataMap) Count() int {
 	return count
 }
 
-func (m ActionDataMap) Items() chan map[string]interface{} {
-	ch := make(chan map[string]interface{})
+func (m ActionDataMap) Items() chan ActionDataItem {
+	ch := make(chan ActionDataItem)
 
 	go func() {
 		count := m.Count()

@@ -58,9 +58,9 @@ func (a *defaultStrictAction) CallPullStream(ctx *types.StreamRequestContext) er
 	return nil
 }
 
-func (a *defaultStrictAction) Status() *services.ActionStatus {
+func (a *defaultStrictAction) Status(ctx *types.ActionNodeContext) *types.ActionStatus {
 	if sp, ok := a.action.(types.StatusProvider); ok {
-		return sp.Status()
+		return sp.Status(ctx)
 	}
 
 	count := 0
@@ -69,7 +69,7 @@ func (a *defaultStrictAction) Status() *services.ActionStatus {
 		count += len(nodeData0.actionDataMapQueue) + len(nodeData0.messageCache)
 	}
 
-	res := &services.ActionStatus{
+	res := &types.ActionStatus{
 		RestCount:      int64(count),
 		ProcessedCount: a.processedCount,
 		Done:           a.done,
@@ -156,7 +156,7 @@ func (a *defaultStrictAction) RegisterNode(ctx *types.NodeRegisterContext) error
 	return nil
 }
 
-func (a *defaultStrictAction) Call(ctx *types.RequestContext) types.ActionDataItem {
+func (a *defaultStrictAction) Call(ctx *types.PieceRequestContext) types.ActionDataItem {
 	a.processedCount++
 
 	action := a.action.(types.PieceProcess)
@@ -173,7 +173,7 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 		a.processedCount += int64(ctx.Inputs.Count())
 		return ba.CallBatch(ctx)
 	}
-	requestContext := &types.RequestContext{
+	requestContext := &types.PieceRequestContext{
 		ActionNodeContext: ctx.ActionNodeContext,
 		//NodeId: ctx.NodeId,
 		//ActionOptions: ctx.ActionOptions,

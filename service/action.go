@@ -79,20 +79,6 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (*services.StatusResponse, error) {
 
 	actionName := request.ActionName
-	actionInfo := request.ActionInfo
-
-	if _, ok := a.actionInfoMap[actionInfo.Name]; !ok {
-		a.actionInfoMap[actionInfo.Name] = actionInfo
-		outputs := make([]string, len(actionInfo.Outputs))
-		for i, output := range actionInfo.Outputs {
-			outputs[i] = output.Name
-		}
-		inputs := make([]string, len(actionInfo.Inputs))
-		for i, input := range actionInfo.Inputs {
-			inputs[i] = input.Name
-		}
-		a.actionContextMap[actionInfo.Name] = &actionTypes.ActionContext{Logger: a.Logger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
-	}
 
 	//a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
 	a.Logger.Info(fmt.Sprint("register node ", request.NodeId, " with options ", request.ActionOptions))
@@ -100,6 +86,23 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 	//a.nodeStores[request.NodeId] = nodeStore
 
 	if action := a.actions[actionName]; action != nil {
+
+		if _, ok := a.actionInfoMap[actionName]; !ok {
+			actionInfo := request.ActionInfo
+
+			a.actionInfoMap[actionInfo.Name] = actionInfo
+			outputs := make([]string, len(actionInfo.Outputs))
+			for i, output := range actionInfo.Outputs {
+				outputs[i] = output.Name
+			}
+			inputs := make([]string, len(actionInfo.Inputs))
+			for i, input := range actionInfo.Inputs {
+				inputs[i] = input.Name
+			}
+			actionContext := &actionTypes.ActionContext{Logger: a.Logger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
+			a.actionContextMap[actionInfo.Name] = actionContext
+			action.Init(&actionTypes.InitContext{ActionContext: actionContext})
+		}
 
 		nodeStore := stores.NewActionNodeStore(request.NodeId)
 

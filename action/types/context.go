@@ -22,7 +22,7 @@ type ActionNodeContext struct {
 	done          bool
 }
 
-type RequestContext struct {
+type PieceRequestContext struct {
 	*ActionNodeContext
 	//Store         stores.DataStore
 	//NodeId        string
@@ -34,7 +34,7 @@ type BatchRequestContext struct {
 	*ActionNodeContext
 	Inputs ActionDataMap
 	//ActionOptions ActionOptions
-	done bool
+	//done bool
 }
 
 type StreamRequestContext struct {
@@ -47,7 +47,7 @@ type StreamRequestContext struct {
 }*/
 
 type InitContext struct {
-	*ActionNodeContext
+	*ActionContext
 }
 
 type NodeRegisterContext struct {

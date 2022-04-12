@@ -50,8 +50,16 @@ type actionServer struct {
 
 func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
 	res := &services.ServiceStatus{ActionsStatus: map[string]*services.ActionStatus{}}
-	for name, action0 := range a.actions {
-		res.ActionsStatus[name] = action0.Status()
+	for id, actionNodeCtx := range a.actionNodeContextMap {
+		action0 := a.actions[actionNodeCtx.Info.Name]
+		status := action0.Status(actionNodeCtx)
+		res.ActionsStatus[id] = &services.ActionStatus{
+			ProcessedCount: status.ProcessedCount,
+			RestCount:      status.RestCount,
+			Done:           status.Done,
+			Message:        status.Message,
+			Extra:          status.Extra,
+		}
 	}
 	return res, nil
 }
@@ -140,9 +148,9 @@ func (a *actionServer) RegisterEngine(name string, engine engineTypes.WorkflowEn
 }
 
 func (a *actionServer) init() {
-	for name, app := range a.actions {
+	/*for name, app := range a.actions {
 		app.Init(&actionTypes.InitContext{ActionNodeContext: a.actionNodeContextMap[name]})
-	}
+	}*/
 }
 
 

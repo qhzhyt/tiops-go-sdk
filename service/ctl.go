@@ -17,11 +17,11 @@ func (a *actionServerCtl) Register(name string, action interface{}) *actionServe
 	//a.actionServer.Register(name, action)
 
 	switch action0 := action.(type) {
-	case actionTypes.Action:
-		a.actionServer.RegisterAction(name, action0)
 	case engineTypes.WorkflowEngine:
 		a.actionServer.RegisterEngine(name, action0)
 	case actionTypes.ActionFunction:
+		a.actionServer.RegisterAction(name, action0)
+	case actionTypes.Action:
 		a.actionServer.RegisterAction(name, action0)
 	default:
 		panic(IsNotActionOrEngineError(action0))
