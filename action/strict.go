@@ -2,8 +2,8 @@ package action
 
 import (
 	"context"
-	"github.com/qhzhyt/tiops-go-sdk/action/types"
 	"google.golang.org/protobuf/proto"
+	"tiops/action/types"
 	"tiops/common/action-client"
 	actionClient "tiops/common/action-client"
 	"tiops/common/logger"
@@ -244,7 +244,7 @@ func (a *defaultStrictAction) OnMessage(ctx *types.PushMessageContext) error {
 		batchCtx := &types.BatchRequestContext{
 			ActionNodeContext: ctx.ActionNodeContext,
 			//NodeId:            ctx.NodeId,
-			Inputs:            inputDataMap,
+			Inputs: inputDataMap,
 			//ActionOptions:     nodeData0.actionOptions,
 		}
 

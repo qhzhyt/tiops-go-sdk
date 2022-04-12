@@ -1,8 +1,8 @@
 package service
 
 import (
-	actionTypes "github.com/qhzhyt/tiops-go-sdk/action/types"
-	engineTypes "github.com/qhzhyt/tiops-go-sdk/engine/types"
+	actionTypes "tiops/action/types"
+	engineTypes "tiops/engine/types"
 )
 
 type actionServerCtl struct {

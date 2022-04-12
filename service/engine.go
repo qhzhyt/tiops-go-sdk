@@ -2,17 +2,16 @@ package service
 
 import (
 	"context"
-	tiopsConfigs "github.com/qhzhyt/tiops-go-sdk/common/config"
-	engineTypes "github.com/qhzhyt/tiops-go-sdk/engine/types"
 	"strconv"
 	"time"
 	"tiops/buildin/engines"
+	tiopsConfigs "tiops/common/config"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/common/utils"
+	engineTypes "tiops/engine/types"
 	"tiops/engine/workflow"
 )
-
 
 func (a *actionServer) runMainEngine() {
 	engine := a.getCurrentEngine()
@@ -115,4 +114,3 @@ func (a *actionServer) GetRequiredResources(ctx context.Context, query *services
 	a.requiredResourcesMap[stage] = requiredResources
 	return requiredResources, nil
 }
-

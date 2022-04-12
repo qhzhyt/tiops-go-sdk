@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"github.com/qhzhyt/tiops-go-sdk/action"
 	"google.golang.org/grpc"
 	"log"
 	"math"
 	"net"
 	"os"
+	"tiops/action"
 	actionTypes "tiops/action/types"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
@@ -46,8 +46,6 @@ type actionServer struct {
 	//jobDataStore            DataStore
 }
 
-
-
 func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
 	res := &services.ServiceStatus{ActionsStatus: map[string]*services.ActionStatus{}}
 	for id, actionNodeCtx := range a.actionNodeContextMap {
@@ -63,7 +61,6 @@ func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.E
 	}
 	return res, nil
 }
-
 
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
 	for {
@@ -153,7 +150,6 @@ func (a *actionServer) init() {
 	}*/
 }
 
-
 func (a *actionServer) startServer() {
 	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
 	if err != nil {
@@ -164,7 +160,6 @@ func (a *actionServer) startServer() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
-
 
 func (a *actionServer) Start() {
 	if tiopsConfigs.InMainEngine() || tiopsConfigs.RunEngineAtStartup() {
@@ -228,4 +223,3 @@ func newActionServer() *actionServer {
 	services.RegisterActionsServiceServer(s, myServer)
 	return myServer
 }
-

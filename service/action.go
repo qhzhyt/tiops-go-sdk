@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	actionTypes "github.com/qhzhyt/tiops-go-sdk/action/types"
+	actionTypes "tiops/action/types"
 	services "tiops/common/services"
 	"tiops/common/stores"
 )
