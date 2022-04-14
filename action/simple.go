@@ -1,6 +1,6 @@
 package action
 
-import "github.com/qhzhyt/tiops-go-sdk/action/types"
+import "tiops/action/types"
 
 type simpleItemAction struct {
 	itemFunc types.ItemProcessFunc
