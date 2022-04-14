@@ -63,9 +63,9 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
 	//}
 
-	if _actionClientMap[serviceName] == nil {
-		_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
-	}
+	//if _actionClientMap[serviceName] == nil {
+	//	_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
+	//}
 
 	a.client = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
 

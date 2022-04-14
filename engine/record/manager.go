@@ -11,7 +11,7 @@ type ExecutionRecordManager struct {
 	ExecutionRecordID string
 	updateInterval    time.Duration
 	ticker            *time.Ticker
-	//*types.WorkflowContext
+	//*types.EngineContext
 	processRecords    []*models.ProcessRecord
 	oldProcessRecords []*models.ProcessRecord
 	batchSizes        map[string]int32
@@ -75,9 +75,9 @@ func (m *ExecutionRecordManager) AddProcessRecord(record *models.ProcessRecord) 
 	m.processRecords = append(m.processRecords, record)
 }
 
-func NewExecutionRecordManager(updateInterval time.Duration, ctx *types.WorkflowContext) *ExecutionRecordManager {
+func NewExecutionRecordManager(updateInterval time.Duration, ctx *types.EngineContext) *ExecutionRecordManager {
 	return &ExecutionRecordManager{
-		//WorkflowContext: ctx,
+		//EngineContext: ctx,
 		updateInterval: updateInterval,
 		ticker:         time.NewTicker(updateInterval),
 		batchSizes:     map[string]int32{},

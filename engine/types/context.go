@@ -1,15 +1,17 @@
 package types
 
 import (
+	actionTypes "tiops/action/types"
 	apiClient "tiops/common/api-client"
 	"tiops/common/logger"
 )
 
-type WorkflowContext struct {
-	WorkflowType string
+type EngineContext struct {
+/*	WorkflowType string
 	WorkflowId string
 	ExecutionId string
-	RecordId string
+	RecordId string*/
+	Options actionTypes.ActionOptions
 	*logger.Logger
 	*apiClient.APIClient
 }

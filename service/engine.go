@@ -17,10 +17,13 @@ func (a *actionServer) runMainEngine() {
 	engine := a.getCurrentEngine()
 	_workflow, err := workflow.Current()
 	_context := workflow.Context()
+
 	if err != nil {
 		_context.Error(err)
 		utils.SleepAndExit(time.Second*6, 3)
 	}
+
+	_context.Options = _workflow.Info().EngineOptions
 
 	engine.Init(_context)
 

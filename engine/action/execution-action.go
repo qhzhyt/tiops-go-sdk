@@ -51,9 +51,9 @@ func (a *ExecutionAction) Init(node *types.Node) error {
 	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
 	//}
 
-	if _actionClientMap[serviceName] == nil {
-		_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
-	}
+	//if _actionClientMap[serviceName] == nil {
+	//	_actionClientMap[serviceName] = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
+	//}
 
 	//logger.Info("node:", node)
 	//logger.Info("innerActionInfo:", a.innerActionInfo)

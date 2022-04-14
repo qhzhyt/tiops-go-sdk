@@ -12,10 +12,10 @@ const (
 
 type WorkflowEngine interface {
 	RequiredResources(workflow *Workflow, stage int) *models.WorkflowResources
-	WaitForResources(workflow *Workflow)
+	WaitForResources(workflow *Workflow) error
 	ExecutionRecord() *models.ExecutionRecord
-	Exec(workflow *Workflow)
-	Stop()
-	Init(ctx *WorkflowContext)
-	Status() (EngineStatusCode int, msg string)
+	Exec(workflow *Workflow) error
+	Stop() error
+	Init(ctx *EngineContext)
+	Status() (code EngineStatusCode, msg string)
 }

@@ -19,13 +19,14 @@ import (
 
 type basicChanEngine struct {
 	wg sync.WaitGroup
-	*types.WorkflowContext
+	*types.EngineContext
 	recordManager *record.ExecutionRecordManager
 	running       bool
+	ready         bool
 }
 
-func (w *basicChanEngine) Status() (EngineStatusCode int, msg string) {
-	if w.running {
+func (w *basicChanEngine) Status() (code types.EngineStatusCode, msg string) {
+	if w.running || !w.ready{
 		return types.EngineStatusBusy, "busy"
 	}
 	return types.EngineStatusIdle, "idle"
@@ -34,8 +35,8 @@ func (w *basicChanEngine) Status() (EngineStatusCode int, msg string) {
 func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
 	recordsData, _ := json.Marshal(w.recordManager.Records())
 	return &models.ExecutionRecord{
-		XId:            w.ExecutionId,
-		ExecutionId:    w.ExecutionId,
+		//XId:            w.ExecutionId,
+		//ExecutionId:    w.ExecutionId,
 		ProcessRecords: nil,
 		StatusRecords: []*models.ExecutionStatusRecord{
 			{ConfigNames: []string{"cumulativeItem", "backlogItems", "processRate"}, Data: string(recordsData)},
@@ -43,9 +44,11 @@ func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
 	}
 }
 
-func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) {
+func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) error {
 	workflow.RegisterActionNodes()
 	w.recordManager.Start()
+
+	return nil
 }
 
 func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage int) *models.WorkflowResources {
@@ -82,6 +85,8 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 
 		w.Debug(apps)
 
+		w.ready = true
+
 		return &models.WorkflowResources{
 			Apps: apps,
 		}
@@ -91,8 +96,8 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 	}
 }
 
-func (w *basicChanEngine) Init(ctx *types.WorkflowContext) {
-	w.WorkflowContext = ctx
+func (w *basicChanEngine) Init(ctx *types.EngineContext) {
+	w.EngineContext = ctx
 	w.recordManager = record.NewExecutionRecordManager(10*time.Second, ctx)
 }
 
@@ -115,65 +120,6 @@ func (w *basicChanEngine) Init(ctx *types.WorkflowContext) {
 //
 //	return nil, false
 //}
-
-func itemCount(inputData map[string]*services.ActionData) int32 {
-	count := int32(0)
-	for _, data := range inputData {
-		if data != nil && data.Count > count {
-			count = data.Count
-		}
-	}
-
-	return count
-}
-
-func inputLog(info *models.ActionInfo, requestId string, inputData map[string]*services.ActionData) string {
-	infos := map[string]map[string]interface{}{}
-	for k, v := range inputData {
-		if v != nil {
-			infos[k] = map[string]interface{}{
-				"id":    v.Id,
-				"count": v.Count,
-			}
-		} else {
-			infos[k] = map[string]interface{}{
-				"id":    "no data",
-				"count": "0",
-			}
-		}
-	}
-	return fmt.Sprintf("Action request %s to %s with inputs: %v", requestId, info.Name, infos)
-}
-
-func errorLog(info *models.ActionInfo, err error, inputData map[string]*services.ActionData) string {
-	infos := map[string]map[string]interface{}{}
-	for k, v := range inputData {
-		if v != nil {
-			infos[k] = map[string]interface{}{
-				"id":      v.Id,
-				"count":   v.Count,
-				"example": v.Data[0],
-			}
-		} else {
-			infos[k] = map[string]interface{}{
-				"id":    "no data",
-				"count": "0",
-			}
-		}
-	}
-	return fmt.Sprintf("Call action %s get error %s with inputs: %v", info.Name, err.Error(), infos)
-}
-
-func outputLog(info *models.ActionInfo, responseId string, outputData map[string]*services.ActionData) string {
-	infos := map[string]map[string]interface{}{}
-	for k, v := range outputData {
-		infos[k] = map[string]interface{}{
-			"id":    v.Id,
-			"count": v.Count,
-		}
-	}
-	return fmt.Sprintf("Action reponse %s from %s with outputs: %v", responseId, info.Name, infos)
-}
 
 func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 	done := false
@@ -203,13 +149,13 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 			w.Logger.Debug(inputLog(node.Action.Info(), requestId, inputData))
 
 			processRecord := &models.ProcessRecord{
-				StartTime:      utils.CurrentTimeStampMS(),
-				NodeId:         node.ID,
-				ActionName:     node.Action.Info().Name,
-				ItemCount:      itemCount(inputData),
-				BatchCount:     1,
-				RecordId:       requestId,
-				ExecutionId:    w.ExecutionId,
+				StartTime:  utils.CurrentTimeStampMS(),
+				NodeId:     node.ID,
+				ActionName: node.Action.Info().Name,
+				ItemCount:  itemCount(inputData),
+				BatchCount: 1,
+				RecordId:   requestId,
+				//ExecutionId:    w.ExecutionId,
 				BacklogBatches: int32(maxBacklog),
 			}
 
@@ -285,7 +231,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 	}
 }
 
-func (w *basicChanEngine) Exec(workflow *types.Workflow) {
+func (w *basicChanEngine) Exec(workflow *types.Workflow) error {
 	w.running = true
 	defer func() {
 		w.running = false
@@ -314,9 +260,10 @@ func (w *basicChanEngine) Exec(workflow *types.Workflow) {
 
 	time.Sleep(time.Second * 6)
 
+	return nil
 }
 
-func (w *basicChanEngine) Stop() {
+func (w *basicChanEngine) Stop() error {
 	panic("implement me")
 }
 

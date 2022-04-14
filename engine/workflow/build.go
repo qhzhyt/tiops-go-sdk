@@ -249,12 +249,12 @@ func Current() (*types.Workflow, error) {
 	return wf, err
 }
 
-func Context() *types.WorkflowContext {
-	return &types.WorkflowContext{
-		WorkflowType: tiopsConfigs.WorkflowType,
-		WorkflowId:   tiopsConfigs.WorkflowId,
-		ExecutionId:  tiopsConfigs.ExecutionId,
-		RecordId:     tiopsConfigs.ExecutionId,
+func Context() *types.EngineContext {
+	return &types.EngineContext{
+		//WorkflowType: tiopsConfigs.WorkflowType,
+		//WorkflowId:   tiopsConfigs.WorkflowId,
+		//ExecutionId:  tiopsConfigs.ExecutionId,
+		//RecordId:     tiopsConfigs.ExecutionId,
 		Logger:       logger.GetDefaultLogger(),
 		APIClient:    _apiClient,
 	}

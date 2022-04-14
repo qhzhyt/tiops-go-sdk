@@ -18,7 +18,7 @@ type StatusProvider interface {
 	Status(ctx *ActionNodeContext) *ActionStatus
 }
 
-type ActionItemFunc func(item ActionDataItem) ActionDataItem
+type ItemProcessFunc func(item ActionDataItem) ActionDataItem
 
 type PieceProcess interface {
 	Call(ctx *PieceRequestContext) ActionDataItem
