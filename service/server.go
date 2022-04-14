@@ -205,7 +205,7 @@ func newActionServer() *actionServer {
 		requiredResourcesMap: map[int]*models.WorkflowResources{},
 	}
 
-	myServer.projectInfo = &models.ProjectInfo{}
+	/*myServer.projectInfo = &models.ProjectInfo{}
 	_ = utils.UnmarshalYAMLFile(myServer.projectInfo, tiopsConfigs.ManifestPath)
 	myServer.actionInfoMap = map[string]*models.ActionInfo{}
 	for _, actionInfo := range myServer.projectInfo.Actions {
@@ -219,7 +219,7 @@ func newActionServer() *actionServer {
 			inputs[i] = input.Name
 		}
 		myServer.actionContextMap[actionInfo.Name] = &actionTypes.ActionContext{Logger: remoteLogger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
-	}
+	}*/
 	services.RegisterActionsServiceServer(s, myServer)
 	return myServer
 }
