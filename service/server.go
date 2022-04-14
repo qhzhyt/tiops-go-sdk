@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	models2 "github.com/qhzhyt/tiops-go-sdk/common/models"
 	"google.golang.org/grpc"
 	"log"
 	"math"
@@ -200,6 +201,7 @@ func newActionServer() *actionServer {
 		apiClient:        tiopsApiClient,
 		Logger:           remoteLogger,
 		actionContextMap: map[string]*actionTypes.ActionContext{},
+		actionInfoMap: map[string]*models2.ActionInfo{},
 		//actionNodeOptionsMap: map[string]ActionOptions{},
 		actionNodeContextMap: map[string]*actionTypes.ActionNodeContext{},
 		requiredResourcesMap: map[int]*models.WorkflowResources{},
