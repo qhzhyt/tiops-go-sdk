@@ -112,6 +112,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 			ActionOptions: request.ActionOptions,
 			NodeId:        request.NodeId,
 			Store:         nodeStore,
+			InnerActionInfo: request.InnerActionInfo,
 		}
 
 		a.actionNodeContextMap[request.NodeId] = actionNodeContext

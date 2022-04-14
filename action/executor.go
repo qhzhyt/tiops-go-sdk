@@ -4,11 +4,10 @@ import (
 	"tiops/action/types"
 )
 
-type ExecutorFunc func(ctx *types.ActionNodeContext) (types.ItemProcessFunc, error)
 
 type executor struct {
 	funcMap map[string]types.ItemProcessFunc
-	executorFunc ExecutorFunc
+	executorFunc types.ExecutorFunc
 }
 
 func (a *executor) RegisterNode(ctx *types.NodeRegisterContext) error {
@@ -28,7 +27,7 @@ func (a *executor) Call(ctx *types.PieceRequestContext) types.ActionDataItem {
 	return a.funcMap[ctx.NodeId](ctx.Input)
 }
 
-func NewSimpleExecutor(executorFunc ExecutorFunc) *executor {
+func NewSimpleExecutor(executorFunc types.ExecutorFunc) *executor {
 	return &executor{
 		funcMap: map[string]types.ItemProcessFunc{},
 		executorFunc: executorFunc,

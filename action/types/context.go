@@ -16,10 +16,11 @@ type ActionContext struct {
 
 type ActionNodeContext struct {
 	*ActionContext
-	Store         stores.DataStore
-	NodeId        string
-	ActionOptions ActionOptions
-	done          bool
+	Store           stores.DataStore
+	NodeId          string
+	ActionOptions   ActionOptions
+	InnerActionInfo *models.ActionInfo
+	done            bool
 }
 
 type PieceRequestContext struct {

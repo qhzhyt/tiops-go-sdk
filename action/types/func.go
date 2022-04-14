@@ -1,5 +1,9 @@
 package types
 
+type ItemProcessFunc func(item ActionDataItem) ActionDataItem
+
+type ExecutorFunc func(ctx *ActionNodeContext) (ItemProcessFunc, error)
+
 type ActionFunction func(requestContext *PieceRequestContext) ActionDataItem
 
 //func (af ActionFunction) Init(ctx *InitContext) {
