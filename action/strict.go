@@ -173,6 +173,9 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 		a.processedCount += int64(ctx.Inputs.Count())
 		return ba.CallBatch(ctx)
 	}
+
+	ctx.Logger.Info("CallBatch")
+
 	requestContext := &types.PieceRequestContext{
 		ActionNodeContext: ctx.ActionNodeContext,
 		//NodeId: ctx.NodeId,
@@ -187,11 +190,9 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 		batchSize := ctx.ActionOptions.GetIntOrDefault(BatchSizeName, 1)
 		batches := ctx.ActionOptions.GetIntOrDefault(BatchesName, 1)
 
-
-
 		batch := ctx.Store.GetIntOrDefault(BatchName, 0)
-		a.logger.Warning(batchSize)
-		a.logger.Warning(batches)
+		ctx.Logger.Warning(batchSize)
+		ctx.Logger.Warning(batches)
 		ctx.Store.PutValue(BatchName, batch)
 
 		result := make(types.ActionDataBatch, batchSize)
@@ -199,7 +200,7 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 			result[i] = a.Call(requestContext)
 		}
 		batch++
-		a.logger.Warning(batch)
+		ctx.Logger.Warning(batch)
 		if batch >= batches {
 			ctx.Done()
 		}

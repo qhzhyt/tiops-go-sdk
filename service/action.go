@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/qhzhyt/tiops-go-sdk/common/logger"
 	actionTypes "tiops/action/types"
 	services "tiops/common/services"
 	"tiops/common/stores"
@@ -99,7 +100,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 			for i, input := range actionInfo.Inputs {
 				inputs[i] = input.Name
 			}
-			actionContext := &actionTypes.ActionContext{Logger: a.Logger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
+			actionContext := &actionTypes.ActionContext{Logger: logger.NewActionLogger(actionInfo.XId), Info: actionInfo, InputNames: inputs, OutputNames: outputs}
 			a.actionContextMap[actionInfo.Name] = actionContext
 			action.Init(&actionTypes.InitContext{ActionContext: actionContext})
 		}
@@ -109,9 +110,9 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 		actionNodeContext := &actionTypes.ActionNodeContext{
 			ActionContext: a.actionContextMap[actionName],
 			//done:          false,
-			ActionOptions: request.ActionOptions,
-			NodeId:        request.NodeId,
-			Store:         nodeStore,
+			ActionOptions:   request.ActionOptions,
+			NodeId:          request.NodeId,
+			Store:           nodeStore,
 			InnerActionInfo: request.InnerActionInfo,
 		}
 

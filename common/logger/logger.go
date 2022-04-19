@@ -61,6 +61,20 @@ func NewRemoteLogger(_type, id, source string, level models.LogLevel, client *ti
 	return logger
 }
 
+func NewActionLogger(name string) *Logger {
+	logger := &Logger{
+		ID:        tiopsConfigs.LogId,
+		source:    name,
+		Type:      "action",
+		Level:     StringToLogLevel(tiopsConfigs.LogLevel),
+		logChan:   make(chan *models.Log, 1000),
+		remote:    true,
+		apiClient: _defaultLogger.apiClient,
+	}
+	logger.start()
+	return logger
+}
+
 func (l *Logger) start() {
 	go func() {
 		sn := int32(0)
