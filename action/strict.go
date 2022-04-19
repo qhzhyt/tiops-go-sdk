@@ -187,10 +187,13 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 		batchSize := ctx.ActionOptions.GetIntOrDefault(BatchSizeName, 1)
 		batches := ctx.ActionOptions.GetIntOrDefault(BatchesName, 1)
 
-		a.logger.Warning(batchSize)
-		a.logger.Warning(batches)
+
 
 		batch := ctx.Store.GetIntOrDefault(BatchName, 0)
+		a.logger.Warning(batchSize)
+		a.logger.Warning(batches)
+		ctx.Store.PutValue(BatchName, batch)
+
 		result := make(types.ActionDataBatch, batchSize)
 		for i := 0; i < batchSize; i++ {
 			result[i] = a.Call(requestContext)
@@ -200,7 +203,6 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 		if batch >= batches {
 			ctx.Done()
 		}
-		ctx.Store.PutValue(BatchName, batch)
 
 		return result
 	} else {
