@@ -1,12 +1,12 @@
 package actions
 
 import (
-	"github.com/qhzhyt/tiops-go-sdk/common/models"
-	"github.com/qhzhyt/tiops-go-sdk/service"
+	"tiops/action/types"
+	"tiops/common/models"
 )
 
 type BuildinAction struct {
-	Processor func(service.ActionDataBatch, service.ActionOptions) service.ActionDataBatch
+	Processor func(types.ActionDataBatch, types.ActionOptions) types.ActionDataBatch
 	ActionInfo *models.ActionInfo
 }
 

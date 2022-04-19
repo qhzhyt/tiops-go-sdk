@@ -183,7 +183,7 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 		//Store: ctx.Store,
 	}
 
-	//a.logger.Warning(len(ctx.Inputs))
+	ctx.Logger.Warning(ctx.Inputs)
 
 	if len(ctx.Inputs) < 1 {
 		//	数据源
