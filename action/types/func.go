@@ -4,8 +4,9 @@ type ItemProcessFunc func(item ActionDataItem) ActionDataItem
 
 type ExecutorFunc func(ctx *ActionNodeContext) (ItemProcessFunc, error)
 
-type ActionFunction func(requestContext *PieceRequestContext) ActionDataItem
+//type ActionFunction func(requestContext *PieceRequestContext) ActionDataItem
 
+type PieceProcessFunction func(requestContext *PieceRequestContext) ActionDataItem
 //func (af ActionFunction) Init(ctx *InitContext) {
 //
 //}
@@ -14,10 +15,15 @@ type ActionFunction func(requestContext *PieceRequestContext) ActionDataItem
 //	return nil
 //}
 
-func (af ActionFunction) Call(ctx *PieceRequestContext) ActionDataItem {
-	return af(ctx)
+func (pf PieceProcessFunction) Call(ctx *PieceRequestContext) ActionDataItem {
+	return pf(ctx)
 }
 
+type BatchProcessFunction func(requestContext *BatchRequestContext) ActionDataBatch
+
+func (bf BatchProcessFunction) CallBatch(ctx *BatchRequestContext) ActionDataBatch {
+	return bf(ctx)
+}
 //func (af ActionFunction) CallBatch(ctx *BatchRequestContext) ActionDataBatch {
 //	/*return ctx.Inputs.MapTrans(func(m map[string]interface{}) map[string]interface{} {
 //

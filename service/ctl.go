@@ -19,7 +19,9 @@ func (a *actionServerCtl) Register(name string, action interface{}) *actionServe
 	switch action0 := action.(type) {
 	case engineTypes.WorkflowEngine:
 		a.actionServer.RegisterEngine(name, action0)
-	case actionTypes.ActionFunction:
+	case actionTypes.PieceProcessFunction:
+		a.actionServer.RegisterAction(name, action0)
+	case actionTypes.BatchProcessFunction:
 		a.actionServer.RegisterAction(name, action0)
 	case actionTypes.Action:
 		a.actionServer.RegisterAction(name, action0)
