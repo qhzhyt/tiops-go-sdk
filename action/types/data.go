@@ -23,8 +23,6 @@ type ActionDataBatch []ActionDataItem
 //type ActionResult ActionDataItemMap
 //type BatchResult ActionDataBatch
 
-
-
 type ServiceActionDataMap map[string]*services.ActionData
 
 //type
@@ -289,6 +287,7 @@ var (
 	}
 )
 
+// ToServiceActionDataMap 按字段分割ActionDataBatch
 func ToServiceActionDataMap(id string, traceId int64, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
 	result := ServiceActionDataMap{}
 	for _, output := range outputs {
@@ -306,20 +305,27 @@ func ToServiceActionDataMap(id string, traceId int64, source ActionDataBatch, ou
 			}
 		} else {
 			for i := 0; i < count; i++ {
-				res, err := json.Marshal(source[i][name])
-				if err != nil {
-					items[i] = []byte(fmt.Sprint(source[i][name]))
-				} else {
-					items[i] = res
+				switch d := source[i][name].(type) {
+				case []byte:
+					items[i] = d
+				case string:
+					items[i] = []byte(d)
+				default:
+					res, err := json.Marshal(source[i][name])
+					if err != nil {
+						items[i] = []byte(fmt.Sprint(source[i][name]))
+					} else {
+						items[i] = res
+					}
 				}
 			}
 		}
 		result[output.Name] = &services.ActionData{
-			Id: id,
+			Id:        id,
 			Count:     int32(count),
 			Data:      items,
 			ValueType: output.Type,
-			TraceId: traceId,
+			TraceId:   traceId,
 		}
 	}
 	return result
