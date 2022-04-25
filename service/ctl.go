@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/qhzhyt/tiops-go-sdk/common/logger"
 	actionTypes "tiops/action/types"
 	engineTypes "tiops/engine/types"
 )
@@ -18,12 +19,16 @@ func (a *actionServerCtl) Register(name string, action interface{}) *actionServe
 
 	switch action0 := action.(type) {
 	case engineTypes.WorkflowEngine:
+		logger.Info("Register WorkflowEngine " + name)
 		a.actionServer.RegisterEngine(name, action0)
 	case actionTypes.PieceProcessFunction:
+		logger.Info("Register PieceProcessFunction " + name)
 		a.actionServer.RegisterAction(name, action0)
 	case actionTypes.BatchProcessFunction:
+		logger.Info("Register BatchProcessFunction " + name)
 		a.actionServer.RegisterAction(name, action0)
 	case actionTypes.Action:
+		logger.Info("Register Action " + name)
 		a.actionServer.RegisterAction(name, action0)
 	default:
 		panic(IsNotActionOrEngineError(action0))
