@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/qhzhyt/tiops-go-sdk/common/logger"
 	actionTypes "tiops/action/types"
+	"tiops/common/logger"
 	engineTypes "tiops/engine/types"
 )
 
