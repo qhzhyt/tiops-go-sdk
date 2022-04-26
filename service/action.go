@@ -42,17 +42,13 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 		result = a.actions[actionName].CallBatch(
 			&actionTypes.BatchRequestContext{
 				ActionNodeContext: actionNodeContext,
-				//NodeId:            request.NodeId,
 				Inputs: inputDataMap,
-				//Store:             a.nodeStores[request.NodeId],
-				//ActionOptions:     a.getActionOptions(request.NodeId),
 			})
 	} else {
 		return nil, errors.New("Action " + actionName + " not found")
 	}
 
 	outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
-	//a.Logger.Info(error(actionName, outputs))
 
 	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}, nil
 }
@@ -72,17 +68,11 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 	inputDataMap := actionTypes.TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
 	actionNodeContext := a.actionNodeContextMap[request.NodeId]
 
-	//var result ActionDataBatch
-
 	if a.actions[actionName] != nil {
 		return a.actions[actionName].CallPullStream(&actionTypes.StreamRequestContext{
 			BatchRequestContext: actionTypes.BatchRequestContext{
 				ActionNodeContext: actionNodeContext,
-				//Store:         a.nodeStores[request.NodeId],
-				//NodeId:        request.NodeId,
 				Inputs: inputDataMap,
-				//ActionOptions: a.getActionOptions(request.NodeId),
-				//done: false,
 			},
 			Push: func(data actionTypes.ActionDataBatch) error {
 				outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, data, a.actionInfoMap[actionName].Outputs)
@@ -100,15 +90,22 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 
 }
 
-func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (*services.StatusResponse, error) {
+func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (res *services.StatusResponse, err error) {
 
 	actionName := request.ActionName
 
-	//a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
-	optionsData, _ := json.Marshal(request.ActionOptions)
-	a.Logger.Info(fmt.Sprint("Register node(", request.NodeId[:8], ")for action(", ") with options(", string(optionsData), ")"))
-
-	//a.nodeStores[request.NodeId] = nodeStore
+	defer func() {
+		optionsData, _ := json.Marshal(request.ActionOptions)
+		if err0 := recover(); err0 != nil {
+			switch err1 := err0.(type) {
+			case error:
+				err = err1
+			}
+			a.Logger.Error(fmt.Sprint("Register node ", request.NodeId[:8], " for action ", actionName, " with options: ", string(optionsData), " get error: ", err0))
+		} else {
+			a.Logger.Info(fmt.Sprint("Register node ", request.NodeId[:8], " for action ", actionName, " with options: ", string(optionsData)))
+		}
+	}()
 
 	if action := a.actions[actionName]; action != nil {
 
@@ -151,7 +148,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 			return &services.StatusResponse{Status: services.Status_Failed}, err
 		}
 	} else {
-		return nil, errors.New("action " + actionName + " not found")
+		return nil, errors.New("Action " + actionName + " not found")
 	}
 
 	return &services.StatusResponse{Status: services.Status_Ok}, nil

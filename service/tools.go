@@ -16,7 +16,7 @@ func successLog(name string, inputData map[string]*services.ActionData, outputDa
 		outputCounts[k] = v.Count
 	}
 
-	return fmt.Sprintf("Call %s with inputs(%v), get outputs(%v)", name, inputCounts, outputCounts)
+	return fmt.Sprintf("Call %s with inputs: %v, get outputs: %v", name, inputCounts, outputCounts)
 }
 
 func errorLog(name string, inputData map[string]*services.ActionData, err error) string {
@@ -24,5 +24,5 @@ func errorLog(name string, inputData map[string]*services.ActionData, err error)
 	for k, v := range inputData {
 		inputCounts[k] = v.Count
 	}
-	return fmt.Sprintf("Call %s with inputs(%v) get error(%v)", name, inputCounts, err)
+	return fmt.Sprintf("Call %s with inputs: %v, get error: %v", name, inputCounts, err)
 }
