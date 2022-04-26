@@ -2,6 +2,7 @@ package action
 
 import "tiops/action/types"
 
+// simpleItemAction 简单处理组件
 type simpleItemAction struct {
 	itemFunc types.ItemProcessFunc
 }

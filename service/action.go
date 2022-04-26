@@ -82,7 +82,7 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 	actionName := request.ActionName
 
 	//a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
-	a.Logger.Info(fmt.Sprint("register node ", request.NodeId, " with options ", request.ActionOptions))
+	a.Logger.Info(fmt.Sprint("Register node ", request.NodeId, " with options ", request.ActionOptions))
 
 	//a.nodeStores[request.NodeId] = nodeStore
 

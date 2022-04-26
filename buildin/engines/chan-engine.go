@@ -181,7 +181,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 				w.recordManager.AddProcessRecord(processRecord)
 
-				w.Logger.Info(outputLog(node.Action.Info(), requestId, res.Outputs))
+				w.Logger.Debug(outputLog(node.Action.Info(), requestId, res.Outputs))
 				//time.Sleep(time.Second * 10)
 				for k, outputs := range node.Outputs {
 					for _, output := range outputs {

@@ -60,7 +60,7 @@ func (w *Workflow) RegisterActionNodes() bool {
 					break
 				}
 				if retryTimes%10 == 5 {
-					w.Logger.Error(fmt.Sprintf("register node %s for action %s error, %s", node0.Info.Id, node0.Info.ActionName, err))
+					w.Logger.Warning(fmt.Sprintf("register node %s for action %s error, %s, retry %d", node0.Info.Id, node0.Info.ActionName, err, retryTimes))
 				}
 			}
 			if retryTimes == RegisterActionRetryTimes {

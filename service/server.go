@@ -9,7 +9,6 @@ import (
 	"log"
 	"math"
 	"net"
-	"os"
 	"tiops/action"
 	actionTypes "tiops/action/types"
 	apiClient "tiops/common/api-client"
@@ -75,7 +74,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 				actionName := actionMessage.Message //actionMessage.Header["actionName"]
 				action0 := a.actions[actionName]
 				if action0 == nil {
-					a.Logger.Error(errors.New("action " + actionName + " not found"))
+					a.Logger.Error(errors.New("Action " + actionName + " not found"))
 				} else {
 					pushMessageContext := &actionTypes.PushMessageContext{
 						ActionNodeContext: a.actionNodeContextMap[actionName],
@@ -91,7 +90,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 				if actionMessage.Message == "start" {
 
 					if action0 == nil {
-						a.Logger.Error(errors.New("action " + actionName + " not found"))
+						a.Logger.Error(errors.New("Action " + actionName + " not found"))
 					} else {
 
 						actionData := &services.ActionData{}
@@ -180,7 +179,7 @@ func newActionServer() *actionServer {
 	remoteLogger := logger.NewRemoteLogger(
 		"action-server",
 		tiopsConfigs.LogId,
-		os.Getenv(tiopsConfigs.EnvNameProjectId),
+		tiopsConfigs.AppName,
 		logger.StringToLogLevel(tiopsConfigs.LogLevel),
 		tiopsApiClient,
 	)

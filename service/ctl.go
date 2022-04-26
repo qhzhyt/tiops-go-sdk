@@ -2,7 +2,6 @@ package service
 
 import (
 	actionTypes "tiops/action/types"
-	"tiops/common/logger"
 	engineTypes "tiops/engine/types"
 )
 
@@ -19,22 +18,22 @@ func (a *actionServerCtl) Register(name string, action interface{}) *actionServe
 
 	switch action0 := action.(type) {
 	case engineTypes.WorkflowEngine:
-		logger.Info("Register WorkflowEngine " + name)
+		//logger.Info("Register WorkflowEngine " + name)
 		a.actionServer.RegisterEngine(name, action0)
 	case actionTypes.PieceProcessFunction:
-		logger.Info("Register PieceProcessFunction " + name)
+		//logger.Info("Register PieceProcessFunction " + name)
 		a.actionServer.RegisterAction(name, actionTypes.PieceFunctionAction(action0))
 	case actionTypes.BatchProcessFunction:
-		logger.Info("Register BatchProcessFunction " + name)
+		//logger.Info("Register BatchProcessFunction " + name)
 		a.actionServer.RegisterAction(name, actionTypes.BatchFunctionAction(action0))
 	case func(ctx *actionTypes.PieceRequestContext) actionTypes.ActionDataItem:
-		logger.Info("Register func(ctx *actionTypes.PieceRequestContext) actionTypes.ActionDataItem " + name)
+		//logger.Info("Register func(ctx *actionTypes.PieceRequestContext) actionTypes.ActionDataItem " + name)
 		a.actionServer.RegisterAction(name, actionTypes.PieceFunctionAction(action0))
 	case func(ctx *actionTypes.BatchRequestContext) actionTypes.ActionDataBatch:
-		logger.Info("Register func(ctx *actionTypes.BatchRequestContext) actionTypes.ActionDataBatch " + name)
+		//logger.Info("Register func(ctx *actionTypes.BatchRequestContext) actionTypes.ActionDataBatch " + name)
 		a.actionServer.RegisterAction(name, actionTypes.BatchFunctionAction(action0))
 	case actionTypes.Action:
-		logger.Info("Register Action " + name)
+		//logger.Info("Register Action " + name)
 		a.actionServer.RegisterAction(name, action0)
 	default:
 		panic(IsNotActionOrEngineError(action0))

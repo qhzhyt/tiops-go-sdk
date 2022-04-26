@@ -219,7 +219,7 @@ func New(id string) (*types.Workflow, error) {
 		return nil, err
 	}
 
-	_logger.Debug("get workflow info success")
+	_logger.Debug("Get workflow info success:", workflowId)
 
 	_, err = _apiClient.CreateExecutionRecord(&models.ExecutionRecord{
 		XId:         tiopsConfigs.ExecutionId,
