@@ -5,18 +5,24 @@ import (
 	"tiops/common/services"
 )
 
-func inputLog(name string, inputData map[string]*services.ActionData) string {
-	counts := map[string]int32{}
+func successLog(name string, inputData map[string]*services.ActionData, outputData map[string]*services.ActionData) string {
+	inputCounts := map[string]int32{}
 	for k, v := range inputData {
-		counts[k] = v.Count
+		inputCounts[k] = v.Count
 	}
-	return fmt.Sprintf("Call %s with inputs: %v", name, counts)
+
+	outputCounts := map[string]int32{}
+	for k, v := range outputData {
+		outputCounts[k] = v.Count
+	}
+
+	return fmt.Sprintf("Call %s with inputs(%v), get outputs(%v)", name, inputCounts, outputCounts)
 }
 
-func outputLog(name string, outputData map[string]*services.ActionData) string {
-	counts := map[string]int32{}
-	for k, v := range outputData {
-		counts[k] = v.Count
+func errorLog(name string, inputData map[string]*services.ActionData, err error) string {
+	inputCounts := map[string]int32{}
+	for k, v := range inputData {
+		inputCounts[k] = v.Count
 	}
-	return fmt.Sprintf("Call %s get results: %v", name, counts)
+	return fmt.Sprintf("Call %s with inputs(%v) get error(%v)", name, inputCounts, err)
 }

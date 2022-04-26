@@ -40,7 +40,7 @@ const (
 const (
 	BuildinEngineImage = "tiops-buildin-projects/workflow-engines:latest"
 	DefaultEngineName  = "default"
-	MainWorkflowEngine = "main-workflow-engine"
+	MainWorkflowEngine = "main-engine"
 )
 
 const (

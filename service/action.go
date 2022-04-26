@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	actionTypes "tiops/action/types"
@@ -18,9 +19,21 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 	panic("implement me")
 }
 
-func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (*services.ActionResponse, error) {
+func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (res *services.ActionResponse, err error) {
 	actionName := request.ActionName
-	a.Logger.Info(inputLog(actionName, request.Inputs))
+
+	defer func() {
+		if err0 := recover(); err0 != nil {
+			switch err1 := err0.(type) {
+			case error:
+				err = err1
+				a.Logger.Error(errorLog(actionName, request.Inputs, err1))
+			}
+		} else {
+			a.Logger.Info(successLog(actionName, request.Inputs, res.Outputs))
+		}
+	}()
+
 	inputDataMap := actionTypes.TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
 	actionNodeContext := a.actionNodeContextMap[request.NodeId]
 
@@ -39,14 +52,23 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 	}
 
 	outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
-	a.Logger.Info(outputLog(actionName, outputs))
+	//a.Logger.Info(error(actionName, outputs))
 
 	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}, nil
 }
 
-func (a *actionServer) CallActionPullStream(request *services.ActionRequest, server services.ActionsService_CallActionPullStreamServer) error {
+func (a *actionServer) CallActionPullStream(request *services.ActionRequest, server services.ActionsService_CallActionPullStreamServer) (err error) {
 	actionName := request.ActionName
-	a.Logger.Info(inputLog(actionName, request.Inputs))
+	defer func() {
+		if err0 := recover(); err0 != nil {
+			switch err1 := err0.(type) {
+			case error:
+				err = err1
+				a.Logger.Error(errorLog(actionName, request.Inputs, err1))
+			}
+		}
+	}()
+
 	inputDataMap := actionTypes.TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
 	actionNodeContext := a.actionNodeContextMap[request.NodeId]
 
@@ -64,7 +86,8 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 			},
 			Push: func(data actionTypes.ActionDataBatch) error {
 				outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, data, a.actionInfoMap[actionName].Outputs)
-				a.Logger.Info(outputLog(actionName, outputs))
+
+				a.Logger.Info(successLog(actionName, request.Inputs, outputs))
 
 				res := &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}
 
@@ -73,7 +96,7 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 		})
 	}
 
-	return errors.New("action " + actionName + " not found")
+	return errors.New("Action " + actionName + " not found")
 
 }
 
@@ -82,7 +105,8 @@ func (a *actionServer) RegisterActionNode(ctx context.Context, request *services
 	actionName := request.ActionName
 
 	//a.actionNodeOptionsMap[request.NodeId] = request.ActionOptions
-	a.Logger.Info(fmt.Sprint("Register node ", request.NodeId, " with options ", request.ActionOptions))
+	optionsData, _ := json.Marshal(request.ActionOptions)
+	a.Logger.Info(fmt.Sprint("Register node(", request.NodeId[:8], ")for action(", ") with options(", string(optionsData), ")"))
 
 	//a.nodeStores[request.NodeId] = nodeStore
 
