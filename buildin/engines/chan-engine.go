@@ -45,7 +45,9 @@ func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
 }
 
 func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) error {
-	workflow.RegisterActionNodes()
+	if !workflow.RegisterActionNodes() {
+		utils.SleepAndExit(time.Second, -1)
+	}
 	w.recordManager.Start()
 
 	return nil

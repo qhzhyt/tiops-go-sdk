@@ -5,7 +5,7 @@ const (
 	WorkflowEngineLabel           = "workflow-engine"
 	WorkflowEngineImageBase       = "tiops-system/workflow-engine:latest"
 	WorkflowActionServerImageBase = "tiops-project-images/%s:latest"
-	WorkflowActionServerLabelBase = "workflow-action-server-%s"
+	WorkflowActionServerLabelBase = "action-server-%s"
 	WorkflowIdLabel               = "workflow-id"
 	ApiServerGrpcPort             = 5000
 	ApiServerHttpPort             = 8000
@@ -29,6 +29,7 @@ const (
 	EnvNameTiopsSystemNamespace = "TIOPS_SYSTEM_NAMESPACE"
 	EnvNameRunEngine            = "RUN_ENGINE"
 	EnvNameAppName              = "APP_NAME"
+	EnvNameRedirectStdOutErr    = "REDIRECT_STD_OUT_ERR"
 )
 
 const (
@@ -49,3 +50,9 @@ const (
 	LoglevelError    = "ERROR"
 	LoglevelCritical = "CRITICAL"
 )
+
+const (
+	False = "false"
+	True = "true"
+)
+

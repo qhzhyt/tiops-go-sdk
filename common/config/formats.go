@@ -20,7 +20,7 @@ func ActionServiceName(name string) string {
 
 func StandAloneActionServiceName(name string, nodeId string) string {
 	if len(nodeId) > 8 {
-		nodeId = nodeId[:8]
+		nodeId = nodeId[:6]
 	}
 	return CleanName(fmt.Sprintf(WorkflowActionServerLabelBase, name+"-"+nodeId))
 }

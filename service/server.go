@@ -1,14 +1,18 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 	"math"
 	"net"
+	"os"
+	"time"
 	"tiops/action"
 	actionTypes "tiops/action/types"
 	apiClient "tiops/common/api-client"
@@ -221,5 +225,36 @@ func newActionServer() *actionServer {
 		myServer.actionContextMap[actionInfo.Name] = &actionTypes.ActionContext{Logger: remoteLogger, Info: actionInfo, InputNames: inputs, OutputNames: outputs}
 	}*/
 	services.RegisterActionsServiceServer(s, myServer)
+
+	if tiopsConfigs.RedirectStdOutErr {
+		rErr, wErr, _ := os.Pipe()
+		rOut, wOut, _ := os.Pipe()
+		os.Stderr = wErr
+		os.Stdout = wOut
+		go func() {
+			for true {
+				var buf bytes.Buffer
+				io.Copy(&buf, rErr)
+				if buf.Len() > 0 {
+					remoteLogger.Error(buf.String())
+				} else {
+					time.Sleep(time.Second)
+				}
+			}
+		}()
+
+		go func() {
+			for true {
+				var buf bytes.Buffer
+				io.Copy(&buf, rOut)
+				if buf.Len() > 0 {
+					remoteLogger.Info(buf.String())
+				} else {
+					time.Sleep(time.Second)
+				}
+			}
+		}()
+	}
+
 	return myServer
 }

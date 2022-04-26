@@ -35,7 +35,7 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 				//ActionOptions:     a.getActionOptions(request.NodeId),
 			})
 	} else {
-		return nil, errors.New("action " + actionName + " not found")
+		return nil, errors.New("Action " + actionName + " not found")
 	}
 
 	outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
