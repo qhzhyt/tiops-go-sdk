@@ -9,6 +9,7 @@ import (
 	actionClient "tiops/common/action-client"
 	"tiops/common/logger"
 	"tiops/common/services"
+	"tiops/common/stores"
 )
 
 const (
@@ -42,7 +43,7 @@ func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.Htt
 
 	options := types.ActionOptions{}
 
-	if len(ctx.Query) > 0{
+	if len(ctx.Query) > 0 {
 		for name, value := range ctx.Query {
 			options[name] = value
 		}
@@ -61,19 +62,17 @@ func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.Htt
 
 	batchCtx := &types.BatchRequestContext{
 		ActionNodeContext: &types.ActionNodeContext{
-			ActionContext:   ctx.ActionContext,
-			Store:           nil,
-			NodeId:          "http",
-			ActionOptions:   options,
+			ActionContext: ctx.ActionContext,
+			Store:         stores.NewActionNodeStore("http"),
+			NodeId:        "http",
+			ActionOptions: options,
 		},
-		Inputs:            types.ActionDataBatch(dataList).ToActionDataMap(),
+		Inputs: types.ActionDataBatch(dataList).ToActionDataMap(),
 	}
-
 
 	//var result []types.ActionDataItem
 
 	result := a.CallBatch(batchCtx)
-
 
 	resultBytes, err := json.Marshal(result)
 
@@ -221,7 +220,7 @@ func (a *defaultStrictAction) Call(ctx *types.PieceRequestContext) types.ActionD
 		return action.Call(ctx)
 	}
 
-	return nil
+	return ctx.Input
 }
 
 func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.ActionDataBatch {
@@ -241,7 +240,7 @@ func (a *defaultStrictAction) CallBatch(ctx *types.BatchRequestContext) types.Ac
 
 	//ctx.Logger.Warning(ctx.Inputs)
 
-	if len(ctx.Inputs) < 1 {
+	if len(ctx.Inputs) < 1 && len(ctx.OutputNames) > 0 {
 		//	数据源
 		batchSize := ctx.ActionOptions.GetIntOrDefault(BatchSizeName, 1)
 		batches := ctx.ActionOptions.GetIntOrDefault(BatchesName, 1)
