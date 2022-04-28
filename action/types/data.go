@@ -379,7 +379,7 @@ func (s *SimpleActionData) RawData() *services.ActionData {
 }
 
 func (s *SimpleActionData) Item(i int) interface{} {
-	panic("implement me")
+	return s.list[i]
 }
 
 func newSimpleActionData(list []interface{}) ActionData {
