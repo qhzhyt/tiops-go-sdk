@@ -32,7 +32,7 @@ func (a *executor) Call(ctx *types.PieceRequestContext) types.ActionDataItem {
 		f, err = a.executorFunc(ctx.ActionNodeContext)
 
 		if err != nil {
-			return types.ActionDataItem{"err": err}
+			return types.ActionDataItem{"err": err.Error()}
 		}
 	}
 
