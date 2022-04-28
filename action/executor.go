@@ -24,7 +24,19 @@ func (a *executor) RegisterNode(ctx *types.NodeRegisterContext) error {
 }
 
 func (a *executor) Call(ctx *types.PieceRequestContext) types.ActionDataItem {
-	return a.funcMap[ctx.NodeId](ctx.Input)
+
+	f := a.funcMap[ctx.NodeId]
+
+	if f == nil {
+		var err error
+		f, err = a.executorFunc(ctx.ActionNodeContext)
+
+		if err != nil {
+			return types.ActionDataItem{"err": err}
+		}
+	}
+
+	return f(ctx.Input)
 }
 
 func NewSimpleExecutor(executorFunc types.ExecutorFunc) *executor {
