@@ -43,12 +43,12 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 				Query:         request.Query,
 				Body:          request.Body,
 			})
-		return nil, &services.HttpResponse{
+		return &services.HttpResponse{
 			Code:        result.Status,
 			ContentType: result.ContentType,
 			Headers:     services.HttpHeaderToServiceHeaders(result.Header),
 			Body:        result.Body,
-		}
+		}, nil
 	} else {
 		return nil, errors.New("Action " + actionName + " not found")
 	}

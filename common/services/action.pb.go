@@ -177,8 +177,8 @@ type ActionArgument struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Type  string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Type  string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty" bson:"type"`
+	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty" bson:"value"`
 }
 
 func (x *ActionArgument) Reset() {
@@ -232,13 +232,13 @@ type ActionData struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id        string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Type      DataType `protobuf:"varint,2,opt,name=type,proto3,enum=services.DataType" json:"type,omitempty"`
-	ValueType string   `protobuf:"bytes,3,opt,name=valueType,proto3" json:"valueType,omitempty"`
-	Data      [][]byte `protobuf:"bytes,4,rep,name=data,proto3" json:"data,omitempty"`
-	Count     int32    `protobuf:"varint,5,opt,name=count,proto3" json:"count,omitempty"`
-	Timestamp int32    `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	TraceId   int64    `protobuf:"varint,7,opt,name=traceId,proto3" json:"traceId,omitempty"`
+	Id        string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"id"`
+	Type      DataType `protobuf:"varint,2,opt,name=type,proto3,enum=services.DataType" json:"type,omitempty" bson:"type"`
+	ValueType string   `protobuf:"bytes,3,opt,name=valueType,proto3" json:"valueType,omitempty" bson:"valueType"`
+	Data      [][]byte `protobuf:"bytes,4,rep,name=data,proto3" json:"data,omitempty" bson:"data"`
+	Count     int32    `protobuf:"varint,5,opt,name=count,proto3" json:"count,omitempty" bson:"count"`
+	Timestamp int32    `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty" bson:"timestamp"`
+	TraceId   int64    `protobuf:"varint,7,opt,name=traceId,proto3" json:"traceId,omitempty" bson:"traceId"`
 }
 
 func (x *ActionData) Reset() {
@@ -327,14 +327,14 @@ type ActionRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id         string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	NodeId     string `protobuf:"bytes,2,opt,name=nodeId,proto3" json:"nodeId,omitempty"`
-	ActionName string `protobuf:"bytes,3,opt,name=actionName,proto3" json:"actionName,omitempty"`
+	Id         string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"id"`
+	NodeId     string `protobuf:"bytes,2,opt,name=nodeId,proto3" json:"nodeId,omitempty" bson:"nodeId"`
+	ActionName string `protobuf:"bytes,3,opt,name=actionName,proto3" json:"actionName,omitempty" bson:"actionName"`
 	//  ActionData inputs = 2;
-	Inputs map[string]*ActionData `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Inputs map[string]*ActionData `protobuf:"bytes,4,rep,name=inputs,proto3" json:"inputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"inputs"`
 	//  map<string, ActionArguments> args = 2;
 	//  ActionArguments args = 2;
-	TraceId int64 `protobuf:"varint,5,opt,name=traceId,proto3" json:"traceId,omitempty"`
+	TraceId int64 `protobuf:"varint,5,opt,name=traceId,proto3" json:"traceId,omitempty" bson:"traceId"`
 }
 
 func (x *ActionRequest) Reset() {
@@ -409,14 +409,14 @@ type ActionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id      string       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Code    ResponseCode `protobuf:"varint,2,opt,name=code,proto3,enum=services.ResponseCode" json:"code,omitempty"`
-	Message string       `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	Id      string       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"id"`
+	Code    ResponseCode `protobuf:"varint,2,opt,name=code,proto3,enum=services.ResponseCode" json:"code,omitempty" bson:"code"`
+	Message string       `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty" bson:"message"`
 	//  ActionData result = 4;
-	Outputs map[string]*ActionData `protobuf:"bytes,4,rep,name=outputs,proto3" json:"outputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Count   int32                  `protobuf:"varint,5,opt,name=count,proto3" json:"count,omitempty"`
-	Done    bool                   `protobuf:"varint,6,opt,name=done,proto3" json:"done,omitempty"`
-	TraceId int64                  `protobuf:"varint,7,opt,name=traceId,proto3" json:"traceId,omitempty"`
+	Outputs map[string]*ActionData `protobuf:"bytes,4,rep,name=outputs,proto3" json:"outputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"outputs"`
+	Count   int32                  `protobuf:"varint,5,opt,name=count,proto3" json:"count,omitempty" bson:"count"`
+	Done    bool                   `protobuf:"varint,6,opt,name=done,proto3" json:"done,omitempty" bson:"done"`
+	TraceId int64                  `protobuf:"varint,7,opt,name=traceId,proto3" json:"traceId,omitempty" bson:"traceId"`
 }
 
 func (x *ActionResponse) Reset() {
@@ -505,10 +505,10 @@ type ServiceAndAction struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Service   string `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	Action    string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	NodeId    string `protobuf:"bytes,3,opt,name=nodeId,proto3" json:"nodeId,omitempty"`
-	InputName string `protobuf:"bytes,4,opt,name=inputName,proto3" json:"inputName,omitempty"`
+	Service   string `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty" bson:"service"`
+	Action    string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty" bson:"action"`
+	NodeId    string `protobuf:"bytes,3,opt,name=nodeId,proto3" json:"nodeId,omitempty" bson:"nodeId"`
+	InputName string `protobuf:"bytes,4,opt,name=inputName,proto3" json:"inputName,omitempty" bson:"inputName"`
 }
 
 func (x *ServiceAndAction) Reset() {
@@ -576,8 +576,8 @@ type NextActions struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	OutputName string              `protobuf:"bytes,1,opt,name=outputName,proto3" json:"outputName,omitempty"`
-	Actions    []*ServiceAndAction `protobuf:"bytes,2,rep,name=actions,proto3" json:"actions,omitempty"`
+	OutputName string              `protobuf:"bytes,1,opt,name=outputName,proto3" json:"outputName,omitempty" bson:"outputName"`
+	Actions    []*ServiceAndAction `protobuf:"bytes,2,rep,name=actions,proto3" json:"actions,omitempty" bson:"actions"`
 }
 
 func (x *NextActions) Reset() {
@@ -631,12 +631,12 @@ type RegisterActionNodeRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ActionName      string             `protobuf:"bytes,1,opt,name=actionName,proto3" json:"actionName,omitempty"`
-	NodeId          string             `protobuf:"bytes,2,opt,name=nodeId,proto3" json:"nodeId,omitempty"`
-	ActionInfo      *models.ActionInfo `protobuf:"bytes,3,opt,name=actionInfo,proto3" json:"actionInfo,omitempty"`
-	ActionOptions   map[string]string  `protobuf:"bytes,4,rep,name=actionOptions,proto3" json:"actionOptions,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	NextActions     []*NextActions     `protobuf:"bytes,5,rep,name=nextActions,proto3" json:"nextActions,omitempty"`
-	InnerActionInfo *models.ActionInfo `protobuf:"bytes,8,opt,name=innerActionInfo,proto3" json:"innerActionInfo,omitempty"`
+	ActionName      string             `protobuf:"bytes,1,opt,name=actionName,proto3" json:"actionName,omitempty" bson:"actionName"`
+	NodeId          string             `protobuf:"bytes,2,opt,name=nodeId,proto3" json:"nodeId,omitempty" bson:"nodeId"`
+	ActionInfo      *models.ActionInfo `protobuf:"bytes,3,opt,name=actionInfo,proto3" json:"actionInfo,omitempty" bson:"actionInfo"`
+	ActionOptions   map[string]string  `protobuf:"bytes,4,rep,name=actionOptions,proto3" json:"actionOptions,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"actionOptions"`
+	NextActions     []*NextActions     `protobuf:"bytes,5,rep,name=nextActions,proto3" json:"nextActions,omitempty" bson:"nextActions"`
+	InnerActionInfo *models.ActionInfo `protobuf:"bytes,8,opt,name=innerActionInfo,proto3" json:"innerActionInfo,omitempty" bson:"innerActionInfo"`
 }
 
 func (x *RegisterActionNodeRequest) Reset() {
@@ -718,11 +718,11 @@ type ActionMessage struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	NodeId  string            `protobuf:"bytes,1,opt,name=nodeId,proto3" json:"nodeId,omitempty"`
-	Type    ActionMessageType `protobuf:"varint,2,opt,name=type,proto3,enum=services.ActionMessageType" json:"type,omitempty"`
-	Message string            `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	Header  map[string]string `protobuf:"bytes,4,rep,name=header,proto3" json:"header,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Data    []byte            `protobuf:"bytes,5,opt,name=data,proto3" json:"data,omitempty"`
+	NodeId  string            `protobuf:"bytes,1,opt,name=nodeId,proto3" json:"nodeId,omitempty" bson:"nodeId"`
+	Type    ActionMessageType `protobuf:"varint,2,opt,name=type,proto3,enum=services.ActionMessageType" json:"type,omitempty" bson:"type"`
+	Message string            `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty" bson:"message"`
+	Header  map[string]string `protobuf:"bytes,4,rep,name=header,proto3" json:"header,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"header"`
+	Data    []byte            `protobuf:"bytes,5,opt,name=data,proto3" json:"data,omitempty" bson:"data"`
 }
 
 func (x *ActionMessage) Reset() {
@@ -797,7 +797,7 @@ type EmptyRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty" bson:"id"`
 }
 
 func (x *EmptyRequest) Reset() {
@@ -844,11 +844,11 @@ type ActionStatus struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ProcessedCount int64             `protobuf:"varint,1,opt,name=processedCount,proto3" json:"processedCount,omitempty"`
-	RestCount      int64             `protobuf:"varint,2,opt,name=restCount,proto3" json:"restCount,omitempty"`
-	Done           bool              `protobuf:"varint,3,opt,name=done,proto3" json:"done,omitempty"`
-	Message        string            `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	Extra          map[string]string `protobuf:"bytes,5,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	ProcessedCount int64             `protobuf:"varint,1,opt,name=processedCount,proto3" json:"processedCount,omitempty" bson:"processedCount"`
+	RestCount      int64             `protobuf:"varint,2,opt,name=restCount,proto3" json:"restCount,omitempty" bson:"restCount"`
+	Done           bool              `protobuf:"varint,3,opt,name=done,proto3" json:"done,omitempty" bson:"done"`
+	Message        string            `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty" bson:"message"`
+	Extra          map[string]string `protobuf:"bytes,5,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"extra"`
 }
 
 func (x *ActionStatus) Reset() {
@@ -923,9 +923,9 @@ type ServerStatus struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CpuRate  float32 `protobuf:"fixed32,1,opt,name=cpuRate,proto3" json:"cpuRate,omitempty"`
-	MemUsage float32 `protobuf:"fixed32,2,opt,name=memUsage,proto3" json:"memUsage,omitempty"`
-	MemRate  float32 `protobuf:"fixed32,3,opt,name=memRate,proto3" json:"memRate,omitempty"`
+	CpuRate  float32 `protobuf:"fixed32,1,opt,name=cpuRate,proto3" json:"cpuRate,omitempty" bson:"cpuRate"`
+	MemUsage float32 `protobuf:"fixed32,2,opt,name=memUsage,proto3" json:"memUsage,omitempty" bson:"memUsage"`
+	MemRate  float32 `protobuf:"fixed32,3,opt,name=memRate,proto3" json:"memRate,omitempty" bson:"memRate"`
 }
 
 func (x *ServerStatus) Reset() {
@@ -986,10 +986,10 @@ type ServiceStatus struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Code          int32                    `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	Message       string                   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	ActionsStatus map[string]*ActionStatus `protobuf:"bytes,3,rep,name=actionsStatus,proto3" json:"actionsStatus,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	ServerStatus  *ServerStatus            `protobuf:"bytes,4,opt,name=serverStatus,proto3" json:"serverStatus,omitempty"`
+	Code          int32                    `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty" bson:"code"`
+	Message       string                   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty" bson:"message"`
+	ActionsStatus map[string]*ActionStatus `protobuf:"bytes,3,rep,name=actionsStatus,proto3" json:"actionsStatus,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"actionsStatus"`
+	ServerStatus  *ServerStatus            `protobuf:"bytes,4,opt,name=serverStatus,proto3" json:"serverStatus,omitempty" bson:"serverStatus"`
 }
 
 func (x *ServiceStatus) Reset() {
@@ -1057,8 +1057,8 @@ type HttpHeader struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name   string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Values []string `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+	Name   string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" bson:"name"`
+	Values []string `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty" bson:"values"`
 }
 
 func (x *HttpHeader) Reset() {
@@ -1112,13 +1112,13 @@ type HttpRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ActionName string                 `protobuf:"bytes,1,opt,name=actionName,proto3" json:"actionName,omitempty"`
-	Method     string                 `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty"`
-	Path       string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
-	Query      map[string]string      `protobuf:"bytes,4,rep,name=query,proto3" json:"query,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Headers    map[string]*HttpHeader `protobuf:"bytes,5,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	ActionName string                 `protobuf:"bytes,1,opt,name=actionName,proto3" json:"actionName,omitempty" bson:"actionName"`
+	Method     string                 `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty" bson:"method"`
+	Path       string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty" bson:"path"`
+	Query      map[string]string      `protobuf:"bytes,4,rep,name=query,proto3" json:"query,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"query"`
+	Headers    map[string]*HttpHeader `protobuf:"bytes,5,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"headers"`
 	//  map<string, bytes> postForm = 2;
-	Body []byte `protobuf:"bytes,6,opt,name=body,proto3" json:"body,omitempty"`
+	Body []byte `protobuf:"bytes,6,opt,name=body,proto3" json:"body,omitempty" bson:"body"`
 }
 
 func (x *HttpRequest) Reset() {
@@ -1200,14 +1200,10 @@ type HttpResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Code        int32                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	ContentType string                 `protobuf:"bytes,2,opt,name=contentType,proto3" json:"contentType,omitempty"`
-	Headers     map[string]*HttpHeader `protobuf:"bytes,3,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Body        []byte                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
-}
-
-func (x *HttpResponse) Error() string {
-	panic("implement me")
+	Code        int32                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty" bson:"code"`
+	ContentType string                 `protobuf:"bytes,2,opt,name=contentType,proto3" json:"contentType,omitempty" bson:"contentType"`
+	Headers     map[string]*HttpHeader `protobuf:"bytes,3,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"headers"`
+	Body        []byte                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty" bson:"body"`
 }
 
 func (x *HttpResponse) Reset() {
@@ -1313,8 +1309,8 @@ type RunEngineRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	EngineName string `protobuf:"bytes,1,opt,name=engineName,proto3" json:"engineName,omitempty"`
-	WorkflowId string `protobuf:"bytes,2,opt,name=workflowId,proto3" json:"workflowId,omitempty"`
+	EngineName string `protobuf:"bytes,1,opt,name=engineName,proto3" json:"engineName,omitempty" bson:"engineName"`
+	WorkflowId string `protobuf:"bytes,2,opt,name=workflowId,proto3" json:"workflowId,omitempty" bson:"workflowId"`
 }
 
 func (x *RunEngineRequest) Reset() {
@@ -1368,7 +1364,7 @@ type EngineStatusRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	EngineName string `protobuf:"bytes,1,opt,name=engineName,proto3" json:"engineName,omitempty"`
+	EngineName string `protobuf:"bytes,1,opt,name=engineName,proto3" json:"engineName,omitempty" bson:"engineName"`
 }
 
 func (x *EngineStatusRequest) Reset() {
@@ -1415,7 +1411,7 @@ type ActionStatusRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ActionName string `protobuf:"bytes,1,opt,name=actionName,proto3" json:"actionName,omitempty"`
+	ActionName string `protobuf:"bytes,1,opt,name=actionName,proto3" json:"actionName,omitempty" bson:"actionName"`
 }
 
 func (x *ActionStatusRequest) Reset() {
@@ -1462,8 +1458,8 @@ type EngineStatusResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Code    int32  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Code    int32  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty" bson:"code"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty" bson:"message"`
 }
 
 func (x *EngineStatusResponse) Reset() {
