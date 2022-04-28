@@ -9,9 +9,8 @@ type WorkflowAction struct {
 	RemoteServiceAction
 }
 
-func NewWorkflowAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
+func NewWorkflowAction(info *models.ActionInfo) types.Action {
 	return &WorkflowAction{RemoteServiceAction{
 		info:     info,
-		nodeInfo: nodeInfo,
 	}}
 }

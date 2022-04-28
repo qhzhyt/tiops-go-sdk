@@ -49,6 +49,7 @@ type actionServer struct {
 	//jobDataStore            DataStore
 }
 
+// GetServiceStatus 处理服务状态请求
 func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.EmptyRequest) (*services.ServiceStatus, error) {
 	res := &services.ServiceStatus{ActionsStatus: map[string]*services.ActionStatus{}}
 	for id, actionNodeCtx := range a.actionNodeContextMap {
@@ -65,6 +66,7 @@ func (a *actionServer) GetServiceStatus(ctx context.Context, request *services.E
 	return res, nil
 }
 
+// PushMessage 处理消息请求
 func (a *actionServer) PushMessage(server services.ActionsService_PushMessageServer) error {
 	for {
 		//fmt.Println(server)

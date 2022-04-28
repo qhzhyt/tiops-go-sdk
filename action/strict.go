@@ -2,6 +2,7 @@ package action
 
 import (
 	"context"
+	"encoding/json"
 	"google.golang.org/protobuf/proto"
 	"tiops/action/types"
 	"tiops/common/action-client"
@@ -32,6 +33,61 @@ type defaultStrictAction struct {
 	logger         *logger.Logger
 	done           bool
 	processedCount int64
+}
+
+func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.HttpResponse {
+	if h, ok := a.action.(types.HttpAction); ok {
+		return h.CallHttp(ctx)
+	}
+
+	options := types.ActionOptions{}
+
+	if len(ctx.Query) > 0{
+		for name, value := range ctx.Query {
+			options[name] = value
+		}
+	}
+
+	var dataList []types.ActionDataItem
+
+	err := json.Unmarshal(ctx.Body, &dataList)
+
+	if err != nil {
+		return &types.HttpResponse{
+			Status: 500,
+			Body:   []byte(err.Error()),
+		}
+	}
+
+	batchCtx := &types.BatchRequestContext{
+		ActionNodeContext: &types.ActionNodeContext{
+			ActionContext:   ctx.ActionContext,
+			Store:           nil,
+			NodeId:          "http",
+			ActionOptions:   options,
+		},
+		Inputs:            types.ActionDataBatch(dataList).ToActionDataMap(),
+	}
+
+
+	//var result []types.ActionDataItem
+
+	result := a.CallBatch(batchCtx)
+
+
+	resultBytes, err := json.Marshal(result)
+
+	if err != nil {
+		return &types.HttpResponse{
+			Status: 500,
+			Body:   []byte(err.Error()),
+		}
+	}
+
+	return &types.HttpResponse{
+		Status: 200,
+		Body:   resultBytes,
+	}
 }
 
 func (a *defaultStrictAction) CallPullStream(ctx *types.StreamRequestContext) error {

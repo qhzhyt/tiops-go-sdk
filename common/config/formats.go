@@ -25,6 +25,11 @@ func StandAloneActionServiceName(name string, nodeId string) string {
 	return CleanName(fmt.Sprintf(WorkflowActionServerLabelBase, name+"-"+nodeId))
 }
 
+func SystemActionServiceName(name string) string {
+
+	return fmt.Sprintf(SystemActionServerLabelBase, CleanName(name))
+}
+
 func WorkflowActionServerImage(name string) string {
 	return fmt.Sprintf(WorkflowActionServerImageBase, name)
 }

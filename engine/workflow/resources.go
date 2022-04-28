@@ -1,12 +1,15 @@
 package workflow
 
 import (
-	"fmt"
 	"path"
 	"tiops/common/config"
 	"tiops/common/models"
 	"tiops/engine/types"
 )
+
+//func SetRuntimeConfigsToActionApp(runtimeConfig *models.RuntimeConfig, *models.A)  {
+//
+//}
 
 func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Workflow) *models.WorkflowResources {
 	apps := resources.Apps
@@ -16,7 +19,7 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 
 		actionInfo := workflow.GetActionInfo(app.ActionId)
 
-		fmt.Println(actionInfo)
+		//fmt.Println(actionInfo)
 
 		if actionInfo == nil {
 			continue
@@ -42,11 +45,11 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 		}
 
 		if mainContainer.ResourcesLimits == nil {
-			mainContainer.ResourcesLimits = &models.ContainerResources{}
+			mainContainer.ResourcesLimits = &models.ContainerResources{Extra: map[string]string{}}
 		}
 
 		if mainContainer.ResourcesRequests == nil {
-			mainContainer.ResourcesRequests = &models.ContainerResources{}
+			mainContainer.ResourcesRequests = &models.ContainerResources{Extra: map[string]string{}}
 		}
 
 		if runtimeConfig != nil {
@@ -67,6 +70,22 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 			} else {
 				mainContainer.ResourcesLimits.Gpu = "0"
 				mainContainer.ResourcesRequests.Gpu = "0"
+			}
+
+			if len(runtimeConfig.Resources) > 0 {
+				for _, resource := range runtimeConfig.Resources {
+					switch resource.Name {
+					case "cpu":
+						mainContainer.ResourcesLimits.Cpu = resource.Limit
+						mainContainer.ResourcesRequests.Cpu = resource.Request
+					case "memory":
+						mainContainer.ResourcesLimits.Memory = resource.Limit
+						mainContainer.ResourcesRequests.Memory = resource.Request
+					default:
+						mainContainer.ResourcesLimits.Extra[resource.Name] = resource.Limit
+						mainContainer.ResourcesRequests.Extra[resource.Name] = resource.Request
+					}
+				}
 			}
 		}
 	}

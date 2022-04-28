@@ -6,6 +6,7 @@ import (
 	"strings"
 	"tiops/common/models"
 	"tiops/common/services"
+	"tiops/common/utils"
 )
 
 type ActionStatus struct {
@@ -328,5 +329,96 @@ func ToServiceActionDataMap(id string, traceId int64, source ActionDataBatch, ou
 			TraceId:   traceId,
 		}
 	}
+	return result
+}
+
+type SimpleActionData struct {
+	list []interface{}
+	name string
+}
+
+func (s *SimpleActionData) List() []interface{} {
+	return s.list
+}
+
+func (s *SimpleActionData) Count() int {
+	return len(s.list)
+}
+
+func (s *SimpleActionData) Foreach(f func(item interface{})) {
+	for _, i := range s.list {
+		f(i)
+	}
+}
+
+func (s *SimpleActionData) Map(f func(item interface{}) interface{}) []interface{} {
+	result := make([]interface{}, s.Count())
+	for i, item := range s.list {
+		result[i] = f(item)
+	}
+	return result
+}
+
+func (s *SimpleActionData) RawData() *services.ActionData {
+
+	data := make([][]byte, s.Count())
+
+	for i, item := range s.list {
+		data[i], _ = json.Marshal(item)
+	}
+
+	return &services.ActionData{
+		Id:        "",
+		Type:      0,
+		ValueType: "",
+		Data:      data,
+		Count:     int32(s.Count()),
+		Timestamp: int32(utils.CurrentTimeStampMS()),
+		TraceId:   0,
+	}
+}
+
+func (s *SimpleActionData) Item(i int) interface{} {
+	panic("implement me")
+}
+
+func newSimpleActionData(list []interface{}) ActionData {
+	return &SimpleActionData{list: list}
+}
+
+func findNames(b ActionDataBatch) []string {
+	count := 5
+	if len(b) < 5 {
+		count = len(b)
+	}
+
+	names := map[string]bool{}
+
+	for i := 0; i < count; i++ {
+		for name, _ := range b[i] {
+			names[name] = true
+		}
+	}
+
+	var result []string
+
+	for name, _ := range names {
+		result = append(result, name)
+	}
+
+	return result
+}
+
+func (b ActionDataBatch) ToActionDataMap() ActionDataMap {
+	result := ActionDataMap{}
+
+	for _, s := range findNames(b) {
+		list := make([]interface{}, len(b))
+		for i, item := range b {
+			list[i] = item[s]
+		}
+		result[s] = newSimpleActionData(list)
+	}
+
 	return result
 }

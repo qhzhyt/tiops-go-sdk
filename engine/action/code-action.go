@@ -14,7 +14,7 @@ type CodeAction struct {
 	funcName string
 }
 
-func (c *CodeAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
+func (c *CodeAction) CallPullStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
 	panic("implement me")
 }
 
@@ -42,9 +42,9 @@ func (c *CodeAction) Copy() types.Action {
 	panic("implement me")
 }
 
-func NewCodeAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
+func NewCodeAction(info *models.ActionInfo) types.Action {
 
-	action := &CodeAction{info: info, nodeInfo: nodeInfo}
+	action := &CodeAction{info: info}
 	action.code = info.Code
 	action.lang = info.Lang
 	action.class = info.Class

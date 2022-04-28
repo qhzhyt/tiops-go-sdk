@@ -1,15 +1,17 @@
 package config
 
 const (
+	DefaultTiopsSystemNamespace   = "tiops-system"
+	ServicesNamespace             = "tiops-services"
 	ManifestPath                  = "manifest.yaml"
 	WorkflowEngineLabel           = "workflow-engine"
 	WorkflowEngineImageBase       = "tiops-system/workflow-engine:latest"
 	WorkflowActionServerImageBase = "tiops-project-images/%s:latest"
 	WorkflowActionServerLabelBase = "action-server-%s"
+	SystemActionServerLabelBase = "%s." + ServicesNamespace
 	WorkflowIdLabel               = "workflow-id"
 	ApiServerGrpcPort             = 5000
 	ApiServerHttpPort             = 8000
-	DefaultTiopsSystemNamespace   = "tiops-system"
 	ActionServerPort              = 5555
 )
 
@@ -53,6 +55,5 @@ const (
 
 const (
 	False = "false"
-	True = "true"
+	True  = "true"
 )
-

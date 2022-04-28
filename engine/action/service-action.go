@@ -57,7 +57,9 @@ func (a *RemoteServiceAction) Copy() types.Action {
 
 func (a *RemoteServiceAction) Init(node *types.Node) error {
 	// 初始化时再创建 action 客户端
-	serviceName := getServiceName(node.Info)
+	serviceName := getServiceName(a.info, node.Info)
+
+	a.nodeInfo = node.Info
 
 	//if nodeInfo.StandAlone {
 	//	serviceName = tiopsConfigs.StandAloneActionServiceName(info.Name, nodeInfo.Id)
@@ -92,7 +94,7 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 			//fmt.Println(targetNode.Inputs)
 
 			nextActions.Actions = append(nextActions.Actions, &services.ServiceAndAction{
-				Service:   getServiceName(targetNode.Info),
+				Service:   getServiceName(a.info, targetNode.Info),
 				Action:    targetNode.Info.ActionName,
 				NodeId:    targetNode.ID,
 				InputName: inputName,
@@ -104,11 +106,12 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 	defer cancel()
 
 	_, err := a.client.RegisterActionNode(ctx, &services.RegisterActionNodeRequest{
-		ActionName:    a.info.Name,
-		NodeId:        node.Info.Id,
-		ActionOptions: node.Info.ActionOptions,
-		NextActions:   allNextActions,
-		ActionInfo:    a.info,
+		ActionName:      a.info.Name,
+		NodeId:          node.Info.Id,
+		ActionOptions:   node.Info.ActionOptions,
+		NextActions:     allNextActions,
+		ActionInfo:      a.info,
+		InnerActionInfo: a.info.InnerActionInfo,
 	})
 	return err
 }
@@ -132,7 +135,7 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
 }
 
-func (a *RemoteServiceAction) CallStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
+func (a *RemoteServiceAction) CallPullStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
 	defer cancel()
 	stream, err := a.client.CallActionPullStream(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.nodeInfo.Id, Inputs: request.Inputs})
@@ -163,8 +166,12 @@ func (a *RemoteServiceAction) CallStream(request *types.ActionRequest, callback 
 
 var _actionClientMap = map[string]*actionClient.RemoteActionClient{}
 
-func getServiceName(nodeInfo *models.WorkflowNodeInfo) string {
+func getServiceName(actionInfo *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) string {
 	//serviceName := tiopsConfigs.ActionServiceName(nodeInfo.ProjectId)
+
+	if actionInfo.Source == models.ActionSource_FromService {
+		return tiopsConfigs.SystemActionServiceName(actionInfo.Image)
+	}
 
 	//if nodeInfo.StandAlone {
 	serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, nodeInfo.Id)
@@ -173,6 +180,6 @@ func getServiceName(nodeInfo *models.WorkflowNodeInfo) string {
 	return serviceName
 }
 
-func NewRemoteServiceAction(info *models.ActionInfo, nodeInfo *models.WorkflowNodeInfo) types.Action {
-	return &RemoteServiceAction{info: info, nodeInfo: nodeInfo}
+func NewRemoteServiceAction(info *models.ActionInfo) types.Action {
+	return &RemoteServiceAction{info: info}
 }

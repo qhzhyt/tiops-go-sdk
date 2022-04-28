@@ -62,5 +62,5 @@ func outputLog(info *models.ActionInfo, responseId string, outputData map[string
 			"count": v.Count,
 		}
 	}
-	return fmt.Sprintf("Action reponse %s from %s with outputs: %v", responseId, info.Name, infos)
+	return fmt.Sprintf("Action reponse %s from %s get outputs: %v", responseId, info.Name, infos)
 }

@@ -1,9 +1,5 @@
 package engines
 
-/*
-基于channel的简易流程引擎
-*/
-
 import (
 	"encoding/json"
 	"fmt"
@@ -17,6 +13,10 @@ import (
 	"tiops/engine/types"
 )
 
+/*
+* 基于channel的简易流程引擎
+*/
+
 type basicChanEngine struct {
 	wg sync.WaitGroup
 	*types.EngineContext
@@ -26,7 +26,7 @@ type basicChanEngine struct {
 }
 
 func (w *basicChanEngine) Status() (code types.EngineStatusCode, msg string) {
-	if w.running || !w.ready{
+	if w.running || !w.ready {
 		return types.EngineStatusBusy, "busy"
 	}
 	return types.EngineStatusIdle, "idle"
@@ -57,7 +57,6 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 	if stage == 0 {
 		var apps []*models.K8SApp
 		nodes := workflowInfo.Nodes
-		//processedProjects := map[string]bool{}
 		for _, node := range nodes {
 
 			nodeInfo := node.Info
@@ -69,6 +68,16 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 
 			serviceName := config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
 
+			switch actionInfo.Source {
+			case models.ActionSource_Buildin:
+				continue
+			case models.ActionSource_FromProject:
+			case models.ActionSource_FromImage:
+			case models.ActionSource_FromOther:
+			case models.ActionSource_FromService:
+				continue
+			}
+
 			app := &models.K8SApp{
 				Name:        serviceName,
 				ActionId:    actionInfo.XId,
@@ -76,13 +85,7 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 				ServiceMode: models.ServiceMode_One,
 			}
 
-			//if node.Info.StandAlone {
-			//	app.Name = config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID)
 			apps = append(apps, app)
-			//} else if !processedProjects[actionInfo.ProjectId] {
-			//	apps = append(apps, app)
-			//	processedProjects[actionInfo.ProjectId] = true
-			//}
 		}
 
 		w.Debug(apps)
@@ -102,26 +105,6 @@ func (w *basicChanEngine) Init(ctx *types.EngineContext) {
 	w.EngineContext = ctx
 	w.recordManager = record.NewExecutionRecordManager(10*time.Second, ctx)
 }
-
-//func (w *basicChanEngine) selectOne(connections []*workflow.Connection, count int) (*services.ActionData, bool) {
-//	var selectCase = make([]reflect.SelectCase, len(connections))
-//
-//	for i, connection := range connections {
-//		if connection.DataChan != nil {
-//			selectCase[i].Dir = reflect.SelectRecv
-//			selectCase[i].Chan = reflect.ValueOf(connection.DataChan)
-//		} else {
-//			return connection.Variable.ToActionArguments(count), true
-//		}
-//	}
-//	_, recv, recvOk := reflect.Select(selectCase)
-//	if recvOk {
-//		//fmt.Println(recv)
-//		return recv.Interface().(*services.ActionData), false
-//	}
-//
-//	return nil, false
-//}
 
 func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 	done := false
@@ -204,7 +187,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 			switch actionInfo.CallMode {
 			case models.CallMode_PullStreamCall:
-				err := node.Action.CallStream(actionRequest, func(res *types.ActionResponse, err error) bool {
+				err := node.Action.CallPullStream(actionRequest, func(res *types.ActionResponse, err error) bool {
 					processResponse(res, err)
 					if done || (res != nil && res.Done) {
 						return false

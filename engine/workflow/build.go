@@ -31,6 +31,9 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	for _, actionInfo := range actionInfos {
 		result[actionInfo.XId] = actionInfo
 	}
+	for _, actionInfo := range actionInfos {
+		actionInfo.ExecutorInfo = result[actionInfo.Executor]
+	}
 	//logger.Info(actionInfos)
 	return result, err
 }
@@ -49,10 +52,14 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	}
 
 	wf.ActionInfos = actionInfos
+	//marshal, _ := json.Marshal(actionInfos)
+	//wf.Logger.Error(string(marshal))
 
 	for _, nodeInfo := range wi.Spec.Nodes {
-		wf.Actions[nodeInfo.Id] = action.New(nodeInfo, actionInfos)
+		wf.Actions[nodeInfo.Id] = action.New(actionInfos[nodeInfo.ActionId])
 	}
+
+	//time.Sleep(time.Second * 6)
 
 	spec := wi.Spec
 	//fmt.Println(wi.Constants)
@@ -79,7 +86,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		nodeInfos[nodeInfo.Id] = nodeInfo
 		node := &types.Node{
 			ID:             nodeInfo.Id,
-			Action:         wf.GetAction(nodeInfo.Id).Copy(),
+			Action:         wf.GetAction(nodeInfo.Id),
 			Inputs:         types.InputConnectionsMap{},
 			Outputs:        types.OutputConnectionsMap{},
 			Info:           nodeInfo,
@@ -137,28 +144,6 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		}
 
 	}
-
-	//for _, nodeInfo := range spec.Nodes {
-	//	node := nodes[nodeInfo.Id]
-	//	toDelete := true
-	//	for _, input := range node.Inputs {
-	//		if len(input) > 0 {
-	//			toDelete = false
-	//			break
-	//		}
-	//	}
-	//	if toDelete {
-	//		for _, output := range node.Outputs {
-	//			if len(output) > 0 {
-	//				toDelete = false
-	//				break
-	//			}
-	//		}
-	//	}
-	//	if toDelete {
-	//		delete(nodes, nodeInfo.Id)
-	//	}
-	//}
 
 	if spec.Outputs != nil && len(spec.Outputs) > 0 {
 		outputNodeInfo := &models.WorkflowNodeInfo{
@@ -255,7 +240,7 @@ func Context() *types.EngineContext {
 		//WorkflowId:   tiopsConfigs.WorkflowId,
 		//ExecutionId:  tiopsConfigs.ExecutionId,
 		//RecordId:     tiopsConfigs.ExecutionId,
-		Logger:       logger.GetDefaultLogger(),
-		APIClient:    _apiClient,
+		Logger:    logger.GetDefaultLogger(),
+		APIClient: _apiClient,
 	}
 }

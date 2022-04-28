@@ -16,7 +16,43 @@ func (a *actionServer) GetActionStatus(ctx context.Context, request *services.Ac
 }
 
 func (a *actionServer) CallHttpAction(ctx context.Context, request *services.HttpRequest) (*services.HttpResponse, error) {
-	panic("implement me")
+
+	//httpContext
+
+	actionName := request.ActionName
+
+	//defer func() {
+	//	if err0 := recover(); err0 != nil {
+	//		switch err1 := err0.(type) {
+	//		case error:
+	//			err = err1
+	//			a.Logger.Error(errorLog(actionName, request.Inputs, err1))
+	//		}
+	//	} else {
+	//		a.Logger.Info(successLog(actionName, request.Inputs, res.Outputs))
+	//	}
+	//}()
+
+	if a.actions[actionName] != nil {
+		result := a.actions[actionName].CallHttp(
+			&actionTypes.HttpRequestContext{
+				ActionContext: nil,
+				Method:        request.Method,
+				Path:          request.Path,
+				Header:        services.ServiceHeadersToHttpHeader(request.Headers),
+				Query:         request.Query,
+				Body:          request.Body,
+			})
+		return nil, &services.HttpResponse{
+			Code:        result.Status,
+			ContentType: result.ContentType,
+			Headers:     services.HttpHeaderToServiceHeaders(result.Header),
+			Body:        result.Body,
+		}
+	} else {
+		return nil, errors.New("Action " + actionName + " not found")
+	}
+
 }
 
 func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (res *services.ActionResponse, err error) {
@@ -42,7 +78,7 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 		result = a.actions[actionName].CallBatch(
 			&actionTypes.BatchRequestContext{
 				ActionNodeContext: actionNodeContext,
-				Inputs: inputDataMap,
+				Inputs:            inputDataMap,
 			})
 	} else {
 		return nil, errors.New("Action " + actionName + " not found")
@@ -72,7 +108,7 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 		return a.actions[actionName].CallPullStream(&actionTypes.StreamRequestContext{
 			BatchRequestContext: actionTypes.BatchRequestContext{
 				ActionNodeContext: actionNodeContext,
-				Inputs: inputDataMap,
+				Inputs:            inputDataMap,
 			},
 			Push: func(data actionTypes.ActionDataBatch) error {
 				outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, data, a.actionInfoMap[actionName].Outputs)

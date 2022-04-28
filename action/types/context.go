@@ -1,6 +1,8 @@
 package types
 
 import (
+	"context"
+	"net/http"
 	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
@@ -32,8 +34,29 @@ type PieceRequestContext struct {
 }
 
 type BatchRequestContext struct {
+	context *context.Context
 	*ActionNodeContext
 	Inputs ActionDataMap
+	//ActionOptions ActionOptions
+	//done bool
+}
+
+type HttpRequestContext struct {
+	*ActionContext
+	Method string
+	Path   string
+	Header http.Header
+	Query  map[string]string
+	Body   []byte
+	//ActionOptions ActionOptions
+	//done bool
+}
+
+type HttpResponse struct {
+	Status      int32
+	Header      http.Header
+	Body        []byte
+	ContentType string
 	//ActionOptions ActionOptions
 	//done bool
 }

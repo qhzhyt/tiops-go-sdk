@@ -26,6 +26,10 @@ type BatchProcess interface {
 	CallBatch(ctx *BatchRequestContext) ActionDataBatch
 }
 
+type HttpProcess interface {
+	CallHttp(ctx *HttpRequestContext) *HttpResponse
+}
+
 type PullStreamProcess interface {
 	CallPullStream(ctx *StreamRequestContext) error
 }
@@ -38,6 +42,8 @@ type BatchAction BatchProcess
 
 type PieceAction PieceProcess
 
+type HttpAction HttpProcess
+
 type PullStreamAction PullStreamProcess
 
 type StrictAction interface {
@@ -48,4 +54,5 @@ type StrictAction interface {
 	PushMessageProcess
 	StatusProvider
 	RegisterNode
+	HttpProcess
 }
