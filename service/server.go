@@ -42,7 +42,7 @@ type actionServer struct {
 	Logger                  *logger.Logger
 	apiClient               *apiClient.APIClient
 	updatingExecutionRecord bool
-	requiredResourcesMap    map[int]*models.WorkflowResources
+	requiredResourcesMap    map[string]*models.WorkflowResources
 	//nodeStores              map[string]stores.DataStore
 	//workspaceDataStore      stores.DataStore
 	//workflowDataStore       DataStore
@@ -208,7 +208,7 @@ func newActionServer() *actionServer {
 		actionInfoMap:    map[string]*models.ActionInfo{},
 		//actionNodeOptionsMap: map[string]ActionOptions{},
 		actionNodeContextMap: map[string]*actionTypes.ActionNodeContext{},
-		requiredResourcesMap: map[int]*models.WorkflowResources{},
+		requiredResourcesMap: map[int32]*models.WorkflowResources{},
 	}
 
 	/*myServer.projectInfo = &models.ProjectInfo{}

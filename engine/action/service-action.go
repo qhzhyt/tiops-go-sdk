@@ -18,6 +18,48 @@ type RemoteServiceAction struct {
 	nodeInfo *models.WorkflowNodeInfo
 }
 
+func (a *RemoteServiceAction) GetRequiredResources(n *types.Node, stage int32) (*models.WorkflowResources, error) {
+
+
+	if stage == 0 {
+		var apps []*models.K8SApp
+		nodeInfo := n.Info
+		actionInfo := a.info
+
+		if nodeInfo.ActionExecutor != "" {
+			actionInfo = n.ActionExecutor
+		}
+		serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, n.ID) // config.ActionServiceName(actionInfo.ProjectId)
+
+		switch actionInfo.Source {
+		case models.ActionSource_Buildin:
+			fallthrough
+		case models.ActionSource_FromService:
+			return nil, nil
+		}
+		app := &models.K8SApp{
+			Name:        serviceName,
+			ActionId:    actionInfo.XId,
+			Replica:     1,
+			ServiceMode: models.ServiceMode_One,
+		}
+		//if actionInfo.Type == models.ActionType_WorkflowAction {
+		//	if actionInfo.Func == "" {
+		//		app.WorkContainers = []*models.K8SContainer{{
+		//			Name:  serviceName,
+		//			Image: tiopsConfigs.DefaultEngineName,
+		//		}}
+		//	}
+		//}
+		apps = append(apps, app)
+		return &models.WorkflowResources{
+			Apps: apps,
+		}, nil
+	}
+
+	return nil, nil
+}
+
 func (a *RemoteServiceAction) Control(ctrl types.ActionControl, args map[string]string) error {
 	switch ctrl {
 	case types.ActionControlStream:
@@ -170,7 +212,7 @@ func getServiceName(actionInfo *models.ActionInfo, nodeInfo *models.WorkflowNode
 	//serviceName := tiopsConfigs.ActionServiceName(nodeInfo.ProjectId)
 
 	if actionInfo.Source == models.ActionSource_FromService {
-		return tiopsConfigs.SystemActionServiceName(actionInfo.Image)
+		return tiopsConfigs.SystemActionServiceName(actionInfo.ServiceName)
 	}
 
 	//if nodeInfo.StandAlone {

@@ -3,6 +3,7 @@ package workflow
 import (
 	"path"
 	"tiops/common/config"
+	tiopsConfigs "tiops/common/config"
 	"tiops/common/models"
 	"tiops/engine/types"
 )
@@ -36,12 +37,31 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 		mainContainer := app.WorkContainers[0]
 
 		if mainContainer.Image == "" {
-			switch actionInfo.Source {
-			case models.ActionSource_FromImage:
-				mainContainer.Image = actionInfo.Image
-			case models.ActionSource_FromProject:
-				mainContainer.Image = config.WorkflowActionServerImage(actionInfo.ProjectId)
+
+			if actionInfo.Type == models.ActionType_WorkflowAction {
+				if actionInfo.Func == "" {
+					mainContainer.Image = tiopsConfigs.BuildinEngineImage
+				} else {
+					engineInfo := workflow.GetAction(actionInfo.Func).Info()
+					switch engineInfo.Source {
+					case models.ActionSource_FromImage:
+						mainContainer.Image = engineInfo.Image
+					case models.ActionSource_FromProject:
+						mainContainer.Image = config.WorkflowActionServerImage(engineInfo.ProjectId)
+					default:
+						mainContainer.Image = tiopsConfigs.BuildinEngineImage
+					}
+				}
+			} else {
+				switch actionInfo.Source {
+				case models.ActionSource_FromImage:
+					mainContainer.Image = actionInfo.Image
+				case models.ActionSource_FromProject:
+					mainContainer.Image = config.WorkflowActionServerImage(actionInfo.ProjectId)
+				}
 			}
+
+
 		}
 
 		if mainContainer.ResourcesLimits == nil {

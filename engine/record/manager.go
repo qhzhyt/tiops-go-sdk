@@ -14,7 +14,7 @@ type ExecutionRecordManager struct {
 	//*types.EngineContext
 	processRecords    []*models.ProcessRecord
 	oldProcessRecords []*models.ProcessRecord
-	batchSizes        map[string]int32
+	batchSizes        map[string]int64
 	countFactor       int
 }
 
@@ -80,7 +80,7 @@ func NewExecutionRecordManager(updateInterval time.Duration, ctx *types.EngineCo
 		//EngineContext: ctx,
 		updateInterval: updateInterval,
 		ticker:         time.NewTicker(updateInterval),
-		batchSizes:     map[string]int32{},
+		batchSizes:     map[string]int64{},
 		countFactor:    1,
 	}
 }

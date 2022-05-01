@@ -10,7 +10,7 @@ type Variable interface {
 	GetString() string
 	GetBool() bool
 	SetValue(string)
-	ToActionArguments(count int) *services.ActionData
+	ToActionArguments(count int64) *services.ActionData
 	GetMap() map[string]interface{}
 	//Map() map[string] interface{}
 }

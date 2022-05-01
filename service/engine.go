@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"strconv"
+	"errors"
+	"fmt"
 	"time"
 	"tiops/buildin/engines"
 	tiopsConfigs "tiops/common/config"
@@ -52,6 +53,15 @@ func (a *actionServer) getCurrentEngine() engineTypes.WorkflowEngine {
 	return engines.NewBasicChanEngine()
 }
 
+func (a *actionServer) getEngine(name string) engineTypes.WorkflowEngine {
+	//a.Logger.Info("current engine: " + tiopsConfigs.EngineName)
+	if a.engines[name] != nil {
+		return a.engines[name]
+	}
+
+	return a.getCurrentEngine()
+}
+
 func (a *actionServer) afterEngineExec() {
 	record := a.getCurrentEngine().ExecutionRecord()
 	a.Logger.Info(record)
@@ -59,7 +69,7 @@ func (a *actionServer) afterEngineExec() {
 }
 
 func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngineRequest) (*services.StatusResponse, error) {
-	engine := a.engines[request.EngineName]
+	engine := a.getEngine(request.EngineName)
 	if engine == nil {
 		return &services.StatusResponse{Status: 404, Message: "Engine " + request.EngineName + " Not Found"}, nil
 	}
@@ -102,18 +112,68 @@ func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services
 	return record, nil
 }
 
-func (a *actionServer) GetRequiredResources(ctx context.Context, query *services.QueryRequest) (*models.WorkflowResources, error) {
-	stage, _ := strconv.Atoi(query.Extra["stage"])
-	if res, ok := a.requiredResourcesMap[stage]; ok {
+func (a *actionServer) GetRequiredResources(ctx context.Context, query *services.RequiredResourcesRequest) (*models.WorkflowResources, error) {
+
+	stage := query.Stage
+
+	//a.Logger.Info(query)
+
+	cacheKey := fmt.Sprintf("%s-%d", query.WorkflowId, query.Stage)
+
+	if res, ok := a.requiredResourcesMap[cacheKey]; ok {
 		return res, nil
 	}
-	engine := a.getCurrentEngine()
-	wf, err := workflow.Current()
+
+	engine := a.getEngine(query.EngineName)
+	wf, err := workflow.GetWorkflowByID(query.WorkflowId)
+
 	if err != nil {
 		return nil, err
 	}
-	requiredResources := engine.RequiredResources(wf, stage)
+	requiredResources, err := engine.RequiredResources(wf, stage)
+	if err != nil {
+		return nil, err
+	}
 	requiredResources = workflow.ResourcesPreProcess(requiredResources, wf)
-	a.requiredResourcesMap[stage] = requiredResources
+	a.requiredResourcesMap[cacheKey] = requiredResources
 	return requiredResources, nil
 }
+
+func (a *actionServer) CallEngine(request *services.ActionRequest, server services.ActionsService_CallEngineServer) error {
+	engine := a.getEngine(request.ActionName)
+	if engine == nil {
+		return errors.New("engine " + request.ActionName + " Not Found")
+	}
+	//_workflow, err := workflow.New(request.WorkflowId)
+	//if err != nil {
+	//	return err
+	//}
+	return engine.ProcessData(&engineTypes.ActionRequest{
+		ID:     request.Id,
+		Inputs: request.Inputs,
+	}, func(response *engineTypes.ActionResponse) error {
+		return server.Send(&services.ActionResponse{
+			Id:      response.ID,
+			Outputs: response.Outputs,
+			Count:   response.Count,
+			Done:    response.Done,
+		})
+	})
+}
+
+//func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServer) error {
+//
+//	for true {
+//		actionRequest, err := server.Recv()
+//		if err != nil {
+//			return err
+//		}
+//		engine := a.getEngine(actionRequest.ActionName)
+//		if engine == nil {
+//			return errors.New("engine " + actionRequest.ActionName + " Not Found")
+//		}
+//	}
+//
+//
+//
+//}

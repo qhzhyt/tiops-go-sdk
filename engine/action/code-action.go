@@ -14,6 +14,10 @@ type CodeAction struct {
 	funcName string
 }
 
+func (c *CodeAction) GetRequiredResources(node *types.Node, stage int32) (*models.WorkflowResources, error) {
+	panic("implement me")
+}
+
 func (c *CodeAction) CallPullStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
 	panic("implement me")
 }

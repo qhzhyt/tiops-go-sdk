@@ -4,6 +4,7 @@ import (
 	actionTypes "tiops/action/types"
 	"tiops/common/logger"
 	"tiops/common/models"
+	"tiops/engine/types"
 	engineTypes "tiops/engine/types"
 )
 
@@ -18,6 +19,10 @@ type BuildinAction struct {
 	ActionInfo         *models.ActionInfo
 	NodeInfo           *models.WorkflowNodeInfo
 	nodeCtx            *actionTypes.ActionNodeContext
+}
+
+func (a *BuildinAction) GetRequiredResources(node *types.Node, stage int32) (*models.WorkflowResources, error) {
+	return nil, nil
 }
 
 func (a *BuildinAction) Init(node *engineTypes.Node) error {
@@ -85,8 +90,6 @@ func (a *BuildinAction) Type() engineTypes.ActionType {
 func (a *BuildinAction) Copy() engineTypes.Action {
 	return NewBuildinAction(a.ActionInfo)
 }
-
-
 
 func NewBuildinAction(actionInfo *models.ActionInfo) engineTypes.Action {
 

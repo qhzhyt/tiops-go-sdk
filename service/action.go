@@ -12,7 +12,21 @@ import (
 )
 
 func (a *actionServer) GetActionStatus(ctx context.Context, request *services.ActionStatusRequest) (*services.ActionStatus, error) {
-	panic("implement me")
+	actionName := request.ActionName
+
+	if a.actions[actionName] != nil {
+		result := a.actions[actionName].Status(
+			a.actionNodeContextMap[request.NodeId])
+		return &services.ActionStatus{
+			ProcessedCount:        result.ProcessedCount,
+			RestCount: result.RestCount,
+			Done:     result.Done,
+			Message: result.Message,
+			Extra:        result.Extra,
+		}, nil
+	} else {
+		return nil, errors.New("Action " + actionName + " not found")
+	}
 }
 
 func (a *actionServer) CallHttpAction(ctx context.Context, request *services.HttpRequest) (*services.HttpResponse, error) {

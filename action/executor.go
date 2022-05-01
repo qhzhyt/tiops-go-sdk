@@ -13,20 +13,30 @@ type executor struct {
 func (a *executor) RegisterNode(ctx *types.NodeRegisterContext) error {
 
 	f, err := a.executorFunc(ctx.ActionNodeContext)
-
 	if err != nil {
 		return err
 	}
 
 	a.funcMap[ctx.NodeId] = f
-
 	return nil
+}
+
+func (a *executor) CallBatch(ctx *types.BatchRequestContext) types.ActionDataBatch {
+	f := a.funcMap[ctx.NodeId]
+	if f == nil {
+		var err error
+		f, err = a.executorFunc(ctx.ActionNodeContext)
+
+		if err != nil {
+			return types.ActionDataBatch{{"err": err.Error()}}
+		}
+	}
+	return ctx.Inputs.Map(f)
 }
 
 func (a *executor) Call(ctx *types.PieceRequestContext) types.ActionDataItem {
 
 	f := a.funcMap[ctx.NodeId]
-
 	if f == nil {
 		var err error
 		f, err = a.executorFunc(ctx.ActionNodeContext)
@@ -35,7 +45,6 @@ func (a *executor) Call(ctx *types.PieceRequestContext) types.ActionDataItem {
 			return types.ActionDataItem{"err": err.Error()}
 		}
 	}
-
 	return f(ctx.Input)
 }
 

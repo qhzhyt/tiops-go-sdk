@@ -323,7 +323,7 @@ func ToServiceActionDataMap(id string, traceId int64, source ActionDataBatch, ou
 		}
 		result[output.Name] = &services.ActionData{
 			Id:        id,
-			Count:     int32(count),
+			Count:     int64(count),
 			Data:      items,
 			ValueType: output.Type,
 			TraceId:   traceId,
@@ -372,8 +372,8 @@ func (s *SimpleActionData) RawData() *services.ActionData {
 		Type:      0,
 		ValueType: "",
 		Data:      data,
-		Count:     int32(s.Count()),
-		Timestamp: int32(utils.CurrentTimeStampMS()),
+		Count:     int64(s.Count()),
+		Timestamp: utils.CurrentTimeStampMS(),
 		TraceId:   0,
 	}
 }

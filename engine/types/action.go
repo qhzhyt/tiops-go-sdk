@@ -14,6 +14,7 @@ const (
 )
 
 type ActionControl int
+
 const (
 	ActionControlInit ActionControl = iota
 	ActionControlStream
@@ -22,12 +23,14 @@ const (
 type ActionRequest struct {
 	ID     string
 	Inputs map[string]*services.ActionData
+	Count  int64
 }
 
 type ActionResponse struct {
 	ID      string
 	Done    bool
 	Outputs map[string]*services.ActionData
+	Count  int64
 }
 
 type Action interface {
@@ -38,4 +41,5 @@ type Action interface {
 	Control(ctrl ActionControl, args map[string]string) error
 	Type() ActionType
 	Copy() Action
+	GetRequiredResources(node *Node, stage int32) (*models.WorkflowResources, error)
 }

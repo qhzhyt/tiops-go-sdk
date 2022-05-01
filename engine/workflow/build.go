@@ -14,7 +14,9 @@ import (
 
 var _apiClient = apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 
-func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.APIClient) (map[string]*models.ActionInfo, error) {
+func loadActionInfos(wi *models.WorkflowInfo, client *apiClient.APIClient) (map[string]*models.ActionInfo, error) {
+	nodeInfos := wi.Spec.Nodes
+
 	actionNameSet := map[string]bool{}
 	for _, nodeInfo := range nodeInfos {
 		actionNameSet[nodeInfo.ActionId] = true
@@ -22,6 +24,11 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 			actionNameSet[nodeInfo.ActionExecutor] = true
 		}
 	}
+
+	if wi.Engine != "" {
+		actionNameSet[wi.Engine] = true
+	}
+
 	actionIds := make([]string, 0, len(actionNameSet))
 	for name, _ := range actionNameSet {
 		actionIds = append(actionIds, name)
@@ -34,8 +41,49 @@ func loadActionInfos(nodeInfos []*models.WorkflowNodeInfo, client *apiClient.API
 	for _, actionInfo := range actionInfos {
 		actionInfo.ExecutorInfo = result[actionInfo.Executor]
 	}
+
+	if wi.Engine != "" {
+		wi.EngineInfo = result[wi.Engine]
+	}
+
+	result, err = loadSubFlowEngineInfos(result, client)
+
+	if err != nil {
+		return nil, err
+	}
+
 	//logger.Info(actionInfos)
 	return result, err
+}
+
+func loadSubFlowEngineInfos(_actionInfos map[string]*models.ActionInfo, client *apiClient.APIClient) (map[string]*models.ActionInfo, error) {
+	actionNameSet := map[string]bool{}
+	for _, actionInfo := range _actionInfos {
+		if actionInfo.Type == models.ActionType_WorkflowAction && actionInfo.Func != "" {
+			actionNameSet[actionInfo.Func] = true
+		}
+	}
+
+	if len(actionNameSet) > 0 {
+		actionIds := make([]string, 0, len(actionNameSet))
+		for name, _ := range actionNameSet {
+			actionIds = append(actionIds, name)
+		}
+		actionInfos, err := client.GetActionListByIds(actionIds)
+		//result := map[string]*models.ActionInfo{}
+		for _, actionInfo := range actionInfos {
+			_actionInfos[actionInfo.XId] = actionInfo
+		}
+		for _, actionInfo := range _actionInfos {
+			if actionInfo.Type == models.ActionType_WorkflowAction && actionInfo.Func != "" {
+				actionInfo.EngineInfo = _actionInfos[actionInfo.Func]
+			}
+		}
+		return _actionInfos, err
+	}
+
+	//logger.Info(actionInfos)
+	return _actionInfos, nil
 }
 
 // buildWorkflow 根据 models.WorkflowInfo 构建相应的 Workflow 对象
@@ -45,11 +93,23 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 
 	wf.ApiClient = client
 
-	actionInfos, err := loadActionInfos(wi.Spec.Nodes, client)
+	actionInfos, err := loadActionInfos(wi, client)
 
 	if err != nil {
 		return nil, err
 	}
+
+	wf.EngineInfo = wi.EngineInfo
+
+	//engineInfos, err := loadSubFlowEngineInfos(actionInfos, client)
+
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//for xId, info := range engineInfos {
+	//	actionInfos[xId] = info
+	//}
 
 	wf.ActionInfos = actionInfos
 	//marshal, _ := json.Marshal(actionInfos)
@@ -107,6 +167,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 		}
 		nodes[nodeInfo.Id] = node
 	}
+	// 遍历节点输入列表，构建节点连接关系
 	for _, nodeInfo := range spec.Nodes {
 		node := nodes[nodeInfo.Id]
 
@@ -186,6 +247,27 @@ func GetWorkflowInfoByID(id string) (*models.WorkflowInfo, error) {
 		return nil, err
 	}
 	return wfi, nil
+}
+
+var (
+	workflowMap = map[string]*types.Workflow{}
+)
+
+func GetWorkflowByID(id string) (*types.Workflow, error) {
+
+	if wf, ok := workflowMap[id]; ok {
+		return wf, nil
+	}
+
+	wf, err := New(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	workflowMap[id] = wf
+
+	return wf, nil
 }
 
 func New(id string) (*types.Workflow, error) {

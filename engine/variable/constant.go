@@ -19,11 +19,11 @@ func (c *ConstantVariable) GetMap() map[string]interface{} {
 	return a
 }
 
-func (c *ConstantVariable) ToActionArguments(count int) *services.ActionData {
+func (c *ConstantVariable) ToActionArguments(count int64) *services.ActionData {
 	value := c.value
 	data := make([][]byte, 1)
 	data[0]= []byte(value)
-	return &services.ActionData{Type: services.DataType_Constant, Data: data, ValueType: c._type, Count: int32(count)}
+	return &services.ActionData{Type: services.DataType_Constant, Data: data, ValueType: c._type, Count: count}
 }
 
 func (c *ConstantVariable) SetValue(s string) {

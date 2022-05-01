@@ -6,12 +6,12 @@ import (
 )
 
 func successLog(name string, inputData map[string]*services.ActionData, outputData map[string]*services.ActionData) string {
-	inputCounts := map[string]int32{}
+	inputCounts := map[string]int64{}
 	for k, v := range inputData {
 		inputCounts[k] = v.Count
 	}
 
-	outputCounts := map[string]int32{}
+	outputCounts := map[string]int64{}
 	for k, v := range outputData {
 		outputCounts[k] = v.Count
 	}
@@ -20,7 +20,7 @@ func successLog(name string, inputData map[string]*services.ActionData, outputDa
 }
 
 func errorLog(name string, inputData map[string]*services.ActionData, err error) string {
-	inputCounts := map[string]int32{}
+	inputCounts := map[string]int64{}
 	for k, v := range inputData {
 		inputCounts[k] = v.Count
 	}

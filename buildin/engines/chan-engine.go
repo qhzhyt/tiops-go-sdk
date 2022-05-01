@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"tiops/common/config"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/common/utils"
@@ -15,7 +14,7 @@ import (
 
 /*
 * 基于channel的简易流程引擎
-*/
+ */
 
 type basicChanEngine struct {
 	wg sync.WaitGroup
@@ -23,6 +22,94 @@ type basicChanEngine struct {
 	recordManager *record.ExecutionRecordManager
 	running       bool
 	ready         bool
+	inputNode     *types.Node
+	outputNode    *types.Node
+}
+
+func (w *basicChanEngine) ProcessData(request *types.ActionRequest, outputCallback func(*types.ActionResponse) error) error {
+	go func() {
+		for name, connections := range w.inputNode.Outputs {
+			for _, connection := range connections {
+				connection.DataChan <- request.Inputs[name]
+			}
+		}
+	}()
+
+	outputData := map[string]*services.ActionData{}
+	var done bool
+	count := int64(0)
+	for k, inputs := range w.outputNode.Inputs {
+		//fmt.Println(node.Info.ActionName, node.Inputs, node.Outputs)
+		if len(inputs) > 0 {
+			data, isOK := inputs.SelectInput()
+			if !isOK {
+				done = true
+				break
+			}
+			outputData[k] = data
+
+			if data.Count > count {
+				count = data.Count
+			}
+		}
+	}
+
+	err := outputCallback(&types.ActionResponse{
+		ID:      request.ID,
+		Done:    done,
+		Outputs: outputData,
+		Count:   count,
+	})
+
+	if err != nil || done {
+		return err
+	}
+
+	for !done {
+		outputData = map[string]*services.ActionData{}
+		count = int64(0)
+		first := true
+		for k, inputs := range w.outputNode.Inputs {
+			//fmt.Println(node.Info.ActionName, node.Inputs, node.Outputs)
+			var data *services.ActionData
+			var isOK bool
+			if len(inputs) > 0 {
+				if first {
+					data, isOK = inputs.SelectInputOnce()
+					if !isOK {
+						return nil
+					}
+				} else {
+					data, isOK = inputs.SelectInput()
+					if !isOK {
+						return nil
+					}
+				}
+
+				first = false
+
+				outputData[k] = data
+
+				if data.Count > count {
+					count = data.Count
+				}
+			}
+		}
+
+		err = outputCallback(&types.ActionResponse{
+			ID:      request.ID,
+			Done:    done,
+			Outputs: outputData,
+			Count:   count,
+		})
+
+		if err != nil || done {
+			return err
+		}
+
+	}
+
+	return nil
 }
 
 func (w *basicChanEngine) Status() (code types.EngineStatusCode, msg string) {
@@ -53,52 +140,67 @@ func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) error {
 	return nil
 }
 
-func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage int) *models.WorkflowResources {
-	if stage == 0 {
-		var apps []*models.K8SApp
-		nodes := workflowInfo.Nodes
-		for _, node := range nodes {
+func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage int32) (*models.WorkflowResources, error) {
+	//if stage == 0 {
+	//	var apps []*models.K8SApp
+	//	nodes := workflowInfo.Nodes
+	//	for _, node := range nodes {
+	//		nodeInfo := node.Info
+	//		actionInfo := node.Action.Info()
+	//		if node.Info.ActionExecutor != "" {
+	//			actionInfo = node.ActionExecutor
+	//		}
+	//		serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
+	//		switch actionInfo.Source {
+	//		case models.ActionSource_Buildin:
+	//			continue
+	//		case models.ActionSource_FromService:
+	//			continue
+	//		}
+	//		app := &models.K8SApp{
+	//			Name:        serviceName,
+	//			ActionId:    actionInfo.XId,
+	//			Replica:     1,
+	//			ServiceMode: models.ServiceMode_One,
+	//		}
+	//		if actionInfo.Type == models.ActionType_WorkflowAction {
+	//			if actionInfo.Func == "" {
+	//				app.WorkContainers = []*models.K8SContainer{{
+	//					Name:        serviceName,
+	//					Image: tiopsConfigs.DefaultEngineName,
+	//				}}
+	//			}
+	//		}
+	//		apps = append(apps, app)
+	//	}
+	//
+	//	w.Debug(apps)
+	//
+	//	w.ready = true
+	//
+	//	return &models.WorkflowResources{
+	//		Apps: apps,
+	//	}
+	//} else if stage > 0{
+	//
+	//}
 
-			nodeInfo := node.Info
-			actionInfo := node.Action.Info()
-
-			if node.Info.ActionExecutor != "" {
-				actionInfo = node.ActionExecutor
-			}
-
-			serviceName := config.StandAloneActionServiceName(nodeInfo.ActionName, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
-
-			switch actionInfo.Source {
-			case models.ActionSource_Buildin:
-				continue
-			case models.ActionSource_FromProject:
-			case models.ActionSource_FromImage:
-			case models.ActionSource_FromOther:
-			case models.ActionSource_FromService:
-				continue
-			}
-
-			app := &models.K8SApp{
-				Name:        serviceName,
-				ActionId:    actionInfo.XId,
-				Replica:     1,
-				ServiceMode: models.ServiceMode_One,
-			}
-
-			apps = append(apps, app)
+	var apps []*models.K8SApp
+	nodes := workflowInfo.Nodes
+	for _, node := range nodes {
+		resources, err := node.GetRequiredResources(stage)
+		//w.Logger.Info(resources)
+		if err != nil {
+			return nil, err
 		}
-
-		w.Debug(apps)
-
-		w.ready = true
-
-		return &models.WorkflowResources{
-			Apps: apps,
+		if resources != nil && len(resources.Apps) > 0 {
+			apps = append(apps, resources.Apps...)
 		}
 	}
+
 	return &models.WorkflowResources{
-		Apps: nil,
-	}
+		Apps: apps,
+	}, nil
 }
 
 func (w *basicChanEngine) Init(ctx *types.EngineContext) {
@@ -141,7 +243,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				BatchCount: 1,
 				RecordId:   requestId,
 				//ExecutionId:    w.ExecutionId,
-				BacklogBatches: int32(maxBacklog),
+				BacklogBatches: int64(maxBacklog),
 			}
 
 			processResponse := func(res *types.ActionResponse, err error) {
@@ -161,7 +263,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				}
 				//processRecord.BatchSize = processRecord.ItemCount
 
-				processRecord.ElapsedTime = int32(processRecord.EndTime - processRecord.StartTime)
+				processRecord.ElapsedTime = processRecord.EndTime - processRecord.StartTime
 				processRecord.ProcessRate = float32(processRecord.ItemCount) / float32(processRecord.ElapsedTime) * 1000
 
 				w.recordManager.AddProcessRecord(processRecord)
@@ -184,6 +286,10 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 			}
 
 			actionRequest := &types.ActionRequest{Inputs: inputData, ID: requestId}
+
+			if actionInfo.Type == models.ActionType_WorkflowAction {
+				actionInfo.CallMode = models.CallMode_PullStreamCall
+			}
 
 			switch actionInfo.CallMode {
 			case models.CallMode_PullStreamCall:
@@ -222,6 +328,9 @@ func (w *basicChanEngine) Exec(workflow *types.Workflow) error {
 		w.running = false
 	}()
 	w.recordManager.Start()
+
+	w.inputNode = workflow.InputNode
+	w.outputNode = workflow.OutputNode
 
 	waitCount := 0
 	for _, node := range workflow.Nodes {

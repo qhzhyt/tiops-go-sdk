@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	tiopsConfigs "tiops/common/config"
 	"sync"
 	"time"
 	apiClient "tiops/common/api-client"
@@ -26,6 +27,7 @@ type Workflow struct {
 	ApiClient   *apiClient.APIClient
 	info        *models.WorkflowInfo
 	ActionInfos map[string]*models.ActionInfo
+	EngineInfo *models.ActionInfo
 }
 
 func (w *Workflow) Info() *models.WorkflowInfo {
@@ -81,6 +83,51 @@ func (w *Workflow) Init() {
 	for _, node := range w.Nodes {
 		node.HasVarInputOnly = node.Inputs.HasVarOnly()
 	}
+}
+
+func (w *Workflow) GetRequiredResources(stage int) *models.WorkflowResources {
+	if stage == 0 {
+		var apps []*models.K8SApp
+		nodes := w.Nodes
+		for _, node := range nodes {
+			nodeInfo := node.Info
+			actionInfo := node.Action.Info()
+			if node.Info.ActionExecutor != "" {
+				actionInfo = node.ActionExecutor
+			}
+			serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
+			switch actionInfo.Source {
+			case models.ActionSource_Buildin:
+				continue
+			case models.ActionSource_FromService:
+				continue
+			}
+			app := &models.K8SApp{
+				Name:        serviceName,
+				ActionId:    actionInfo.XId,
+				Replica:     1,
+				ServiceMode: models.ServiceMode_One,
+			}
+			if actionInfo.Type == models.ActionType_WorkflowAction {
+				if actionInfo.Func == "" {
+					app.WorkContainers = []*models.K8SContainer{{
+						Name:  serviceName,
+						Image: tiopsConfigs.DefaultEngineName,
+					}}
+				}
+			}
+			apps = append(apps, app)
+		}
+
+		//w.Debug(apps)
+		//
+		//w.ready = true
+
+		return &models.WorkflowResources{
+			Apps: apps,
+		}
+	}
+	return nil
 }
 
 func NewWorkflow(info *models.WorkflowInfo) *Workflow {

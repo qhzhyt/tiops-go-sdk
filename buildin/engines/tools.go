@@ -6,8 +6,8 @@ import (
 	"tiops/common/services"
 )
 
-func itemCount(inputData map[string]*services.ActionData) int32 {
-	count := int32(0)
+func itemCount(inputData map[string]*services.ActionData) int64 {
+	count := int64(0)
 	for _, data := range inputData {
 		if data != nil && data.Count > count {
 			count = data.Count
