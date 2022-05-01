@@ -18,11 +18,11 @@ func (a *actionServer) GetActionStatus(ctx context.Context, request *services.Ac
 		result := a.actions[actionName].Status(
 			a.actionNodeContextMap[request.NodeId])
 		return &services.ActionStatus{
-			ProcessedCount:        result.ProcessedCount,
-			RestCount: result.RestCount,
-			Done:     result.Done,
-			Message: result.Message,
-			Extra:        result.Extra,
+			ProcessedCount: result.ProcessedCount,
+			RestCount:      result.RestCount,
+			Done:           result.Done,
+			Message:        result.Message,
+			Extra:          result.Extra,
 		}, nil
 	} else {
 		return nil, errors.New("Action " + actionName + " not found")
@@ -48,26 +48,31 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 	//}()
 
 	if a.actions[actionName] != nil {
-
+		action := a.actions[actionName]
 		if a.actionNodeContextMap[request.ContextId] == nil {
 			a.actionNodeContextMap[request.ContextId] = &actionTypes.ActionNodeContext{
-				ActionContext:   nil,
-				Store:           stores.NewActionNodeStore(request.Id),
-				NodeId:          request.ContextId,
-				ActionOptions:   request.Query,
+				ActionContext: nil,
+				Store:         stores.NewActionNodeStore(request.Id),
+				NodeId:        request.ContextId,
+				ActionOptions: request.Query,
+			}
+			if err := action.RegisterNode(&actionTypes.NodeRegisterContext{
+				ActionNodeContext: a.actionNodeContextMap[request.ContextId],
+			}); err != nil {
+				return nil, err
 			}
 		}
 
 		//actionNodeContext :=
 
-		result := a.actions[actionName].CallHttp(
+		result := action.CallHttp(
 			&actionTypes.HttpRequestContext{
 				ActionNodeContext: a.actionNodeContextMap[request.ContextId],
-				Method:        request.Method,
-				Path:          request.Path,
-				Header:        services.ServiceHeadersToHttpHeader(request.Headers),
-				Query:         request.Query,
-				Body:          request.Body,
+				Method:            request.Method,
+				Path:              request.Path,
+				Header:            services.ServiceHeadersToHttpHeader(request.Headers),
+				Query:             request.Query,
+				Body:              request.Body,
 			})
 		return &services.HttpResponse{
 			Code:        result.Status,
