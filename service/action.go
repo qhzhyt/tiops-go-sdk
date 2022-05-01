@@ -51,7 +51,9 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 		action := a.actions[actionName]
 		if a.actionNodeContextMap[request.ContextId] == nil {
 			a.actionNodeContextMap[request.ContextId] = &actionTypes.ActionNodeContext{
-				ActionContext: nil,
+				ActionContext: &actionTypes.ActionContext{
+					Logger:      logger.NewActionLogger(actionName),
+				},
 				Store:         stores.NewActionNodeStore(request.Id),
 				NodeId:        request.ContextId,
 				ActionOptions: request.Query,
