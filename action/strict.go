@@ -33,6 +33,7 @@ type defaultStrictAction struct {
 	logger         *logger.Logger
 	done           bool
 	processedCount int64
+	inited         bool
 }
 
 func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.HttpResponse {
@@ -53,7 +54,7 @@ func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.Htt
 
 	batchCtx := &types.BatchRequestContext{
 		ActionNodeContext: ctx.ActionNodeContext,
-		Inputs: types.ActionDataBatch(dataList).ToActionDataMap(),
+		Inputs:            types.ActionDataBatch(dataList).ToActionDataMap(),
 	}
 
 	//var result []types.ActionDataItem
@@ -172,12 +173,18 @@ func (a *defaultStrictAction) Init(ctx *types.InitContext) {
 	if i, ok := a.action.(types.ActionInit); ok {
 		i.Init(ctx)
 	}
-
 	//a.action.Init(ctx)
 	a.nodeDataMap = map[string]*nodeData{}
+
+	a.inited = true
 }
 
 func (a *defaultStrictAction) RegisterNode(ctx *types.NodeRegisterContext) error {
+
+	if !a.inited {
+		a.Init(&types.InitContext{ActionContext: ctx.ActionContext})
+	}
+
 	nd := &nodeData{
 		nodeId:             ctx.NodeId,
 		nextActions:        ctx.NextActions,
