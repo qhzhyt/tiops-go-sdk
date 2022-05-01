@@ -208,7 +208,7 @@ func newActionServer() *actionServer {
 		actionInfoMap:    map[string]*models.ActionInfo{},
 		//actionNodeOptionsMap: map[string]ActionOptions{},
 		actionNodeContextMap: map[string]*actionTypes.ActionNodeContext{},
-		requiredResourcesMap: map[int32]*models.WorkflowResources{},
+		requiredResourcesMap: map[string]*models.WorkflowResources{},
 	}
 
 	/*myServer.projectInfo = &models.ProjectInfo{}
