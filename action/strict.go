@@ -9,7 +9,6 @@ import (
 	actionClient "tiops/common/action-client"
 	"tiops/common/logger"
 	"tiops/common/services"
-	"tiops/common/stores"
 )
 
 const (
@@ -41,14 +40,6 @@ func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.Htt
 		return h.CallHttp(ctx)
 	}
 
-	options := types.ActionOptions{}
-
-	if len(ctx.Query) > 0 {
-		for name, value := range ctx.Query {
-			options[name] = value
-		}
-	}
-
 	var dataList []types.ActionDataItem
 
 	err := json.Unmarshal(ctx.Body, &dataList)
@@ -61,12 +52,7 @@ func (a *defaultStrictAction) CallHttp(ctx *types.HttpRequestContext) *types.Htt
 	}
 
 	batchCtx := &types.BatchRequestContext{
-		ActionNodeContext: &types.ActionNodeContext{
-			ActionContext: ctx.ActionContext,
-			Store:         stores.NewActionNodeStore("http"),
-			NodeId:        "http",
-			ActionOptions: options,
-		},
+		ActionNodeContext: ctx.ActionNodeContext,
 		Inputs: types.ActionDataBatch(dataList).ToActionDataMap(),
 	}
 

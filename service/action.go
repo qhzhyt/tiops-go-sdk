@@ -48,9 +48,21 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 	//}()
 
 	if a.actions[actionName] != nil {
+
+		if a.actionNodeContextMap[request.ContextId] == nil {
+			a.actionNodeContextMap[request.ContextId] = &actionTypes.ActionNodeContext{
+				ActionContext:   nil,
+				Store:           stores.NewActionNodeStore(request.Id),
+				NodeId:          request.ContextId,
+				ActionOptions:   request.Query,
+			}
+		}
+
+		//actionNodeContext :=
+
 		result := a.actions[actionName].CallHttp(
 			&actionTypes.HttpRequestContext{
-				ActionContext: nil,
+				ActionNodeContext: a.actionNodeContextMap[request.ContextId],
 				Method:        request.Method,
 				Path:          request.Path,
 				Header:        services.ServiceHeadersToHttpHeader(request.Headers),

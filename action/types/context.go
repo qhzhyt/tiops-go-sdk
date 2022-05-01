@@ -42,7 +42,7 @@ type BatchRequestContext struct {
 }
 
 type HttpRequestContext struct {
-	*ActionContext
+	*ActionNodeContext
 	Method string
 	Path   string
 	Header http.Header
