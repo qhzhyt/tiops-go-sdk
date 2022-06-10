@@ -37,6 +37,7 @@ func New(actionInfo *models.ActionInfo) types.Action {
 		case models.ActionType_WorkflowAction:
 			return NewWorkflowAction(actionInfo)
 		default:
+			return NewRemoteServiceAction(actionInfo)
 		}
 	}
 

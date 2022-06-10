@@ -160,6 +160,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 				node.Inputs[input.Name] = []*types.Connection{}
 			}
 		}
+
 		if node.Action.Info().Outputs != nil {
 			for _, output := range node.Action.Info().Outputs {
 				node.Outputs[output.Name] = []*types.Connection{}
