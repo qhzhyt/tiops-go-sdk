@@ -1,3 +1,8 @@
+// @Title  server.go
+// @Description  ActionService实现
+// @Create  heyitong  2022/6/17 17:33
+// @Update  heyitong  2022/6/17 17:33
+
 package service
 
 import (
@@ -5,8 +10,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"log"
 	"math"
@@ -47,6 +52,7 @@ type actionServer struct {
 	//workspaceDataStore      stores.DataStore
 	//workflowDataStore       DataStore
 	//jobDataStore            DataStore
+	services.UnsafeActionsServiceServer
 }
 
 // GetServiceStatus 处理服务状态请求
@@ -135,6 +141,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 	}
 }
 
+// RegisterAction 注册普通处理模块
 func (a *actionServer) RegisterAction(name string, action0 actionTypes.Action) *actionServer {
 	a.actions[name] = action.NewStrictAction(action0)
 	return a
@@ -144,17 +151,20 @@ func (a *actionServer) RegisterAction(name string, action0 actionTypes.Action) *
 //	return a.Register(name, function)
 //}
 
+// RegisterEngine 注册流程引擎
 func (a *actionServer) RegisterEngine(name string, engine engineTypes.WorkflowEngine) *actionServer {
 	a.engines[name] = engine
 	return a
 }
 
+// init 初始化
 func (a *actionServer) init() {
 	/*for name, app := range a.actions {
 		app.Init(&actionTypes.InitContext{ActionNodeContext: a.actionNodeContextMap[name]})
 	}*/
 }
 
+// startServer 启动 ActionService server
 func (a *actionServer) startServer() {
 	sock, err := net.Listen("tcp", fmt.Sprintf(":%d", tiopsConfigs.ActionServerPort))
 	if err != nil {
@@ -166,6 +176,7 @@ func (a *actionServer) startServer() {
 	}
 }
 
+// Start 启动 ActionService server 或运行流程引擎
 func (a *actionServer) Start() {
 	if tiopsConfigs.InMainEngine() || tiopsConfigs.RunEngineAtStartup() {
 		//_workflow, err := workflow.Current()
@@ -179,6 +190,7 @@ func (a *actionServer) Start() {
 	}
 }
 
+// newActionServer 创建ActionService server
 func newActionServer() *actionServer {
 
 	tiopsApiClient := apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)

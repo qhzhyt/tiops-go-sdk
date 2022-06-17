@@ -1,3 +1,8 @@
+// @Title  engine.go
+// @Description  ActionService中流程引擎相关接口实现
+// @Create  heyitong  2022/6/17 16:56
+// @Update  heyitong  2022/6/17 16:56
+
 package service
 
 import (
@@ -14,6 +19,7 @@ import (
 	"tiops/engine/workflow"
 )
 
+// runMainEngine 运行主流程引擎
 func (a *actionServer) runMainEngine() {
 	engine := a.getCurrentEngine()
 	_workflow, err := workflow.Current()
@@ -42,6 +48,7 @@ func (a *actionServer) runMainEngine() {
 	engine.Exec(_workflow)
 }
 
+// getCurrentEngine 获取当前流程引擎
 func (a *actionServer) getCurrentEngine() engineTypes.WorkflowEngine {
 	//a.Logger.Info("current engine: " + tiopsConfigs.EngineName)
 	if a.engines[tiopsConfigs.EngineName] != nil {
@@ -53,6 +60,7 @@ func (a *actionServer) getCurrentEngine() engineTypes.WorkflowEngine {
 	return engines.NewBasicChanEngine()
 }
 
+// getEngine 根据名称获取流程引擎
 func (a *actionServer) getEngine(name string) engineTypes.WorkflowEngine {
 	//a.Logger.Info("current engine: " + tiopsConfigs.EngineName)
 	if a.engines[name] != nil {
@@ -62,12 +70,26 @@ func (a *actionServer) getEngine(name string) engineTypes.WorkflowEngine {
 	return a.getCurrentEngine()
 }
 
+// afterEngineExec 处理流程执行完毕后执行的代码
 func (a *actionServer) afterEngineExec() {
 	record := a.getCurrentEngine().ExecutionRecord()
 	a.Logger.Info(record)
 	a.updateExecutionRecord(context.TODO(), record)
 }
 
+// updateExecutionRecord 更新执行记录
+func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
+	if !a.updatingExecutionRecord {
+		a.updatingExecutionRecord = true
+		_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
+		if err != nil {
+			a.Logger.Error(err.Error())
+		}
+		a.updatingExecutionRecord = false
+	}
+}
+
+// RunEngine 执行引擎，非主流程引擎需要用户调用
 func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngineRequest) (*services.StatusResponse, error) {
 	engine := a.getEngine(request.EngineName)
 	if engine == nil {
@@ -86,6 +108,7 @@ func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngin
 	return &services.StatusResponse{Status: 200, Message: "ok"}, nil
 }
 
+// GetEngineStatus 获取EngineName所对应流程引擎的状态
 func (a *actionServer) GetEngineStatus(ctx context.Context, request *services.EngineStatusRequest) (*services.EngineStatusResponse, error) {
 	engine := a.engines[request.EngineName]
 	if engine == nil {
@@ -95,23 +118,16 @@ func (a *actionServer) GetEngineStatus(ctx context.Context, request *services.En
 	return &services.EngineStatusResponse{Code: int32(status), Message: msg}, nil
 }
 
-func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
-	if !a.updatingExecutionRecord {
-		a.updatingExecutionRecord = true
-		_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
-		if err != nil {
-			a.Logger.Error(err.Error())
-		}
-		a.updatingExecutionRecord = false
-	}
-}
-
+// GetExecutionRecord 获取执行记录
 func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services.EmptyRequest) (*models.ExecutionRecord, error) {
 	record := a.getCurrentEngine().ExecutionRecord()
-	go a.updateExecutionRecord(ctx, record)
+	record.XId = tiopsConfigs.ExecutionId
+	record.ExecutionId = tiopsConfigs.ExecutionId
+	go a.updateExecutionRecord(context.TODO(), record)
 	return record, nil
 }
 
+// GetRequiredResources 获取处理流程所需的资源集合
 func (a *actionServer) GetRequiredResources(ctx context.Context, query *services.RequiredResourcesRequest) (*models.WorkflowResources, error) {
 
 	stage := query.Stage
@@ -139,6 +155,7 @@ func (a *actionServer) GetRequiredResources(ctx context.Context, query *services
 	return requiredResources, nil
 }
 
+// CallEngine 调用流程引擎执行特定处理流程
 func (a *actionServer) CallEngine(request *services.ActionRequest, server services.ActionsService_CallEngineServer) error {
 	engine := a.getEngine(request.ActionName)
 	if engine == nil {

@@ -1,3 +1,8 @@
+// @Title  strict.go
+// @Description  完整处理组件封装，调用NewStrictAction可将部分实现的组件封装为完整的处理组件
+// @Create  heyitong  2022/6/17 17:39
+// @Update  heyitong  2022/6/17 17:39
+
 package action
 
 import (

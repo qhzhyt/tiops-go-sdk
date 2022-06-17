@@ -1,3 +1,8 @@
+// @Title  simple.go
+// @Description  单函数处理组件封装
+// @Create  heyitong  2022/6/17 17:39
+// @Update  heyitong  2022/6/17 17:39
+
 package action
 
 import "tiops/action/types"

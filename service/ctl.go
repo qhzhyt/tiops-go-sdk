@@ -1,3 +1,8 @@
+// @Title  ctl.go
+// @Description ActionServer封装，为用户提供调用接口
+// @Create  heyitong  2022/6/17 17:05
+// @Update  heyitong  2022/6/17 17:05
+
 package service
 
 import (
@@ -9,10 +14,12 @@ type actionServerCtl struct {
 	actionServer *actionServer
 }
 
+// ActionServer 获取包装后的_actionServer
 func ActionServer() *actionServerCtl {
 	return &actionServerCtl{actionServer: _actionServer}
 }
 
+// Register 将各类组件注册到ActionServer中，该函数会根据用户实现的接口注册为相应类型的组件
 func (a *actionServerCtl) Register(name string, action interface{}) *actionServerCtl {
 	//a.actionServer.Register(name, action)
 
@@ -46,6 +53,7 @@ func (a *actionServerCtl) Register(name string, action interface{}) *actionServe
 //	return a.Register(name, function)
 //}
 
+// Start 启动ActionServer
 func (a *actionServerCtl) Start() {
 	a.actionServer.Start()
 }

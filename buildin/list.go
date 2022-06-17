@@ -13,21 +13,22 @@ const (
 )
 
 const (
-	EventName     = "eventName"
-	Workspaced    = "workspaced"
-	EventData     = "eventData"
-	EventArg      = "evt"
-	Req           = "req"
-	M             = "m"
-	B             = "b"
-	Q             = "q"
-	H             = "h"
-	Path          = "path"
-	DefaultPath   = "test"
-	All           = "*"
-	QueryName     = "queryName"
-	HeaderName    = "headerName"
-	HttpWorkspace = "__http__"
+	EventName         = "eventName"
+	Workspaced        = "workspaced"
+	EventData         = "eventData"
+	EventArg          = "evt"
+	Req               = "req"
+	M                 = "m"
+	B                 = "b"
+	Q                 = "q"
+	H                 = "h"
+	Path              = "path"
+	DefaultPath       = "test"
+	All               = "*"
+	QueryName         = "queryName"
+	HeaderName        = "headerName"
+	HttpWorkspace     = "__http__"
+	DefaultEngineName = "default"
 )
 
 const (
@@ -49,6 +50,7 @@ var (
 			DisplayName: "事件触发器",
 			IsPublic:    true,
 			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
 			CreatedTime: time.Date(2022, 4, 27, 21, 38, 00, 0, time.Local).UnixNano() / 1e6,
 			Source:      models.ActionSource_Buildin,
 			Type:        models.ActionType_BuildInAction,
@@ -67,6 +69,7 @@ var (
 			DisplayName: "特定事件生成器",
 			IsPublic:    true,
 			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
 			CreatedTime: time.Date(2022, 4, 28, 12, 29, 00, 0, time.Local).UnixNano() / 1e6,
 			Source:      models.ActionSource_Buildin,
 			Type:        models.ActionType_BuildInAction,
@@ -86,6 +89,7 @@ var (
 			DisplayName: "事件生成器",
 			IsPublic:    true,
 			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
 			CreatedTime: time.Date(2022, 4, 28, 10, 17, 00, 0, time.Local).UnixNano() / 1e6,
 			Source:      models.ActionSource_Buildin,
 			Type:        models.ActionType_BuildInAction,
@@ -104,6 +108,7 @@ var (
 			DisplayName: "HTTP请求触发器",
 			IsPublic:    true,
 			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
 			CreatedTime: time.Date(2022, 4, 29, 10, 37, 00, 0, time.Local).UnixNano() / 1e6,
 			Source:      models.ActionSource_Buildin,
 			Type:        models.ActionType_DataSourceAction,

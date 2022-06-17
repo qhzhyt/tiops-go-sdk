@@ -1,3 +1,8 @@
+// @Title  action.go
+// @Description  ActionService中处理模块相关接口实现
+// @Create  heyitong  2022/6/17 17:04
+// @Update  heyitong  2022/6/17 17:04
+
 package service
 
 import (
@@ -11,6 +16,7 @@ import (
 	"tiops/common/stores"
 )
 
+// GetActionStatus 获取ActionName对应组件的工作状态
 func (a *actionServer) GetActionStatus(ctx context.Context, request *services.ActionStatusRequest) (*services.ActionStatus, error) {
 	actionName := request.ActionName
 
@@ -29,6 +35,7 @@ func (a *actionServer) GetActionStatus(ctx context.Context, request *services.Ac
 	}
 }
 
+// CallHttpAction 调用ActionName对应组件的CallHttp方法
 func (a *actionServer) CallHttpAction(ctx context.Context, request *services.HttpRequest) (*services.HttpResponse, error) {
 
 	//httpContext
@@ -52,7 +59,7 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 		if a.actionNodeContextMap[request.ContextId] == nil {
 			a.actionNodeContextMap[request.ContextId] = &actionTypes.ActionNodeContext{
 				ActionContext: &actionTypes.ActionContext{
-					Logger:      logger.NewActionLogger(actionName),
+					Logger: logger.NewActionLogger(actionName),
 				},
 				Store:         stores.NewActionNodeStore(request.Id),
 				NodeId:        request.ContextId,
@@ -88,6 +95,7 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 
 }
 
+// CallAction 调用ActionName对应组件的处理方法
 func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (res *services.ActionResponse, err error) {
 	actionName := request.ActionName
 
@@ -122,6 +130,7 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}, nil
 }
 
+// CallActionPullStream 以一对多流式调用ActionName对应组件的处理方法
 func (a *actionServer) CallActionPullStream(request *services.ActionRequest, server services.ActionsService_CallActionPullStreamServer) (err error) {
 	actionName := request.ActionName
 	defer func() {
@@ -159,6 +168,7 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 
 }
 
+// RegisterActionNode 将处理流程中的节点信息注册到相应组件上
 func (a *actionServer) RegisterActionNode(ctx context.Context, request *services.RegisterActionNodeRequest) (res *services.StatusResponse, err error) {
 
 	actionName := request.ActionName

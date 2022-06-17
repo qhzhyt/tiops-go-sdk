@@ -1,3 +1,8 @@
+// @Title  executor.go
+// @Description  执行器类组件封装
+// @Create  heyitong  2022/6/17 17:38
+// @Update  heyitong  2022/6/17 17:38
+
 package action
 
 import (

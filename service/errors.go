@@ -1,3 +1,8 @@
+// @Title  errors.go
+// @Description  ActionService相关错误
+// @Create  heyitong  2022/6/17 17:30
+// @Update  heyitong  2022/6/17 17:30
+
 package service
 
 import (
