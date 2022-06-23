@@ -1,3 +1,8 @@
+// @Title  logger.go
+// @Description  远程日志客户端实现
+// @Create  heyitong  2022/6/23 15:55
+// @Update  heyitong  2022/6/23 15:55
+
 package logger
 
 import (
@@ -22,6 +27,7 @@ func init() {
 	projectRoot = strings.Split(file, "common")[0]
 }
 
+// Logger 远程日志客户端
 type Logger struct {
 	ID        string
 	Type      string

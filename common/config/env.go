@@ -1,3 +1,8 @@
+// @Title  env.go
+// @Description  环境变量
+// @Create  heyitong  2022/6/23 15:54
+// @Update  heyitong  2022/6/23 15:54
+
 package config
 
 import "os"

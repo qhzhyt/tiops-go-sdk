@@ -1,3 +1,8 @@
+// @Title  execution-action.go
+// @Description  执行器组件
+// @Create  heyitong  2022/6/23 17:12
+// @Update  heyitong  2022/6/23 17:12
+
 package action
 
 import (
@@ -8,6 +13,7 @@ import (
 	"tiops/engine/types"
 )
 
+// ExecutionAction 执行器组件
 type ExecutionAction struct {
 	types.Action
 	client              *actionClient.RemoteActionClient
@@ -32,7 +38,7 @@ func getServiceNameByAction(nodeInfo *models.WorkflowNodeInfo, executionInfo *mo
 
 func (a *ExecutionAction) Copy() types.Action {
 	return &ExecutionAction{
-		Action: New(a.executionActionInfo),
+		Action:              New(a.executionActionInfo),
 		client:              a.client,
 		node:                a.node,
 		nodeInfo:            a.nodeInfo,
@@ -51,7 +57,7 @@ func NewExecutionAction(actionInfo *models.ActionInfo) types.Action {
 	_ = json.Unmarshal(tmp, executionActionInfo)
 	executionActionInfo.InnerActionInfo = actionInfo
 	return &ExecutionAction{
-		Action: New(executionActionInfo),
+		Action:              New(executionActionInfo),
 		innerActionInfo:     actionInfo,
 		executionActionInfo: executionActionInfo,
 	}

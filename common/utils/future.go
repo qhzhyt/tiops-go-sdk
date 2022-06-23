@@ -1,3 +1,8 @@
+// @Title  future.go
+// @Description  异步任务封装
+// @Create  heyitong  2022/6/23 15:58
+// @Update  heyitong  2022/6/23 15:58
+
 package utils
 
 import (

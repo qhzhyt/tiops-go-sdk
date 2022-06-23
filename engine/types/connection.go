@@ -1,3 +1,8 @@
+// @Title  connection.go
+// @Description  流程节点连接
+// @Create  heyitong  2022/6/23 17:16
+// @Update  heyitong  2022/6/23 17:16
+
 package types
 
 import (

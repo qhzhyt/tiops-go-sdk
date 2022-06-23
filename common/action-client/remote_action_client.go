@@ -1,3 +1,8 @@
+// @Title  remote_action_client.go
+// @Description  ActionService客户端封装
+// @Create  heyitong  2022/6/23 15:52
+// @Update  heyitong  2022/6/23 15:52
+
 package action_client
 
 import (
@@ -11,6 +16,7 @@ import (
 	"tiops/common/services"
 )
 
+// RemoteActionClient ActionService客户端封装
 type RemoteActionClient struct {
 	services.ActionsServiceClient
 	conn *grpc.ClientConn
@@ -49,7 +55,7 @@ func NewRemoteActionClient(ip string, port int) *RemoteActionClient {
 	return client
 }
 
-func GetRemoteActionClient(workspace string, serviceName string) (*RemoteActionClient,error) {
+func GetRemoteActionClient(workspace string, serviceName string) (*RemoteActionClient, error) {
 
 	ip, port := serviceName+"."+workspace, 5555
 

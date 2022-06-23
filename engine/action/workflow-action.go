@@ -1,3 +1,8 @@
+// @Title  workflow-action.go
+// @Description  子流程组件
+// @Create  heyitong  2022/6/23 17:13
+// @Update  heyitong  2022/6/23 17:13
+
 package action
 
 import (
@@ -12,6 +17,7 @@ import (
 	"tiops/engine/types"
 )
 
+// WorkflowAction 子流程组件
 type WorkflowAction struct {
 	//RemoteServiceAction
 	info         *models.ActionInfo
@@ -59,12 +65,12 @@ func (a *WorkflowAction) Init(node *types.Node) error {
 	defer cancel()
 
 	_, err := a.engineClient.RunEngine(ctx, &services.RunEngineRequest{
-		EngineName: a.engineName,
-		NodeId: node.ID,
-		WorkflowId: a.subflowId,
+		EngineName:    a.engineName,
+		NodeId:        node.ID,
+		WorkflowId:    a.subflowId,
 		ActionOptions: node.Info.ActionOptions,
-		NextActions:     allNextActions,
-		ActionInfo:      a.info,
+		NextActions:   allNextActions,
+		ActionInfo:    a.info,
 	})
 
 	return err
@@ -174,7 +180,7 @@ func (a *WorkflowAction) GetRequiredResources(n *types.Node, stage int32) (*mode
 		resources, err := a.engineClient.GetRequiredResources(context.TODO(),
 			&services.RequiredResourcesRequest{
 				EngineName: a.engineName,
-				WorkflowId:         a.subflowId,
+				WorkflowId: a.subflowId,
 				Stage:      stage - 1,
 			})
 		if err != nil {

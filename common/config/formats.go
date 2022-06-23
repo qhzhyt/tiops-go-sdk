@@ -1,3 +1,8 @@
+// @Title  formats.go
+// @Description  全局字符串格式化函数
+// @Create  heyitong  2022/6/23 15:54
+// @Update  heyitong  2022/6/23 15:54
+
 package config
 
 import (

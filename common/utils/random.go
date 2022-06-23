@@ -1,3 +1,8 @@
+// @Title  random.go
+// @Description  随机数相关函数
+// @Create  heyitong  2022/6/23 16:01
+// @Update  heyitong  2022/6/23 16:01
+
 package utils
 
 import (

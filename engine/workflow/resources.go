@@ -1,3 +1,9 @@
+// @Title  resources.go
+// @Description  流程依赖资源处理
+// @Create  heyitong  2022/6/23 18:17
+// @Update  heyitong  2022/6/23 18:17
+
+
 package workflow
 
 import (

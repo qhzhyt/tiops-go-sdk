@@ -1,10 +1,15 @@
+// @Title  node.go
+// @Description  处理流程节点定义
+// @Create  heyitong  2022/6/23 17:23
+// @Update  heyitong  2022/6/23 17:23
+
 package types
 
 import (
 	"tiops/common/models"
 )
 
-// Node 工作流节点
+// Node 处理流程节点
 type Node struct {
 	ID              string
 	Action          Action

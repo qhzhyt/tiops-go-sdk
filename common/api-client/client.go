@@ -1,3 +1,8 @@
+// @Title  client.go
+// @Description  APIService客户端封装
+// @Create  heyitong  2022/6/23 15:52
+// @Update  heyitong  2022/6/23 15:52
+
 package api_client
 
 import (
@@ -10,6 +15,7 @@ import (
 	"tiops/common/services"
 )
 
+// APIClient APIService客户端封装
 type APIClient struct {
 	services.APIServiceClient
 	grpcConn *grpc.ClientConn

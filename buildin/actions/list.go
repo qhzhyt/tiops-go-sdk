@@ -1,3 +1,8 @@
+// @Title  list.go
+// @Description  内置组件列表
+// @Create  heyitong  2022/6/23 15:43
+// @Update  heyitong  2022/6/23 15:43
+
 package actions
 
 import (

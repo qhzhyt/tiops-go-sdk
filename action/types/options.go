@@ -1,3 +1,8 @@
+// @Title  options.go
+// @Description  处理组件选项，流程节点上为相应组件配置的参数
+// @Create  heyitong  2022/6/23 15:25
+// @Update  heyitong  2022/6/23 15:25
+
 package types
 
 import (
@@ -5,6 +10,7 @@ import (
 	"strconv"
 )
 
+// ActionOptions 处理组件选项
 type ActionOptions map[string]string
 
 func (a ActionOptions) GetString(name string) string {

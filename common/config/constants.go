@@ -1,3 +1,8 @@
+// @Title  constants.go
+// @Description  全局静态变量
+// @Create  heyitong  2022/6/23 15:53
+// @Update  heyitong  2022/6/23 15:53
+
 package config
 
 const (

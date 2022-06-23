@@ -1,3 +1,8 @@
+// @Title  http.go
+// @Description  HTTP相关组件实现
+// @Create  heyitong  2022/6/23 15:42
+// @Update  heyitong  2022/6/23 15:42
+
 package actions
 
 import (
@@ -8,6 +13,7 @@ import (
 	"tiops/common/services"
 )
 
+// HttpTrigger HTTP触发器，接受http请求事件
 func HttpTrigger(ctx *actionTypes.StreamRequestContext) error {
 
 	eventClient, err := apiClient.WatchEvent(context.TODO(), &services.WatchEventRequest{
@@ -53,11 +59,11 @@ func HttpTrigger(ctx *actionTypes.StreamRequestContext) error {
 			}
 
 			err = ctx.Push(actionTypes.ActionDataBatch{map[string]interface{}{
-				buildin.M: httpRequest.Method,
+				buildin.M:   httpRequest.Method,
 				buildin.Req: string(event.Data),
-				buildin.Q: q,
-				buildin.H: h,
-				buildin.B: httpRequest.Body,
+				buildin.Q:   q,
+				buildin.H:   h,
+				buildin.B:   httpRequest.Body,
 			},
 			})
 			if err != nil {

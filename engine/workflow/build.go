@@ -1,3 +1,8 @@
+// @Title  build.go
+// @Description  处理流程构建
+// @Create  heyitong  2022/6/23 17:30
+// @Update  heyitong  2022/6/23 17:30
+
 package workflow
 
 import (
@@ -242,6 +247,7 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	return wf, nil
 }
 
+// GetWorkflowInfoByID 根据ID获取WorkflowInfo
 func GetWorkflowInfoByID(id string) (*models.WorkflowInfo, error) {
 	wfi, err := _apiClient.GetWorkflowById(id)
 	if err != nil {
@@ -254,6 +260,7 @@ var (
 	workflowMap = map[string]*types.Workflow{}
 )
 
+// GetWorkflowByID 根据ID构建Workflow
 func GetWorkflowByID(id string) (*types.Workflow, error) {
 
 	if wf, ok := workflowMap[id]; ok {
@@ -271,6 +278,7 @@ func GetWorkflowByID(id string) (*types.Workflow, error) {
 	return wf, nil
 }
 
+// New 根据ID获取WorkflowInfo
 func New(id string) (*types.Workflow, error) {
 	workflowId := id
 	//global.Logger.Info("connecting to api server")
@@ -308,6 +316,7 @@ func New(id string) (*types.Workflow, error) {
 
 var currentWorkflow *types.Workflow
 
+// Current 当前处理流程
 func Current() (*types.Workflow, error) {
 	if currentWorkflow != nil {
 		return currentWorkflow, nil
@@ -317,6 +326,7 @@ func Current() (*types.Workflow, error) {
 	return wf, err
 }
 
+// Context 当前流程引擎上下文
 func Context() *types.EngineContext {
 	return &types.EngineContext{
 		//WorkflowType: tiopsConfigs.WorkflowType,

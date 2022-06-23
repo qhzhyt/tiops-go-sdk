@@ -1,3 +1,8 @@
+// @Title  common.go
+// @Description  内置组件封装为通用组件
+// @Create  heyitong  2022/6/23 15:34
+// @Update  heyitong  2022/6/23 15:34
+
 package actions
 
 import (
@@ -12,6 +17,7 @@ type BuildinActionBatchProcessor func(ctx *actionTypes.BatchRequestContext) (act
 
 type BuildinActionPullStreamProcessor func(ctx *actionTypes.StreamRequestContext) error
 
+// BuildinAction 内置组件数据结构定义
 type BuildinAction struct {
 	*actionTypes.ActionContext
 	CallBatchFunc      BuildinActionBatchProcessor

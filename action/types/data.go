@@ -1,3 +1,8 @@
+// @Title  data.go
+// @Description  处理组件数据相关数据结构定义
+// @Create  heyitong  2022/6/23 15:20
+// @Update  heyitong  2022/6/23 15:20
+
 package types
 
 import (
@@ -9,6 +14,7 @@ import (
 	"tiops/common/utils"
 )
 
+// ActionStatus组件状态
 type ActionStatus struct {
 	ProcessedCount int64             `protobuf:"varint,1,opt,name=processedCount,proto3" json:"processedCount,omitempty" bson:"processedCount"`
 	RestCount      int64             `protobuf:"varint,2,opt,name=restCount,proto3" json:"restCount,omitempty" bson:"restCount"`
@@ -17,8 +23,10 @@ type ActionStatus struct {
 	Extra          map[string]string `protobuf:"bytes,5,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"extra"`
 }
 
+// ActionDataItem 单条数据定义
 type ActionDataItem map[string]interface{}
 
+// ActionDataBatch 批量数据定义
 type ActionDataBatch []ActionDataItem
 
 //type ActionResult ActionDataItemMap
@@ -184,7 +192,7 @@ func TransActionData(data *services.ActionData) ActionData {
 
 type ActionDataMap map[string]ActionData
 
-func TransActionDataMap(dataMap map[string]*services.ActionData, inputs []*models.Parameter, ) ActionDataMap {
+func TransActionDataMap(dataMap map[string]*services.ActionData, inputs []*models.Parameter) ActionDataMap {
 	result := ActionDataMap{}
 
 	for _, input := range inputs {

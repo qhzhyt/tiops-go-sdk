@@ -1,3 +1,8 @@
+// @Title  constants.go
+// @Description  静态变量
+// @Create  heyitong  2022/6/23 17:17
+// @Update  heyitong  2022/6/23 17:17
+
 package types
 
 const (

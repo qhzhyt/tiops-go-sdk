@@ -1,3 +1,8 @@
+// @Title  common.go
+// @Description  action工厂，根据models.ActionInfo创建types.Action
+// @Create  heyitong  2022/6/23 17:09
+// @Update  heyitong  2022/6/23 17:09
+
 package action
 
 import (
@@ -6,6 +11,7 @@ import (
 	"tiops/engine/types"
 )
 
+// New Action工厂函数，根据models.ActionInfo创建types.Action
 func New(actionInfo *models.ActionInfo) types.Action {
 
 	//actionInfo := actionInfos[nodeInfo.ActionId]

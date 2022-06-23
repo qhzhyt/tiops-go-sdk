@@ -1,3 +1,8 @@
+// @Title  engine.go
+// @Description  流程引擎接口定义
+// @Create  heyitong  2022/6/23 17:22
+// @Update  heyitong  2022/6/23 17:22
+
 package types
 
 import "tiops/common/models"
@@ -10,6 +15,7 @@ const (
 	EngineStatusBusy
 )
 
+// WorkflowEngine 流程引擎接口
 type WorkflowEngine interface {
 	RequiredResources(workflow *Workflow, stage int32) (*models.WorkflowResources, error)
 	WaitForResources(workflow *Workflow) error

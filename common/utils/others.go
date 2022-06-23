@@ -1,3 +1,8 @@
+// @Title  others.go
+// @Description  其他工具函数
+// @Create  heyitong  2022/6/23 15:59
+// @Update  heyitong  2022/6/23 15:59
+
 package utils
 
 import (

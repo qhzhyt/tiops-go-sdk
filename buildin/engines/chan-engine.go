@@ -1,3 +1,8 @@
+// @Title  chan-engine.go
+// @Description  基于channel的简易流程引擎
+// @Create  heyitong  2022/6/23 15:30
+// @Update  heyitong  2022/6/23 15:30
+
 package engines
 
 import (
@@ -12,10 +17,7 @@ import (
 	"tiops/engine/types"
 )
 
-/*
-* 基于channel的简易流程引擎
- */
-
+// basicChanEngine 基于channel的简易流程引擎
 type basicChanEngine struct {
 	wg sync.WaitGroup
 	*types.EngineContext

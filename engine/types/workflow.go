@@ -1,18 +1,23 @@
+// @Title  workflow.go
+// @Description  处理流程数据结构定义
+// @Create  heyitong  2022/6/23 17:28
+// @Update  heyitong  2022/6/23 17:28
+
 package types
 
 import (
 	"fmt"
-	tiopsConfigs "tiops/common/config"
 	"sync"
 	"time"
 	apiClient "tiops/common/api-client"
+	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
 	"tiops/common/models"
 )
 
 const RegisterActionRetryTimes = 120
 
-// Workflow 工作流
+// Workflow 处理流程
 type Workflow struct {
 	Name    string
 	ID      string

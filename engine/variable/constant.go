@@ -1,3 +1,8 @@
+// @Title  constant.go
+// @Description  处理流程静态变量
+// @Create  heyitong  2022/6/23 17:29
+// @Update  heyitong  2022/6/23 17:29
+
 package variable
 
 import (

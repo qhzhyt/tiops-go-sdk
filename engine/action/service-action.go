@@ -1,3 +1,8 @@
+// @Title  service-action.go
+// @Description  远程服务调用组件
+// @Create  heyitong  2022/6/23 17:12
+// @Update  heyitong  2022/6/23 17:12
+
 package action
 
 import (
@@ -11,6 +16,7 @@ import (
 	"tiops/engine/types"
 )
 
+// RemoteServiceAction 远程服务调用组件
 type RemoteServiceAction struct {
 	info     *models.ActionInfo
 	client   *actionClient.RemoteActionClient
