@@ -37,6 +37,22 @@ func (a ActionOptions) GetIntOrDefault(name string, _default int) int {
 	return result
 }
 
+func (a ActionOptions) GetFloat(name string) float64 {
+	result, err := strconv.ParseFloat(a[name], 64)
+	if err != nil {
+		return 0
+	}
+	return result
+}
+
+func (a ActionOptions) GetFloatOrDefault(name string, _default float64) float64 {
+	result, err := strconv.ParseFloat(a[name], 64)
+	if err != nil {
+		return _default
+	}
+	return result
+}
+
 func (a ActionOptions) GetStringList(name string) []string {
 	var result []string
 	err := json.Unmarshal([]byte(a[name]), &result)
@@ -48,6 +64,42 @@ func (a ActionOptions) GetStringList(name string) []string {
 
 func (a ActionOptions) GetStringListOrDefault(name string, _default []string) []string {
 	var result []string
+	err := json.Unmarshal([]byte(a[name]), &result)
+	if err != nil {
+		return _default
+	}
+	return result
+}
+
+func (a ActionOptions) GetList(name string) ([]interface{}, error) {
+	var result []interface{}
+	err := json.Unmarshal([]byte(a[name]), &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (a ActionOptions) GetListOrDefault(name string, _default []interface{}) []interface{} {
+	var result []interface{}
+	err := json.Unmarshal([]byte(a[name]), &result)
+	if err != nil {
+		return _default
+	}
+	return result
+}
+
+func (a ActionOptions) GetMap(name string) (map[string]interface{}, error) {
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(a[name]), &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (a ActionOptions) GetMapOrDefault(name string, _default map[string]interface{}) map[string]interface{} {
+	var result map[string]interface{}
 	err := json.Unmarshal([]byte(a[name]), &result)
 	if err != nil {
 		return _default

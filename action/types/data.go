@@ -226,6 +226,19 @@ func (m ActionDataMap) Map(f func(item ActionDataItem) ActionDataItem) ActionDat
 	return result
 }
 
+func (m ActionDataMap) MapExistError(f func(item ActionDataItem) (ActionDataItem, error)) (ActionDataBatch, error) {
+	count := m.Count()
+	result := make(ActionDataBatch, count)
+	var err error
+	for i := 0; i < count; i++ {
+		result[i], err = f(m.Item(i))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
+}
+
 func (m ActionDataMap) MapTrans(f func(ActionDataItem) ActionDataItem, keys []string) map[string][]interface{} {
 	result := map[string][]interface{}{}
 	count := m.Count()

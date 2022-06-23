@@ -6,6 +6,7 @@
 package actions
 
 import (
+	"encoding/json"
 	actionTypes "tiops/action/types"
 	"tiops/common/logger"
 	"tiops/common/models"
@@ -119,4 +120,29 @@ func NewBuildinAction(actionInfo *models.ActionInfo) engineTypes.Action {
 			OutputNames: outputNames,
 		},
 	}
+}
+
+func JsonProcess(input string, processor func(map[string]interface{}) (map[string]interface{}, error)) (string, error) {
+	inputMap := map[string]interface{}{}
+
+	err := json.Unmarshal([]byte(input), &inputMap)
+
+	if err != nil {
+		return "", err
+	}
+
+	outputMap, err := processor(inputMap)
+
+	if err != nil {
+		return "", err
+	}
+
+	outputBytes, err := json.Marshal(outputMap)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(outputBytes), nil
+
 }

@@ -13,12 +13,13 @@ import (
 
 var (
 	batchProcessorMap = map[string]BuildinActionBatchProcessor{
-		buildin.EventSenderID: EventSender,
+		buildin.EventSenderID:       EventSender,
 		buildin.StaticEventSenderID: StaticEventSender,
+		buildin.JsonSetFieldID:      JsonSetField,
 	}
 	pullStreamProcessorMap = map[string]BuildinActionPullStreamProcessor{
 		buildin.EventTriggerID: EventTrigger,
-		buildin.HttpTriggerID: HttpTrigger,
+		buildin.HttpTriggerID:  HttpTrigger,
 	}
 	apiClient = apiclient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 )
