@@ -32,6 +32,7 @@ type nodeData struct {
 	pushMessageClient  map[string]services.ActionsService_PushMessageClient
 }
 
+//defaultStrictAction 完整处理组件，实现了StrictAction接口
 type defaultStrictAction struct {
 	action         types.Action
 	nodeDataMap    map[string]*nodeData
