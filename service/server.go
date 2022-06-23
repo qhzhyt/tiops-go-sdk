@@ -52,7 +52,6 @@ type actionServer struct {
 	//workspaceDataStore      stores.DataStore
 	//workflowDataStore       DataStore
 	//jobDataStore            DataStore
-	services.UnsafeActionsServiceServer
 }
 
 // GetServiceStatus 处理服务状态请求
