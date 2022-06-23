@@ -7,10 +7,10 @@ package actions
 
 import (
 	"github.com/google/uuid"
-	"github.com/qhzhyt/tiops-go-sdk/action/types"
-	"github.com/qhzhyt/tiops-go-sdk/buildin"
 	"time"
+	"tiops/action/types"
 	actionTypes "tiops/action/types"
+	"tiops/buildin"
 )
 
 // JsonSetField 设置JSON字段
