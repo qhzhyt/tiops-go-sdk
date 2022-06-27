@@ -33,7 +33,11 @@ func (w *basicChanEngine) ProcessData(requests chan *types.ActionRequest) (chan 
 		for request := range requests {
 			for name, connections := range w.inputNode.Outputs {
 				for _, connection := range connections {
-					connection.DataChan <- request.Inputs[name]
+					d := request.Inputs[name]
+					if d == nil {
+						continue
+					}
+					connection.DataChan <- d
 				}
 			}
 		}
@@ -55,6 +59,10 @@ func (w *basicChanEngine) ProcessData(requests chan *types.ActionRequest) (chan 
 					break
 				}
 				outputData[k] = data
+
+				if data == nil {
+					continue
+				}
 
 				traceIds = append(traceIds, data.TraceIds...)
 
@@ -195,11 +203,11 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 	var apps []*models.K8SApp
 	nodes := workflowInfo.Nodes
 	for _, node := range nodes {
-		w.Logger.Info(stage, " ", node)
+		//w.Logger.Info(stage, " ", node)
 
 		resources, err := node.GetRequiredResources(stage)
 
-		w.Logger.Info(resources)
+		//w.Logger.Info(resources)
 		//time.Sleep(time.Second)
 		if err != nil {
 			w.Logger.Error(err.Error())
@@ -259,6 +267,8 @@ func (w *basicChanEngine) processResponse(node *types.Node, res *types.ActionRes
 	//time.Sleep(time.Second * 10)
 	for k, outputs := range node.Outputs {
 		for _, output := range outputs {
+			//w.Logger.Debug(output.Info)
+			//time.Sleep(time.Second * 2)
 			output.DataChan <- res.Outputs[k]
 		}
 	}
@@ -269,6 +279,8 @@ func (w *basicChanEngine) processResponse(node *types.Node, res *types.ActionRes
 func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 	done := false
 
+	doneWg := &sync.WaitGroup{}
+
 	actionInfo := node.Action.Info()
 
 	duplexStreamSender := func(request *types.ActionRequest) error {
@@ -277,12 +289,23 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 	if actionInfo.CallMode == models.CallMode_DuplexStreamCall {
 		var err error
+		doneWg.Add(1)
 		duplexStreamSender, err = node.Action.CallDuplexStream(func(res *types.ActionResponse, err error) bool {
-			w.processResponse(node, res, err)
-			if res.Done {
-				done = true
+			if err != nil {
+				w.Logger.Error(err)
+				return false
 			}
-			return res.Done
+
+			//w.Logger.Debug(res)
+
+			w.processResponse(node, res, err)
+
+			if res.Done || done {
+				done = true
+				doneWg.Done()
+			}
+
+			return done
 		})
 
 		if err != nil {
@@ -304,6 +327,11 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 					break
 				}
 				inputData[k] = data
+				if data == nil {
+					break
+				}
+				//w.Logger.Error("data, ", data)
+				//time.Sleep(time.Second * 6)
 				traceIds = append(traceIds, data.TraceIds...)
 				if inputs.BacklogCount() > maxBacklog {
 					maxBacklog = inputs.BacklogCount()
@@ -366,8 +394,10 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 		}
 
 		if done {
+			doneWg.Wait()
 			for _, outputs := range node.Outputs {
 				for _, output := range outputs {
+					//w.Logger.Debug(actionInfo.Name, " ", "done")
 					output.Done()
 				}
 			}

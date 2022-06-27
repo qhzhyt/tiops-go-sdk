@@ -8,6 +8,7 @@ package service
 import (
 	"context"
 	"errors"
+	"io"
 	"time"
 	"tiops/buildin/engines"
 	tiopsConfigs "tiops/common/config"
@@ -94,6 +95,7 @@ func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngin
 	if engine == nil {
 		return &services.StatusResponse{Status: 404, Message: "Engine " + request.EngineName + " Not Found"}, nil
 	}
+	a.engines[request.EngineName] = engine
 	_workflow, err := workflow.New(request.WorkflowId)
 	if err != nil {
 		return &services.StatusResponse{Status: 404, Message: err.Error()}, nil
@@ -142,8 +144,8 @@ func (a *actionServer) GetRequiredResources(ctx context.Context, query *services
 	engine := a.getEngine(query.EngineName)
 	wf, err := workflow.GetWorkflowByID(query.WorkflowId)
 
-	a.Logger.Info(wf)
-	a.Logger.Info("Stage", stage)
+	//a.Logger.Info(wf)
+	//a.Logger.Info("Stage", stage)
 
 	time.Sleep(time.Second)
 
@@ -167,6 +169,8 @@ func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServe
 	request, err := server.Recv()
 
 	if err != nil {
+		a.Logger.Error(err.Error())
+		time.Sleep(time.Second)
 		return err
 	}
 
@@ -189,15 +193,19 @@ func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServe
 				done = true
 			}
 
+			//a.Logger.Info(response)
+
 			err := server.Send(&services.ActionResponse{
-				Id:      response.ID,
-				Outputs: response.Outputs,
-				Count:   response.Count,
-				Done:    response.Done,
+				Id:       response.ID,
+				Outputs:  response.Outputs,
+				Count:    response.Count,
+				Done:     response.Done,
+				TraceIds: response.TraceIds,
 			})
 
 			if err != nil {
 				a.Logger.Error(err.Error())
+				time.Sleep(time.Second)
 			}
 		}
 	}()
@@ -212,20 +220,11 @@ func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServe
 	for !done {
 
 		request, err = server.Recv()
-		//engine = a.getEngine(request.ActionName)
-		//if engine == nil {
-		//	return errors.New("engine " + request.ActionName + " Not Found")
-		//}
-		//
-		//
-		//
-		//err = engine.ProcessData(&engineTypes.ActionRequest{
-		//	ID:     request.Id,
-		//	Inputs: request.Inputs,
-		//}, func(response *engineTypes.ActionResponse) error {
-		//
-		//
-		//})
+
+		if err == io.EOF {
+			break
+		}
+
 		if err != nil {
 			a.Logger.Error(err.Error())
 			continue

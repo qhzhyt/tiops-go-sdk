@@ -16,6 +16,7 @@ var (
 		buildin.EventSenderID:       EventSender,
 		buildin.StaticEventSenderID: StaticEventSender,
 		buildin.JsonSetFieldID:      JsonSetField,
+		buildin.JsonPathLookupID:    JsonPathLookup,
 	}
 	pullStreamProcessorMap = map[string]BuildinActionPullStreamProcessor{
 		buildin.EventTriggerID: EventTrigger,

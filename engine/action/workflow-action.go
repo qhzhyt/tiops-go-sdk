@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"sync"
 	"time"
 	actionClient "tiops/common/action-client"
@@ -33,10 +34,10 @@ type WorkflowAction struct {
 }
 
 func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionResponse, err error) bool) (func(request *types.ActionRequest) error, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
-	defer cancel()
+	//ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
+	//defer cancel()
 
-	streamClient, err := a.engineClient.CallEngine(ctx)
+	streamClient, err := a.engineClient.CallEngine(context.TODO())
 
 	if err != nil {
 		return nil, err
@@ -48,7 +49,9 @@ func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionRespons
 	sender := func(request *types.ActionRequest) error {
 		lastRequestsLocker.Lock()
 		defer lastRequestsLocker.Unlock()
-		lastRequests[utils.Int64ListHash(request.TraceIds)] = request
+		id := utils.Int64ListHash(request.TraceIds)
+		// logger.Debug(id)
+		lastRequests[id] = request
 		return streamClient.Send(&services.ActionRequest{
 			Id:         request.ID,
 			NodeId:     a.node.ID,
@@ -61,7 +64,15 @@ func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionRespons
 	go func() {
 		for {
 			res, err := streamClient.Recv()
+
+			if err == io.EOF {
+				streamClient.CloseSend()
+				break
+			}
+
 			if err != nil {
+				logger.Error(err.Error())
+				time.Sleep(time.Second)
 				callback(nil, err)
 				continue
 			}
@@ -69,9 +80,15 @@ func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionRespons
 				continue
 			}
 
+			//logger.Debug(res)
+
 			lastRequestsLocker.Lock()
 
 			traceHash := utils.Int64ListHash(res.TraceIds)
+
+			//logger.Debug(traceHash)
+
+			//time.Sleep(time.Second)
 
 			req := lastRequests[traceHash]
 
@@ -89,6 +106,7 @@ func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionRespons
 				Outputs: res.Outputs,
 				Done:    res.Done,
 			}, nil) {
+				streamClient.CloseSend()
 				break
 			}
 			if res.Done {
@@ -102,8 +120,8 @@ func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionRespons
 
 func (a *WorkflowAction) Init(node *types.Node) error {
 
-	logger.Info(node.ID)
-	logger.Info(a.engineName)
+	//logger.Info(node.ID)
+	//logger.Info(a.engineName)
 
 	a.node = node
 
@@ -259,7 +277,7 @@ func NewWorkflowAction(info *models.ActionInfo) types.Action {
 	if info.EngineInfo != nil {
 		engineName = info.EngineInfo.Name
 	}
-	logger.Info(info.Path)
+	//logger.Info(info.Path)
 	return &WorkflowAction{
 		info:       info,
 		engineInfo: info.EngineInfo,

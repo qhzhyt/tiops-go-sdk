@@ -50,6 +50,7 @@ func (a *BuildinAction) Init(node *engineTypes.Node) error {
 
 func (a *BuildinAction) Call(request *engineTypes.ActionRequest) (*engineTypes.ActionResponse, error) {
 	inputDataMap := actionTypes.TransActionDataMap(request.Inputs, a.ActionInfo.Inputs)
+	//a.Logger.Error(inputDataMap)
 	result, err := a.CallBatchFunc(
 		&actionTypes.BatchRequestContext{
 			ActionNodeContext: a.nodeCtx,
@@ -58,7 +59,9 @@ func (a *BuildinAction) Call(request *engineTypes.ActionRequest) (*engineTypes.A
 	if err != nil {
 		return nil, err
 	}
+	//a.Logger.Error(a.ActionInfo)
 	outputs := actionTypes.ToServiceActionDataMap(request.ID, request.TraceIds, result, a.ActionInfo.Outputs)
+	//a.Logger.Error(outputs)
 	return &engineTypes.ActionResponse{
 		ID:      request.ID,
 		Outputs: outputs,

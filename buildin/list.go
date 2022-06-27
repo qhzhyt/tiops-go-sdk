@@ -20,7 +20,8 @@ const (
 )
 
 const (
-	JsonSetFieldID = "buildin---json-set-field"
+	JsonSetFieldID   = "buildin---json-set-field"
+	JsonPathLookupID = "buildin---json-path-lookup"
 )
 
 const (
@@ -46,6 +47,7 @@ const (
 	HeaderName        = "headerName"
 	HttpWorkspace     = "__http__"
 	DefaultEngineName = "default"
+	JsonPath          = "jsonPath"
 )
 
 const (
@@ -218,6 +220,29 @@ var (
 				{Name: MaxInt, Type: Integer, Default: "65535", Description: "最大数",
 					Show: showIfFieldIs(FieldType, RandomInt),
 				},
+			},
+		},
+		{
+			XId:         JsonPathLookupID,
+			Name:        "json-path-lookup",
+			DisplayName: "JsonPath提取",
+			IsPublic:    true,
+			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
+			CreatedTime: time.Date(2022, 6, 27, 17, 35, 00, 0, time.Local).UnixNano() / 1e6,
+			Source:      models.ActionSource_Buildin,
+			Type:        models.ActionType_BuildInAction,
+			CallMode:    models.CallMode_OnceCall,
+			Tags:        []string{"json"},
+			Description: "根据JsonPath提取Json内容",
+			Inputs: []*models.Parameter{
+				{Name: Input, Type: Json, Default: "", Description: "输入数据"},
+			},
+			Outputs: []*models.Parameter{
+				{Name: Output, Type: Json, Default: "", Description: "输出数据"},
+			},
+			Options: []*models.ActionOption{
+				{Name: JsonPath, Type: String, Default: "$", Description: "JsonPath", Required: true},
 			},
 		},
 	}

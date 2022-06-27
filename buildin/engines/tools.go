@@ -22,8 +22,9 @@ func inputLog(info *models.ActionInfo, requestId string, inputData map[string]*s
 	for k, v := range inputData {
 		if v != nil {
 			infos[k] = map[string]interface{}{
-				"id":    v.Id,
-				"count": v.Count,
+				"id":       v.Id,
+				"count":    v.Count,
+				"traceIds": v.TraceIds,
 			}
 		} else {
 			infos[k] = map[string]interface{}{
@@ -40,9 +41,10 @@ func errorLog(info *models.ActionInfo, err error, inputData map[string]*services
 	for k, v := range inputData {
 		if v != nil {
 			infos[k] = map[string]interface{}{
-				"id":      v.Id,
-				"count":   v.Count,
-				"example": v.Data[0],
+				"id":       v.Id,
+				"count":    v.Count,
+				"traceIds": v.TraceIds,
+				"example":  v.Data[0],
 			}
 		} else {
 			infos[k] = map[string]interface{}{
@@ -58,8 +60,9 @@ func outputLog(info *models.ActionInfo, responseId string, outputData map[string
 	infos := map[string]map[string]interface{}{}
 	for k, v := range outputData {
 		infos[k] = map[string]interface{}{
-			"id":    v.Id,
-			"count": v.Count,
+			"id":       v.Id,
+			"count":    v.Count,
+			"traceIds": v.TraceIds,
 		}
 	}
 	return fmt.Sprintf("Action reponse %s from %s get outputs: %v", responseId, info.Name, infos)

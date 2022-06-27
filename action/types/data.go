@@ -338,7 +338,9 @@ var (
 // ToServiceActionDataMap 按字段分割ActionDataBatch
 func ToServiceActionDataMap(id string, traceIds []int64, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
 	result := ServiceActionDataMap{}
+	//logger.Debug(outputs)
 	for _, output := range outputs {
+		//logger.Debug(output)
 		count := len(source)
 		items := make([][]byte, count)
 		//dataCol := source[output.Name]

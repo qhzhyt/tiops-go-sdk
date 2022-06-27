@@ -6,7 +6,10 @@
 package actions
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
+	"github.com/oliveagle/jsonpath"
+	"sync"
 	"time"
 	"tiops/action/types"
 	actionTypes "tiops/action/types"
@@ -72,4 +75,62 @@ func JsonSetField(ctx *actionTypes.BatchRequestContext) (actionTypes.ActionDataB
 
 	})
 
+}
+
+var jsonpathMap = map[string]*jsonpath.Compiled{}
+var jsonpathMapMutex = &sync.Mutex{}
+
+func getJsonPath(jsonPathString string) (*jsonpath.Compiled, error) {
+	jsonpathMapMutex.Lock()
+	defer jsonpathMapMutex.Unlock()
+
+	jsonPath := jsonpathMap[jsonPathString]
+
+	if jsonPath == nil {
+		compiled, err := jsonpath.Compile(jsonPathString)
+		if err != nil {
+			return nil, err
+		}
+		jsonPath = compiled
+		jsonpathMap[jsonPathString] = jsonPath
+	}
+
+	return jsonPath, nil
+}
+
+// JsonPathLookup 执行jsonpath
+func JsonPathLookup(ctx *actionTypes.BatchRequestContext) (actionTypes.ActionDataBatch, error) {
+	jsonPathString := ctx.ActionOptions.GetStringOrDefault(buildin.JsonPath, "$")
+
+	jsonPath, err := getJsonPath(jsonPathString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ctx.Inputs.Map(func(item types.ActionDataItem) types.ActionDataItem {
+
+		input := item[buildin.Input]
+
+		var jsonObj interface{}
+
+		err := json.Unmarshal([]byte(input.(string)), &jsonObj)
+		if err != nil {
+			ctx.Logger.Error(err.Error())
+			return item
+		}
+
+		res, err := jsonPath.Lookup(jsonObj)
+
+		if err != nil {
+			ctx.Logger.Error(err.Error())
+			return item
+		}
+
+		resBytes, _ := json.Marshal(res)
+
+		return types.ActionDataItem{
+			buildin.Output: string(resBytes),
+		}
+	}), nil
 }
