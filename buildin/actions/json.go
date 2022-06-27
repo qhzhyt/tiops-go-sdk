@@ -45,7 +45,7 @@ func JsonSetField(ctx *actionTypes.BatchRequestContext) (actionTypes.ActionDataB
 			value = ctx.ActionOptions.GetString(buildin.Value)
 		case buildin.Timestamp:
 			if ctx.ActionOptions.GetString(buildin.TimestampType) == buildin.Second {
-				value = time.Now().Second()
+				value = time.Now().UnixNano() / 1e9
 			} else {
 				value = time.Now().UnixNano() / 1e6
 			}

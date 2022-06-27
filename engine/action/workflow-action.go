@@ -9,11 +9,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 	actionClient "tiops/common/action-client"
 	tiopsConfigs "tiops/common/config"
+	"tiops/common/logger"
 	"tiops/common/models"
 	"tiops/common/services"
+	"tiops/common/utils"
 	"tiops/engine/types"
 )
 
@@ -29,8 +32,84 @@ type WorkflowAction struct {
 	subflowId    string
 }
 
+func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionResponse, err error) bool) (func(request *types.ActionRequest) error, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
+	defer cancel()
+
+	streamClient, err := a.engineClient.CallEngine(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var lastRequests = map[int64]*types.ActionRequest{}
+	var lastRequestsLocker = sync.Mutex{}
+
+	sender := func(request *types.ActionRequest) error {
+		lastRequestsLocker.Lock()
+		defer lastRequestsLocker.Unlock()
+		lastRequests[utils.Int64ListHash(request.TraceIds)] = request
+		return streamClient.Send(&services.ActionRequest{
+			Id:         request.ID,
+			NodeId:     a.node.ID,
+			ActionName: a.engineName,
+			Inputs:     request.Inputs,
+			TraceIds:   request.TraceIds,
+		})
+	}
+
+	go func() {
+		for {
+			res, err := streamClient.Recv()
+			if err != nil {
+				callback(nil, err)
+				continue
+			}
+			if res == nil {
+				continue
+			}
+
+			lastRequestsLocker.Lock()
+
+			traceHash := utils.Int64ListHash(res.TraceIds)
+
+			req := lastRequests[traceHash]
+
+			if req == nil {
+				req = &types.ActionRequest{}
+			} else {
+				delete(lastRequests, traceHash)
+			}
+
+			lastRequestsLocker.Unlock()
+
+			if callback(&types.ActionResponse{
+				ID:      res.Id,
+				Request: req,
+				Outputs: res.Outputs,
+				Done:    res.Done,
+			}, nil) {
+				break
+			}
+			if res.Done {
+				break
+			}
+		}
+	}()
+
+	return sender, nil
+}
+
 func (a *WorkflowAction) Init(node *types.Node) error {
+
+	logger.Info(node.ID)
+	logger.Info(a.engineName)
+
 	a.node = node
+
+	serviceName := tiopsConfigs.StandAloneActionServiceName(a.info.Name, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
+
+	a.engineClient = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
 
 	var allNextActions []*services.NextActions
 
@@ -84,31 +163,6 @@ func (a *WorkflowAction) Call(request *types.ActionRequest) (*types.ActionRespon
 }
 
 func (a *WorkflowAction) CallPullStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
-	defer cancel()
-
-	stream, err := a.engineClient.CallEngine(ctx, &services.ActionRequest{Id: request.ID, ActionName: a.info.Name, NodeId: a.node.ID, Inputs: request.Inputs})
-
-	if err != nil {
-		return err
-	}
-
-	for {
-		res, err := stream.Recv()
-		if err != nil {
-			callback(nil, err)
-			continue
-		}
-		if res == nil {
-			return nil
-		}
-		if !callback(&types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil) {
-			return err
-		}
-		if res.Done {
-			break
-		}
-	}
 	return nil
 }
 
@@ -149,28 +203,37 @@ func (a *WorkflowAction) Copy() types.Action {
 func (a *WorkflowAction) GetRequiredResources(n *types.Node, stage int32) (*models.WorkflowResources, error) {
 
 	// 	subflow, err := workflow.New(info.Path)
+
 	nodeInfo := n.Info
 
 	serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, n.ID) // config.ActionServiceName(actionInfo.ProjectId)
 
+	if a.engineClient == nil {
+		a.engineClient = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
+	}
+
 	if stage == 0 {
 		var apps []*models.K8SApp
 		actionInfo := a.info
+
+		//engineImage := tiopsConfigs.BuildinEngineImage
+		//
+		//if a.engineInfo != nil {
+		//	engineImage =
+		//}
 
 		app := &models.K8SApp{
 			Name:        serviceName,
 			ActionId:    actionInfo.XId,
 			Replica:     1,
 			ServiceMode: models.ServiceMode_One,
-			WorkContainers: []*models.K8SContainer{
-				{
-					Name:  serviceName,
-					Image: tiopsConfigs.DefaultEngineName,
-				},
-			},
+			//WorkContainers: []*models.K8SContainer{
+			//	{
+			//		Name:  serviceName,
+			//		Image: tiopsConfigs.DefaultEngineName,
+			//	},
+			//},
 		}
-
-		a.engineClient = actionClient.NewRemoteActionClient(serviceName, tiopsConfigs.ActionServerPort)
 
 		apps = append(apps, app)
 		return &models.WorkflowResources{
@@ -196,5 +259,11 @@ func NewWorkflowAction(info *models.ActionInfo) types.Action {
 	if info.EngineInfo != nil {
 		engineName = info.EngineInfo.Name
 	}
-	return &WorkflowAction{info: info, engineInfo: info.EngineInfo, engineName: engineName, subflowId: info.Path}
+	logger.Info(info.Path)
+	return &WorkflowAction{
+		info:       info,
+		engineInfo: info.EngineInfo,
+		engineName: engineName,
+		subflowId:  info.Func,
+	}
 }

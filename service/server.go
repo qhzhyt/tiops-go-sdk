@@ -109,7 +109,7 @@ func (a *actionServer) PushMessage(server services.ActionsService_PushMessageSer
 							for {
 								id := utils.SnowflakeID()
 								idString := fmt.Sprintf("%x", id)
-								actionData.TraceId = id
+								actionData.TraceIds = []int64{id}
 								actionData.Id = idString
 								messageData, _ := proto.Marshal(actionData)
 								pushMessageContext := &actionTypes.PushMessageContext{

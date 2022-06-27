@@ -14,8 +14,14 @@ import (
 	"tiops/common/stores"
 )
 
+// GlobalContext 全局上下文
+type GlobalContext struct {
+	ServicesClient
+}
+
 // ActionContext 组件全局上下文
 type ActionContext struct {
+	GlobalContext
 	Logger      *logger.Logger
 	Info        *models.ActionInfo
 	InputNames  []string

@@ -192,6 +192,32 @@ func TransActionData(data *services.ActionData) ActionData {
 
 type ActionDataMap map[string]ActionData
 
+func ServicesActionDataMapToActionDataBatch(dataMap map[string]*services.ActionData) ActionDataBatch {
+	var names []string
+	var count int64
+
+	for s, data := range dataMap {
+		names = append(names, s)
+		if data.Count > count {
+			count = data.Count
+		}
+	}
+
+	dataBatch := make(ActionDataBatch, count)
+
+	for i := 0; i < int(count); i++ {
+		dataBatch[i] = ActionDataItem{}
+
+		for _, name := range names {
+			dataBatch[i][name] = dataMap[name].Data[i]
+		}
+
+	}
+
+	return dataBatch
+
+}
+
 func TransActionDataMap(dataMap map[string]*services.ActionData, inputs []*models.Parameter) ActionDataMap {
 	result := ActionDataMap{}
 
@@ -310,7 +336,7 @@ var (
 )
 
 // ToServiceActionDataMap 按字段分割ActionDataBatch
-func ToServiceActionDataMap(id string, traceId int64, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
+func ToServiceActionDataMap(id string, traceIds []int64, source ActionDataBatch, outputs []*models.Parameter) ServiceActionDataMap {
 	result := ServiceActionDataMap{}
 	for _, output := range outputs {
 		count := len(source)
@@ -347,7 +373,7 @@ func ToServiceActionDataMap(id string, traceId int64, source ActionDataBatch, ou
 			Count:     int64(count),
 			Data:      items,
 			ValueType: output.Type,
-			TraceId:   traceId,
+			TraceIds:  traceIds,
 		}
 	}
 	return result
@@ -385,7 +411,17 @@ func (s *SimpleActionData) RawData() *services.ActionData {
 	data := make([][]byte, s.Count())
 
 	for i, item := range s.list {
-		data[i], _ = json.Marshal(item)
+		var value []byte
+		switch v := item.(type) {
+		case string:
+			value = []byte(v)
+		case []byte:
+			value = v
+		default:
+			value, _ = json.Marshal(item)
+
+		}
+		data[i] = value
 	}
 
 	return &services.ActionData{
@@ -395,7 +431,7 @@ func (s *SimpleActionData) RawData() *services.ActionData {
 		Data:      data,
 		Count:     int64(s.Count()),
 		Timestamp: utils.CurrentTimeStampMS(),
-		TraceId:   0,
+		TraceIds:  []int64{utils.SnowflakeID()},
 	}
 }
 

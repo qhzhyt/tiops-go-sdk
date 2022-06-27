@@ -64,8 +64,8 @@ func loadActionInfos(wi *models.WorkflowInfo, client *apiClient.APIClient) (map[
 func loadSubFlowEngineInfos(_actionInfos map[string]*models.ActionInfo, client *apiClient.APIClient) (map[string]*models.ActionInfo, error) {
 	actionNameSet := map[string]bool{}
 	for _, actionInfo := range _actionInfos {
-		if actionInfo.Type == models.ActionType_WorkflowAction && actionInfo.Func != "" {
-			actionNameSet[actionInfo.Func] = true
+		if actionInfo.Type == models.ActionType_WorkflowAction && actionInfo.Engine != "" && actionInfo.Engine != tiopsConfigs.DefaultEngineName {
+			actionNameSet[actionInfo.Engine] = true
 		}
 	}
 
@@ -80,8 +80,8 @@ func loadSubFlowEngineInfos(_actionInfos map[string]*models.ActionInfo, client *
 			_actionInfos[actionInfo.XId] = actionInfo
 		}
 		for _, actionInfo := range _actionInfos {
-			if actionInfo.Type == models.ActionType_WorkflowAction && actionInfo.Func != "" {
-				actionInfo.EngineInfo = _actionInfos[actionInfo.Func]
+			if actionInfo.Type == models.ActionType_WorkflowAction && actionInfo.Engine != "" {
+				actionInfo.EngineInfo = _actionInfos[actionInfo.Engine]
 			}
 		}
 		return _actionInfos, err
@@ -238,6 +238,12 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 				}
 			}
 		}
+	}
+
+	delete(nodes, types.InputNodeId)
+
+	if wf.OutputNode != nil {
+		wf.Logger.Info(wf.OutputNode.Inputs)
 	}
 
 	wf.Nodes = nodes

@@ -8,7 +8,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 	"tiops/buildin/engines"
 	tiopsConfigs "tiops/common/config"
@@ -134,14 +133,19 @@ func (a *actionServer) GetRequiredResources(ctx context.Context, query *services
 
 	//a.Logger.Info(query)
 
-	cacheKey := fmt.Sprintf("%s-%d", query.WorkflowId, query.Stage)
+	//cacheKey := fmt.Sprintf("%s-%d", query.WorkflowId, query.Stage)
 
-	if res, ok := a.requiredResourcesMap[cacheKey]; ok {
-		return res, nil
-	}
+	//if res, ok := a.requiredResourcesMap[cacheKey]; ok {
+	//	return res, nil
+	//}
 
 	engine := a.getEngine(query.EngineName)
 	wf, err := workflow.GetWorkflowByID(query.WorkflowId)
+
+	a.Logger.Info(wf)
+	a.Logger.Info("Stage", stage)
+
+	time.Sleep(time.Second)
 
 	if err != nil {
 		return nil, err
@@ -151,12 +155,94 @@ func (a *actionServer) GetRequiredResources(ctx context.Context, query *services
 		return nil, err
 	}
 	requiredResources = workflow.ResourcesPreProcess(requiredResources, wf)
-	a.requiredResourcesMap[cacheKey] = requiredResources
+	//a.requiredResourcesMap[cacheKey] = requiredResources
 	return requiredResources, nil
 }
 
 // CallEngine 调用流程引擎执行特定处理流程
-func (a *actionServer) CallEngine(request *services.ActionRequest, server services.ActionsService_CallEngineServer) error {
+func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServer) error {
+	//panic("implement me")
+	done := false
+
+	request, err := server.Recv()
+
+	if err != nil {
+		return err
+	}
+
+	engine := a.getEngine(request.ActionName)
+	if engine == nil {
+		return errors.New("engine " + request.ActionName + " Not Found")
+	}
+
+	reqChan := make(chan *engineTypes.ActionRequest, 3000)
+
+	resChan, err := engine.ProcessData(reqChan)
+
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for response := range resChan {
+			if response.Done {
+				done = true
+			}
+
+			err := server.Send(&services.ActionResponse{
+				Id:      response.ID,
+				Outputs: response.Outputs,
+				Count:   response.Count,
+				Done:    response.Done,
+			})
+
+			if err != nil {
+				a.Logger.Error(err.Error())
+			}
+		}
+	}()
+
+	reqChan <- &engineTypes.ActionRequest{
+		ID:       request.Id,
+		Inputs:   request.Inputs,
+		Count:    0,
+		TraceIds: request.TraceIds,
+	}
+
+	for !done {
+
+		request, err = server.Recv()
+		//engine = a.getEngine(request.ActionName)
+		//if engine == nil {
+		//	return errors.New("engine " + request.ActionName + " Not Found")
+		//}
+		//
+		//
+		//
+		//err = engine.ProcessData(&engineTypes.ActionRequest{
+		//	ID:     request.Id,
+		//	Inputs: request.Inputs,
+		//}, func(response *engineTypes.ActionResponse) error {
+		//
+		//
+		//})
+		if err != nil {
+			a.Logger.Error(err.Error())
+			continue
+		}
+
+		reqChan <- &engineTypes.ActionRequest{
+			ID:       request.Id,
+			Inputs:   request.Inputs,
+			Count:    0,
+			TraceIds: request.TraceIds,
+		}
+	}
+
+	return nil
+}
+
+/*func (a *actionServer) CallEngine(request *services.ActionRequest, server services.ActionsService_CallEngineServer) error {
 	engine := a.getEngine(request.ActionName)
 	if engine == nil {
 		return errors.New("engine " + request.ActionName + " Not Found")
@@ -177,7 +263,7 @@ func (a *actionServer) CallEngine(request *services.ActionRequest, server servic
 		})
 	})
 }
-
+*/
 //func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServer) error {
 //
 //	for true {

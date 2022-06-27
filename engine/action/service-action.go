@@ -24,8 +24,12 @@ type RemoteServiceAction struct {
 	nodeInfo *models.WorkflowNodeInfo
 }
 
-func (a *RemoteServiceAction) GetRequiredResources(n *types.Node, stage int32) (*models.WorkflowResources, error) {
+func (a *RemoteServiceAction) CallDuplexStream(callback func(res *types.ActionResponse, err error) bool) (func(request *types.ActionRequest) error, error) {
+	//TODO implement me
+	panic("implement me")
+}
 
+func (a *RemoteServiceAction) GetRequiredResources(n *types.Node, stage int32) (*models.WorkflowResources, error) {
 
 	if stage == 0 {
 		var apps []*models.K8SApp
@@ -180,7 +184,12 @@ func (a *RemoteServiceAction) Call(request *types.ActionRequest) (*types.ActionR
 	if err != nil {
 		return nil, err
 	}
-	return &types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil
+	return &types.ActionResponse{
+		ID:      res.Id,
+		Request: request,
+		Outputs: res.Outputs,
+		Done:    res.Done,
+	}, nil
 }
 
 func (a *RemoteServiceAction) CallPullStream(request *types.ActionRequest, callback func(res *types.ActionResponse, err error) bool) error {
@@ -201,7 +210,12 @@ func (a *RemoteServiceAction) CallPullStream(request *types.ActionRequest, callb
 		if res == nil {
 			return nil
 		}
-		if !callback(&types.ActionResponse{ID: res.Id, Outputs: res.Outputs, Done: res.Done}, nil) {
+		if !callback(&types.ActionResponse{
+			ID:      res.Id,
+			Request: request,
+			Outputs: res.Outputs,
+			Done:    res.Done,
+		}, nil) {
 			return err
 		}
 		if res.Done {

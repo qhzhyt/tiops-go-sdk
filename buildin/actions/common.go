@@ -28,6 +28,11 @@ type BuildinAction struct {
 	nodeCtx            *actionTypes.ActionNodeContext
 }
 
+func (a *BuildinAction) CallDuplexStream(callback func(res *types.ActionResponse, err error) bool) (func(request *types.ActionRequest) error, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (a *BuildinAction) GetRequiredResources(node *types.Node, stage int32) (*models.WorkflowResources, error) {
 	return nil, nil
 }
@@ -53,8 +58,13 @@ func (a *BuildinAction) Call(request *engineTypes.ActionRequest) (*engineTypes.A
 	if err != nil {
 		return nil, err
 	}
-	outputs := actionTypes.ToServiceActionDataMap(request.ID, 0, result, a.ActionInfo.Outputs)
-	return &engineTypes.ActionResponse{ID: request.ID, Outputs: outputs, Done: a.nodeCtx.HasDone()}, nil
+	outputs := actionTypes.ToServiceActionDataMap(request.ID, request.TraceIds, result, a.ActionInfo.Outputs)
+	return &engineTypes.ActionResponse{
+		ID:      request.ID,
+		Outputs: outputs,
+		Request: request,
+		Done:    a.nodeCtx.HasDone(),
+	}, nil
 }
 
 func (a *BuildinAction) CallPullStream(request *engineTypes.ActionRequest, callback func(res *engineTypes.ActionResponse, err error) bool) error {
@@ -68,8 +78,13 @@ func (a *BuildinAction) CallPullStream(request *engineTypes.ActionRequest, callb
 	}
 
 	ctx.Push = func(data actionTypes.ActionDataBatch) error {
-		outputs := actionTypes.ToServiceActionDataMap(request.ID, 0, data, a.ActionInfo.Outputs)
-		callback(&engineTypes.ActionResponse{ID: request.ID, Outputs: outputs, Done: ctx.HasDone()}, nil)
+		outputs := actionTypes.ToServiceActionDataMap(request.ID, request.TraceIds, data, a.ActionInfo.Outputs)
+		callback(&engineTypes.ActionResponse{
+			ID:      request.ID,
+			Outputs: outputs,
+			Request: request,
+			Done:    ctx.HasDone(),
+		}, nil)
 		return nil
 	}
 

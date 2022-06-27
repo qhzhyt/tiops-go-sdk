@@ -177,6 +177,8 @@ var (
 			Description: "为JSON设置字段",
 			Inputs: []*models.Parameter{
 				{Name: Input, Type: Json, Default: "", Description: "输入数据"},
+			},
+			Outputs: []*models.Parameter{
 				{Name: Output, Type: Json, Default: "", Description: "输出数据"},
 			},
 			Options: []*models.ActionOption{
@@ -222,7 +224,7 @@ var (
 )
 
 func showIfFieldIs(field string, value string) string {
-	return fmt.Sprintf("(configs) => configs.%s === %s", field, value)
+	return fmt.Sprintf("(configs) => configs.%s === \"%s\"", field, value)
 }
 
 func showIfFieldIn(field string, values []string) string {

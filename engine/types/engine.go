@@ -24,6 +24,6 @@ type WorkflowEngine interface {
 	Stop() error
 	Init(ctx *EngineContext)
 	Status() (code EngineStatusCode, msg string)
-	ProcessData(request *ActionRequest, outputCallback func(*ActionResponse) error) error
+	ProcessData(requests chan *ActionRequest) (chan *ActionResponse, error)
 	//Output(func(*ActionResponse) error) error
 }

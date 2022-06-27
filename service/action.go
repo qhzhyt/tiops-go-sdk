@@ -14,6 +14,7 @@ import (
 	"tiops/common/logger"
 	"tiops/common/services"
 	"tiops/common/stores"
+	"tiops/common/utils"
 )
 
 // GetActionStatus 获取ActionName对应组件的工作状态
@@ -99,6 +100,10 @@ func (a *actionServer) CallHttpAction(ctx context.Context, request *services.Htt
 func (a *actionServer) CallAction(ctx context.Context, request *services.ActionRequest) (res *services.ActionResponse, err error) {
 	actionName := request.ActionName
 
+	if request.TraceIds == nil || len(request.TraceIds) < 1 {
+		request.TraceIds = []int64{utils.SnowflakeID()}
+	}
+
 	defer func() {
 		if err0 := recover(); err0 != nil {
 			switch err1 := err0.(type) {
@@ -125,9 +130,14 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 		return nil, errors.New("Action " + actionName + " not found")
 	}
 
-	outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, result, a.actionInfoMap[actionName].Outputs)
+	outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceIds, result, a.actionInfoMap[actionName].Outputs)
 
-	return &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}, nil
+	return &services.ActionResponse{
+		Id:       request.Id,
+		Outputs:  outputs,
+		Done:     actionNodeContext.HasDone(),
+		TraceIds: request.TraceIds,
+	}, nil
 }
 
 // CallActionPullStream 以一对多流式调用ActionName对应组件的处理方法
@@ -146,6 +156,8 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 	inputDataMap := actionTypes.TransActionDataMap(request.Inputs, a.actionInfoMap[actionName].Inputs)
 	actionNodeContext := a.actionNodeContextMap[request.NodeId]
 
+	traceIds := request.TraceIds
+
 	if a.actions[actionName] != nil {
 		return a.actions[actionName].CallPullStream(&actionTypes.StreamRequestContext{
 			BatchRequestContext: actionTypes.BatchRequestContext{
@@ -153,11 +165,21 @@ func (a *actionServer) CallActionPullStream(request *services.ActionRequest, ser
 				Inputs:            inputDataMap,
 			},
 			Push: func(data actionTypes.ActionDataBatch) error {
-				outputs := actionTypes.ToServiceActionDataMap(request.Id, request.TraceId, data, a.actionInfoMap[actionName].Outputs)
+
+				if traceIds == nil || len(traceIds) < 1 {
+					traceIds = []int64{utils.SnowflakeID()}
+				}
+
+				outputs := actionTypes.ToServiceActionDataMap(request.Id, traceIds, data, a.actionInfoMap[actionName].Outputs)
 
 				a.Logger.Info(successLog(actionName, request.Inputs, outputs))
 
-				res := &services.ActionResponse{Id: request.Id, Outputs: outputs, Done: actionNodeContext.HasDone(), TraceId: request.TraceId}
+				res := &services.ActionResponse{
+					Id:       request.Id,
+					Outputs:  outputs,
+					Done:     actionNodeContext.HasDone(),
+					TraceIds: traceIds,
+				}
 
 				return server.Send(res)
 			},

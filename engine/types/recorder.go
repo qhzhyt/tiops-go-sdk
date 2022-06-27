@@ -3,13 +3,12 @@
 // @Create  heyitong  2022/6/23 17:14
 // @Update  heyitong  2022/6/23 17:14
 
-package record
+package types
 
 import (
 	"time"
 	"tiops/common/models"
 	"tiops/common/utils"
-	"tiops/engine/types"
 )
 
 type ExecutionRecordManager struct {
@@ -80,7 +79,7 @@ func (m *ExecutionRecordManager) AddProcessRecord(record *models.ProcessRecord) 
 	m.processRecords = append(m.processRecords, record)
 }
 
-func NewExecutionRecordManager(updateInterval time.Duration, ctx *types.EngineContext) *ExecutionRecordManager {
+func NewExecutionRecordManager(updateInterval time.Duration, ctx *EngineContext) *ExecutionRecordManager {
 	return &ExecutionRecordManager{
 		//EngineContext: ctx,
 		updateInterval: updateInterval,

@@ -19,6 +19,11 @@ type CodeAction struct {
 	funcName string
 }
 
+func (c *CodeAction) CallDuplexStream(callback func(res *types.ActionResponse, err error) bool) (func(request *types.ActionRequest) error, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (c *CodeAction) GetRequiredResources(node *types.Node, stage int32) (*models.WorkflowResources, error) {
 	panic("implement me")
 }

@@ -3,7 +3,6 @@
 // @Create  heyitong  2022/6/23 18:17
 // @Update  heyitong  2022/6/23 18:17
 
-
 package workflow
 
 import (
@@ -36,7 +35,7 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 
 		runtimeConfig := actionInfo.RuntimeConfig
 
-		if len(app.WorkContainers) < 1{
+		if len(app.WorkContainers) < 1 {
 			app.WorkContainers = append(app.WorkContainers, &models.K8SContainer{})
 		}
 
@@ -45,10 +44,10 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 		if mainContainer.Image == "" {
 
 			if actionInfo.Type == models.ActionType_WorkflowAction {
-				if actionInfo.Func == "" {
+				if actionInfo.EngineInfo == nil {
 					mainContainer.Image = tiopsConfigs.BuildinEngineImage
 				} else {
-					engineInfo := workflow.GetAction(actionInfo.Func).Info()
+					engineInfo := actionInfo.EngineInfo
 					switch engineInfo.Source {
 					case models.ActionSource_FromImage:
 						mainContainer.Image = engineInfo.Image
@@ -67,7 +66,6 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 				}
 			}
 
-
 		}
 
 		if mainContainer.ResourcesLimits == nil {
@@ -83,7 +81,7 @@ func ResourcesPreProcess(resources *models.WorkflowResources, workflow *types.Wo
 				app.Volumes = map[string]string{
 					"tiops-datasets": "/datasets",
 				}
-			} else if runtimeConfig.UseVolume && len(runtimeConfig.DatasetVolumes) > 0{
+			} else if runtimeConfig.UseVolume && len(runtimeConfig.DatasetVolumes) > 0 {
 				app.Volumes = map[string]string{}
 				for _, volume := range runtimeConfig.DatasetVolumes {
 					app.Volumes[path.Join("tiops-datasets", volume.DatasetId)] = volume.MountPath

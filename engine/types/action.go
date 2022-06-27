@@ -27,17 +27,21 @@ const (
 
 // ActionRequest 组件调用请求
 type ActionRequest struct {
-	ID     string
-	Inputs map[string]*services.ActionData
-	Count  int64
+	ID       string
+	Inputs   map[string]*services.ActionData
+	Count    int64
+	TraceIds []int64
+	Record   *models.ProcessRecord
 }
 
 // ActionResponse 组件调用响应
 type ActionResponse struct {
-	ID      string
-	Done    bool
-	Outputs map[string]*services.ActionData
-	Count   int64
+	ID       string
+	Done     bool
+	Outputs  map[string]*services.ActionData
+	Count    int64
+	Request  *ActionRequest
+	TraceIds []int64
 }
 
 // Action 子流程组件
@@ -45,6 +49,7 @@ type Action interface {
 	Init(node *Node) error
 	Call(request *ActionRequest) (*ActionResponse, error)
 	CallPullStream(request *ActionRequest, callback func(res *ActionResponse, err error) bool) error
+	CallDuplexStream(callback func(res *ActionResponse, err error) bool) (func(request *ActionRequest) error, error)
 	Info() *models.ActionInfo
 	Control(ctrl ActionControl, args map[string]string) error
 	Type() ActionType

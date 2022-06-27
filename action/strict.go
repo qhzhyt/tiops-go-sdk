@@ -14,6 +14,7 @@ import (
 	actionClient "tiops/common/action-client"
 	"tiops/common/logger"
 	"tiops/common/services"
+	"tiops/common/utils"
 )
 
 const (
@@ -278,7 +279,9 @@ func (a *defaultStrictAction) OnMessage(ctx *types.PushMessageContext) error {
 
 	proto.Unmarshal(ctx.MessageData, actionData)
 
-	traceId := actionData.TraceId
+	traceIds := actionData.TraceIds
+
+	traceId := utils.Int64ListHash(traceIds)
 
 	nodeData0 := a.nodeDataMap[ctx.NodeId]
 
@@ -307,7 +310,7 @@ func (a *defaultStrictAction) OnMessage(ctx *types.PushMessageContext) error {
 
 		result := a.CallBatch(batchCtx)
 
-		outputs := types.ToServiceActionDataMap(actionData.Id, traceId, result, ctx.ActionNodeContext.Info.Outputs)
+		outputs := types.ToServiceActionDataMap(actionData.Id, traceIds, result, ctx.ActionNodeContext.Info.Outputs)
 		nodeData0.actionDataMapQueue <- outputs
 
 		if batchCtx.HasDone() {
@@ -319,7 +322,6 @@ func (a *defaultStrictAction) OnMessage(ctx *types.PushMessageContext) error {
 }
 
 func NewStrictAction(action types.Action) types.StrictAction {
-
 	return &defaultStrictAction{
 		action: action,
 		logger: logger.GetDefaultLogger(),

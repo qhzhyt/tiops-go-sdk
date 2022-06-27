@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	tiopsConfigs "tiops/common/config"
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/common/utils"
-	"tiops/engine/record"
 	"tiops/engine/types"
 )
 
@@ -21,14 +21,61 @@ import (
 type basicChanEngine struct {
 	wg sync.WaitGroup
 	*types.EngineContext
-	recordManager *record.ExecutionRecordManager
+	recordManager *types.ExecutionRecordManager
 	running       bool
 	ready         bool
 	inputNode     *types.Node
 	outputNode    *types.Node
 }
 
-func (w *basicChanEngine) ProcessData(request *types.ActionRequest, outputCallback func(*types.ActionResponse) error) error {
+func (w *basicChanEngine) ProcessData(requests chan *types.ActionRequest) (chan *types.ActionResponse, error) {
+	go func() {
+		for request := range requests {
+			for name, connections := range w.inputNode.Outputs {
+				for _, connection := range connections {
+					connection.DataChan <- request.Inputs[name]
+				}
+			}
+		}
+	}()
+
+	res := make(chan *types.ActionResponse, 1000)
+
+	go func() {
+		outputData := map[string]*services.ActionData{}
+		var done bool
+		count := int64(0)
+		var traceIds []int64
+		for k, inputs := range w.outputNode.Inputs {
+			//fmt.Println(node.Info.ActionName, node.Inputs, node.Outputs)
+			if len(inputs) > 0 {
+				data, isOK := inputs.SelectInput()
+				if !isOK {
+					done = true
+					break
+				}
+				outputData[k] = data
+
+				traceIds = append(traceIds, data.TraceIds...)
+
+				if data.Count > count {
+					count = data.Count
+				}
+			}
+		}
+
+		res <- &types.ActionResponse{
+			Done:     done,
+			Outputs:  outputData,
+			Count:    count,
+			TraceIds: utils.Int64ListDeduplicate(traceIds),
+		}
+	}()
+
+	return res, nil
+}
+
+/*func (w *basicChanEngine) ProcessData(request *types.ActionRequest, outputCallback func(*types.ActionResponse) error) error {
 	go func() {
 		for name, connections := range w.inputNode.Outputs {
 			for _, connection := range connections {
@@ -113,6 +160,7 @@ func (w *basicChanEngine) ProcessData(request *types.ActionRequest, outputCallba
 
 	return nil
 }
+*/
 
 func (w *basicChanEngine) Status() (code types.EngineStatusCode, msg string) {
 	if w.running || !w.ready {
@@ -143,56 +191,18 @@ func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) error {
 }
 
 func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage int32) (*models.WorkflowResources, error) {
-	//if stage == 0 {
-	//	var apps []*models.K8SApp
-	//	nodes := workflowInfo.Nodes
-	//	for _, node := range nodes {
-	//		nodeInfo := node.Info
-	//		actionInfo := node.Action.Info()
-	//		if node.Info.ActionExecutor != "" {
-	//			actionInfo = node.ActionExecutor
-	//		}
-	//		serviceName := tiopsConfigs.StandAloneActionServiceName(nodeInfo.ActionName, node.ID) // config.ActionServiceName(actionInfo.ProjectId)
-	//		switch actionInfo.Source {
-	//		case models.ActionSource_Buildin:
-	//			continue
-	//		case models.ActionSource_FromService:
-	//			continue
-	//		}
-	//		app := &models.K8SApp{
-	//			Name:        serviceName,
-	//			ActionId:    actionInfo.XId,
-	//			Replica:     1,
-	//			ServiceMode: models.ServiceMode_One,
-	//		}
-	//		if actionInfo.Type == models.ActionType_WorkflowAction {
-	//			if actionInfo.Func == "" {
-	//				app.WorkContainers = []*models.K8SContainer{{
-	//					Name:        serviceName,
-	//					Image: tiopsConfigs.DefaultEngineName,
-	//				}}
-	//			}
-	//		}
-	//		apps = append(apps, app)
-	//	}
-	//
-	//	w.Debug(apps)
-	//
-	//	w.ready = true
-	//
-	//	return &models.WorkflowResources{
-	//		Apps: apps,
-	//	}
-	//} else if stage > 0{
-	//
-	//}
 
 	var apps []*models.K8SApp
 	nodes := workflowInfo.Nodes
 	for _, node := range nodes {
+		w.Logger.Info(stage, " ", node)
+
 		resources, err := node.GetRequiredResources(stage)
-		//w.Logger.Info(resources)
+
+		w.Logger.Info(resources)
+		//time.Sleep(time.Second)
 		if err != nil {
+			w.Logger.Error(err.Error())
 			return nil, err
 		}
 		if resources != nil && len(resources.Apps) > 0 {
@@ -207,7 +217,53 @@ func (w *basicChanEngine) RequiredResources(workflowInfo *types.Workflow, stage 
 
 func (w *basicChanEngine) Init(ctx *types.EngineContext) {
 	w.EngineContext = ctx
-	w.recordManager = record.NewExecutionRecordManager(10*time.Second, ctx)
+	w.recordManager = types.NewExecutionRecordManager(10*time.Second, ctx)
+}
+
+func (w *basicChanEngine) processResponse(node *types.Node, res *types.ActionResponse, err error) bool {
+
+	if res == nil {
+		w.Logger.Error(err)
+		return false
+	}
+
+	req := res.Request
+	inputData := req.Inputs
+
+	processRecord := req.Record
+
+	requestId := req.ID
+
+	if err != nil {
+		w.Logger.Error(errorLog(node.Action.Info(), err, inputData))
+		return false
+		//utils.SleepAndExit(time.Second*3, 1)
+		//return
+	}
+
+	processRecord.EndTime = utils.CurrentTimeStampMS()
+	if processRecord.ItemCount == 0 {
+		processRecord.ItemCount = itemCount(res.Outputs)
+		if processRecord.ItemCount == 0 {
+			processRecord.ItemCount = 1
+		}
+	}
+	//processRecord.BatchSize = processRecord.ItemCount
+
+	processRecord.ElapsedTime = processRecord.EndTime - processRecord.StartTime
+	processRecord.ProcessRate = float32(processRecord.ItemCount) / float32(processRecord.ElapsedTime) * 1000
+
+	w.recordManager.AddProcessRecord(processRecord)
+
+	w.Logger.Debug(outputLog(node.Action.Info(), requestId, res.Outputs))
+	//time.Sleep(time.Second * 10)
+	for k, outputs := range node.Outputs {
+		for _, output := range outputs {
+			output.DataChan <- res.Outputs[k]
+		}
+	}
+
+	return res.Done
 }
 
 func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
@@ -215,9 +271,30 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 	actionInfo := node.Action.Info()
 
+	duplexStreamSender := func(request *types.ActionRequest) error {
+		return nil
+	}
+
+	if actionInfo.CallMode == models.CallMode_DuplexStreamCall {
+		var err error
+		duplexStreamSender, err = node.Action.CallDuplexStream(func(res *types.ActionResponse, err error) bool {
+			w.processResponse(node, res, err)
+			if res.Done {
+				done = true
+			}
+			return res.Done
+		})
+
+		if err != nil {
+			w.Logger.Error(err.Error())
+			utils.SleepAndExit(time.Second*6, -1)
+		}
+	}
+
 	for !done {
 		maxBacklog := 0
 		inputData := map[string]*services.ActionData{}
+		var traceIds []int64
 		for k, inputs := range node.Inputs {
 			//fmt.Println(node.Info.ActionName, node.Inputs, node.Outputs)
 			if len(inputs) > 0 {
@@ -227,6 +304,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 					break
 				}
 				inputData[k] = data
+				traceIds = append(traceIds, data.TraceIds...)
 				if inputs.BacklogCount() > maxBacklog {
 					maxBacklog = inputs.BacklogCount()
 				}
@@ -248,55 +326,25 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				BacklogBatches: int64(maxBacklog),
 			}
 
-			processResponse := func(res *types.ActionResponse, err error) {
-				if err != nil {
-					w.Logger.Error(errorLog(node.Action.Info(), err, inputData))
-					return
-					//utils.SleepAndExit(time.Second*3, 1)
-					//return
-				}
-
-				processRecord.EndTime = utils.CurrentTimeStampMS()
-				if processRecord.ItemCount == 0 {
-					processRecord.ItemCount = itemCount(res.Outputs)
-					if processRecord.ItemCount == 0 {
-						processRecord.ItemCount = 1
-					}
-				}
-				//processRecord.BatchSize = processRecord.ItemCount
-
-				processRecord.ElapsedTime = processRecord.EndTime - processRecord.StartTime
-				processRecord.ProcessRate = float32(processRecord.ItemCount) / float32(processRecord.ElapsedTime) * 1000
-
-				w.recordManager.AddProcessRecord(processRecord)
-
-				w.Logger.Debug(outputLog(node.Action.Info(), requestId, res.Outputs))
-				//time.Sleep(time.Second * 10)
-				for k, outputs := range node.Outputs {
-					for _, output := range outputs {
-						output.DataChan <- res.Outputs[k]
-					}
-				}
-
-				if res.Done {
-					done = true
-				}
-			}
-
 			if actionInfo.CallMode == models.CallMode_OnceCall {
 
 			}
 
-			actionRequest := &types.ActionRequest{Inputs: inputData, ID: requestId}
+			actionRequest := &types.ActionRequest{
+				ID:       requestId,
+				Inputs:   inputData,
+				Record:   processRecord,
+				TraceIds: utils.Int64ListDeduplicate(traceIds),
+			}
 
 			if actionInfo.Type == models.ActionType_WorkflowAction {
-				actionInfo.CallMode = models.CallMode_PullStreamCall
+				actionInfo.CallMode = models.CallMode_DuplexStreamCall
 			}
 
 			switch actionInfo.CallMode {
 			case models.CallMode_PullStreamCall:
 				err := node.Action.CallPullStream(actionRequest, func(res *types.ActionResponse, err error) bool {
-					processResponse(res, err)
+					done = w.processResponse(node, res, err)
 					if done || (res != nil && res.Done) {
 						return false
 					}
@@ -305,8 +353,14 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				if err != nil {
 					w.Logger.Error(err)
 				}
+			case models.CallMode_DuplexStreamCall:
+				err := duplexStreamSender(actionRequest)
+				if err != nil {
+					w.Logger.Error(err)
+				}
 			default:
-				processResponse(node.Action.Call(actionRequest))
+				res, err := node.Action.Call(actionRequest)
+				done = w.processResponse(node, res, err)
 			}
 
 		}
@@ -343,7 +397,7 @@ func (w *basicChanEngine) Exec(workflow *types.Workflow) error {
 		go w.ExecNodeWithInput(node)
 	}
 
-	if workflow.OutputNode != nil {
+	if workflow.OutputNode != nil && tiopsConfigs.InMainEngine() {
 		for k, outputs := range workflow.OutputNode.Inputs {
 			for _, output := range outputs {
 				w.Logger.Debug(fmt.Sprintln("Output", k, <-output.DataChan))

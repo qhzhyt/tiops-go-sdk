@@ -11,7 +11,7 @@ import (
 )
 
 func ContainsString(list []string, target string) bool {
-	for _, str := range list{
+	for _, str := range list {
 		if str == target {
 			return true
 		}
@@ -28,4 +28,14 @@ func PathClean(str string) string {
 	}
 	str = path.Clean(str)
 	return str
+}
+
+func StringMap2List(m map[string]bool) []string {
+	var l []string
+	for s, b := range m {
+		if b {
+			l = append(l, s)
+		}
+	}
+	return l
 }

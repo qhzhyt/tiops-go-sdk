@@ -22,7 +22,6 @@ func New(actionInfo *models.ActionInfo) types.Action {
 
 	switch actionInfo.Source {
 	case models.ActionSource_Buildin:
-
 		return actions.NewBuildinAction(actionInfo)
 	case models.ActionSource_FromService:
 		fallthrough
