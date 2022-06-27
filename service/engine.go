@@ -15,6 +15,7 @@ import (
 	"tiops/common/models"
 	"tiops/common/services"
 	"tiops/common/utils"
+	"tiops/engine/types"
 	engineTypes "tiops/engine/types"
 	"tiops/engine/workflow"
 )
@@ -22,8 +23,27 @@ import (
 // runMainEngine 运行主流程引擎
 func (a *actionServer) runMainEngine() {
 	engine := a.getCurrentEngine()
-	_workflow, err := workflow.Current()
+	wfi, err := workflow.GetWorkflowInfoByID(tiopsConfigs.WorkflowId)
 	_context := workflow.Context()
+
+	if err != nil {
+		_context.Error(err)
+		utils.SleepAndExit(time.Second*6, 3)
+	}
+
+	a.Logger.Info("Get workflow info success: ", tiopsConfigs.WorkflowId)
+
+	wfVariables := map[string]string{}
+
+	for _, option := range wfi.Options {
+		wfVariables[option.Name] = option.Default
+	}
+
+	_workflow, err := workflow.New(wfi, &types.SystemVariables{
+		Workflow:  wfVariables,
+		Namespace: nil,
+		Global:    nil,
+	})
 
 	if err != nil {
 		_context.Error(err)
@@ -96,16 +116,37 @@ func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngin
 		return &services.StatusResponse{Status: 404, Message: "Engine " + request.EngineName + " Not Found"}, nil
 	}
 	a.engines[request.EngineName] = engine
-	_workflow, err := workflow.New(request.WorkflowId)
+
+	wfi, err := workflow.GetWorkflowInfoByID(request.WorkflowId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	a.Logger.Info("Get workflow info success: ", request.WorkflowId)
+
+	_workflow, err := workflow.New(wfi, &types.SystemVariables{
+		Workflow:  request.ActionOptions,
+		Namespace: nil,
+		Global:    nil,
+	})
+
 	if err != nil {
 		return &services.StatusResponse{Status: 404, Message: err.Error()}, nil
 	}
+
+	//a.Logger.Info("Build workflow info success: ", request.WorkflowId)
+
+	_context := workflow.Context()
+	engine.Init(_context)
+
+	//a.Logger.Info("Init workflow info success: ", request.WorkflowId)
+
 	go func() {
-		_context := workflow.Context()
-		engine.Init(_context)
 		engine.WaitForResources(_workflow)
 		engine.Exec(_workflow)
 	}()
+
 	return &services.StatusResponse{Status: 200, Message: "ok"}, nil
 }
 
@@ -179,6 +220,8 @@ func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServe
 		return errors.New("engine " + request.ActionName + " Not Found")
 	}
 
+	//a.Logger.Info("Call engine " + request.ActionName)
+
 	reqChan := make(chan *engineTypes.ActionRequest, 3000)
 
 	resChan, err := engine.ProcessData(reqChan)
@@ -220,6 +263,8 @@ func (a *actionServer) CallEngine(server services.ActionsService_CallEngineServe
 	for !done {
 
 		request, err = server.Recv()
+
+		//a.Logger.Info(request)
 
 		if err == io.EOF {
 			break

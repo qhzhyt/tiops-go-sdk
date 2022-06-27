@@ -160,7 +160,7 @@ func (a *RemoteServiceAction) Init(node *types.Node) error {
 	_, err := a.client.RegisterActionNode(ctx, &services.RegisterActionNodeRequest{
 		ActionName:      a.info.Name,
 		NodeId:          node.Info.Id,
-		ActionOptions:   node.Info.ActionOptions,
+		ActionOptions:   node.ActionOptions,
 		NextActions:     allNextActions,
 		ActionInfo:      a.info,
 		InnerActionInfo: a.info.InnerActionInfo,

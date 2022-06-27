@@ -100,6 +100,8 @@ func (ics InputConnections) SelectInput() (*services.ActionData, bool) {
 
 	//fmt.Println(ics)
 
+	//logger.Error(len(ics))
+
 	for _, connection := range ics {
 		if connection.DataChan != nil {
 			if connection.HasDone() && len(connection.DataChan) < 1 {
@@ -110,9 +112,13 @@ func (ics InputConnections) SelectInput() (*services.ActionData, bool) {
 			variableData = connection.Variable.ToActionArguments(1)
 		}
 	}
+
+	//logger.Warning(selectCase)
+
 	if len(selectCase) > 0 {
 		_, recv, recvOk := reflect.Select(selectCase)
 		//fmt.Println(i, recv, recvOk)
+		//logger.Warning(recv.Type(), recvOk)
 		if recvOk {
 			//fmt.Println(recv)
 

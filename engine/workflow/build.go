@@ -6,6 +6,8 @@
 package workflow
 
 import (
+	"regexp"
+	"strings"
 	apiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
 	"tiops/common/logger"
@@ -91,8 +93,48 @@ func loadSubFlowEngineInfos(_actionInfos map[string]*models.ActionInfo, client *
 	return _actionInfos, nil
 }
 
+var variableRe = regexp.MustCompile("\\{\\{([._\\da-zA-Z]+)}}")
+
+func setActionOptions(options map[string]string, variables *types.SystemVariables) map[string]string {
+
+	result := map[string]string{}
+	for name, value := range options {
+		result[name] = variableRe.ReplaceAllStringFunc(value, func(s string) string {
+
+			l := len(s)
+
+			if l < 5 {
+				return s
+			}
+
+			name := s[2 : l-2]
+
+			names := strings.Split(name, ".")
+
+			if len(names) < 2 {
+				return variables.Workflow[names[0]]
+			}
+
+			switch names[0] {
+			case "__namespace__":
+				fallthrough
+			case "#":
+				return variables.Namespace[names[1]]
+			case "__global__":
+				fallthrough
+			case "$":
+				return variables.Global[names[1]]
+			default:
+				return s
+			}
+		})
+	}
+
+	return result
+}
+
 // buildWorkflow 根据 models.WorkflowInfo 构建相应的 Workflow 对象
-func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types.Workflow, error) {
+func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient, systemVariables *types.SystemVariables) (*types.Workflow, error) {
 
 	wf := types.NewWorkflow(wi)
 
@@ -149,9 +191,11 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 	// 遍历节点信息列表，生成节点对象列表
 	for _, nodeInfo := range spec.Nodes {
 		nodeInfos[nodeInfo.Id] = nodeInfo
+
 		node := &types.Node{
 			ID:             nodeInfo.Id,
 			Action:         wf.GetAction(nodeInfo.Id),
+			ActionOptions:  setActionOptions(nodeInfo.ActionOptions, systemVariables),
 			Inputs:         types.InputConnectionsMap{},
 			Outputs:        types.OutputConnectionsMap{},
 			Info:           nodeInfo,
@@ -242,9 +286,9 @@ func buildWorkflow(wi *models.WorkflowInfo, client *apiClient.APIClient) (*types
 
 	delete(nodes, types.InputNodeId)
 
-	if wf.OutputNode != nil {
-		wf.Logger.Info(wf.OutputNode.Inputs)
-	}
+	//if wf.OutputNode != nil {
+	//	wf.Logger.Info(wf.OutputNode.Inputs)
+	//}
 
 	wf.Nodes = nodes
 
@@ -273,7 +317,13 @@ func GetWorkflowByID(id string) (*types.Workflow, error) {
 		return wf, nil
 	}
 
-	wf, err := New(id)
+	wi, err := GetWorkflowInfoByID(tiopsConfigs.WorkflowId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	wf, err := New(wi, &types.SystemVariables{})
 
 	if err != nil {
 		return nil, err
@@ -285,25 +335,25 @@ func GetWorkflowByID(id string) (*types.Workflow, error) {
 }
 
 // New 根据ID获取WorkflowInfo
-func New(id string) (*types.Workflow, error) {
-	workflowId := id
+func New(wfi *models.WorkflowInfo, sv *types.SystemVariables) (*types.Workflow, error) {
+	//workflowId := id
 	//global.Logger.Info("connecting to api server")
 
 	//client := apiClient.NewAPIClient(tiopsConfigs.ApiServerHost, tiopsConfigs.ApiServerGrpcPort)
 
-	_logger := logger.GetDefaultLogger()
+	//_logger := logger.GetDefaultLogger()
 
 	//global.Logger.Info("connected to api server")
 	//global.Logger.Info("getting workflow info")
-	wfi, err := _apiClient.GetWorkflowById(workflowId)
+	//wfi, err := _apiClient.GetWorkflowById(workflowId)
+	//
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	if err != nil {
-		return nil, err
-	}
+	//_logger.Debug("Get workflow info success:", workflowId)
 
-	_logger.Debug("Get workflow info success:", workflowId)
-
-	_, err = _apiClient.CreateExecutionRecord(&models.ExecutionRecord{
+	_, err := _apiClient.CreateExecutionRecord(&models.ExecutionRecord{
 		XId:         tiopsConfigs.ExecutionId,
 		ExecutionId: tiopsConfigs.ExecutionId,
 		ProcessRecords: []*models.ProcessRecord{
@@ -317,7 +367,7 @@ func New(id string) (*types.Workflow, error) {
 		return nil, err
 	}
 
-	return buildWorkflow(wfi, _apiClient)
+	return buildWorkflow(wfi, _apiClient, sv)
 }
 
 var currentWorkflow *types.Workflow
@@ -327,7 +377,14 @@ func Current() (*types.Workflow, error) {
 	if currentWorkflow != nil {
 		return currentWorkflow, nil
 	}
-	wf, err := New(tiopsConfigs.WorkflowId)
+
+	wi, err := GetWorkflowInfoByID(tiopsConfigs.WorkflowId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	wf, err := New(wi, &types.SystemVariables{})
 	currentWorkflow = wf
 	return wf, err
 }

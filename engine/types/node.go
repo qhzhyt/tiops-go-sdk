@@ -16,6 +16,7 @@ type Node struct {
 	Inputs          InputConnectionsMap
 	Outputs         OutputConnectionsMap
 	Info            *models.WorkflowNodeInfo
+	ActionOptions   map[string]string
 	ActionExecutor  *models.ActionInfo
 	SubNodes        map[string][]*Node
 	HasVarInputOnly bool

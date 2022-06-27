@@ -3,7 +3,6 @@
 // @Create  heyitong  2022/6/23 17:24
 // @Update  heyitong  2022/6/23 17:24
 
-
 package types
 
 import "tiops/common/services"
@@ -20,4 +19,10 @@ type Variable interface {
 	ToActionArguments(count int64) *services.ActionData
 	GetMap() map[string]interface{}
 	//Map() map[string] interface{}
+}
+
+type SystemVariables struct {
+	Workflow  map[string]string
+	Namespace map[string]string
+	Global    map[string]string
 }

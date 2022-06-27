@@ -43,7 +43,7 @@ func (a *BuildinAction) Init(node *engineTypes.Node) error {
 		ActionContext: a.ActionContext,
 		Store:         nil,
 		NodeId:        node.ID,
-		ActionOptions: node.Info.ActionOptions,
+		ActionOptions: node.ActionOptions,
 	}
 	return nil
 }

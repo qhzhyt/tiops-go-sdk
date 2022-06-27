@@ -50,7 +50,7 @@ func (a *WorkflowAction) CallDuplexStream(callback func(res *types.ActionRespons
 		lastRequestsLocker.Lock()
 		defer lastRequestsLocker.Unlock()
 		id := utils.Int64ListHash(request.TraceIds)
-		// logger.Debug(id)
+		//logger.Info("Send ", id)
 		lastRequests[id] = request
 		return streamClient.Send(&services.ActionRequest{
 			Id:         request.ID,
@@ -165,7 +165,7 @@ func (a *WorkflowAction) Init(node *types.Node) error {
 		EngineName:    a.engineName,
 		NodeId:        node.ID,
 		WorkflowId:    a.subflowId,
-		ActionOptions: node.Info.ActionOptions,
+		ActionOptions: node.ActionOptions,
 		NextActions:   allNextActions,
 		ActionInfo:    a.info,
 	})

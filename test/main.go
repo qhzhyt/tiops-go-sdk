@@ -1,10 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"github.com/oliveagle/jsonpath"
-)
-
 func main() {
 	//items, err := action.NewCommandAction("jq -c", action.CommandActionOptions{BatchMode: action.DelimiterSplit, Delimiter: '\n'}).ProcessItems(types.ActionDataBatch{
 	//	types.ActionDataItem{"in": []byte("{\"a\": 666}")},
@@ -20,19 +15,20 @@ func main() {
 	//	}
 	//}
 
-	jp := jsonpath.MustCompile("$")
+	//jp := jsonpath.MustCompile("$")
+	//
+	//data := map[string]interface{}{
+	//	"id": 12345,
+	//	"aaa": map[string]interface{}{
+	//		"ppp": 123456,
+	//	},
+	//}
+	//
+	//lookup, err := jp.Lookup(data)
+	//if err != nil {
+	//	fmt.Println(err)
+	//} else {
+	//	fmt.Println(lookup)
+	//}
 
-	data := map[string]interface{}{
-		"id": 12345,
-		"aaa": map[string]interface{}{
-			"ppp": 123456,
-		},
-	}
-
-	lookup, err := jp.Lookup(data)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(lookup)
-	}
 }

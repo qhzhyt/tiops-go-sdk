@@ -31,6 +31,7 @@ type basicChanEngine struct {
 func (w *basicChanEngine) ProcessData(requests chan *types.ActionRequest) (chan *types.ActionResponse, error) {
 	go func() {
 		for request := range requests {
+			//w.Logger.Info("Receive ", request)
 			for name, connections := range w.inputNode.Outputs {
 				for _, connection := range connections {
 					d := request.Inputs[name]
@@ -46,37 +47,39 @@ func (w *basicChanEngine) ProcessData(requests chan *types.ActionRequest) (chan 
 	res := make(chan *types.ActionResponse, 1000)
 
 	go func() {
-		outputData := map[string]*services.ActionData{}
-		var done bool
-		count := int64(0)
-		var traceIds []int64
-		for k, inputs := range w.outputNode.Inputs {
-			//fmt.Println(node.Info.ActionName, node.Inputs, node.Outputs)
-			if len(inputs) > 0 {
-				data, isOK := inputs.SelectInput()
-				if !isOK {
-					done = true
-					break
-				}
-				outputData[k] = data
+		for true {
+			outputData := map[string]*services.ActionData{}
+			var done bool
+			count := int64(0)
+			var traceIds []int64
+			for k, inputs := range w.outputNode.Inputs {
+				//fmt.Println(node.Info.ActionName, node.Inputs, node.Outputs)
+				if len(inputs) > 0 {
+					data, isOK := inputs.SelectInput()
+					if !isOK {
+						done = true
+						break
+					}
+					outputData[k] = data
 
-				if data == nil {
-					continue
-				}
+					if data == nil {
+						continue
+					}
 
-				traceIds = append(traceIds, data.TraceIds...)
+					traceIds = append(traceIds, data.TraceIds...)
 
-				if data.Count > count {
-					count = data.Count
+					if data.Count > count {
+						count = data.Count
+					}
 				}
 			}
-		}
 
-		res <- &types.ActionResponse{
-			Done:     done,
-			Outputs:  outputData,
-			Count:    count,
-			TraceIds: utils.Int64ListDeduplicate(traceIds),
+			res <- &types.ActionResponse{
+				Done:     done,
+				Outputs:  outputData,
+				Count:    count,
+				TraceIds: utils.Int64ListDeduplicate(traceIds),
+			}
 		}
 	}()
 
@@ -191,7 +194,7 @@ func (w *basicChanEngine) ExecutionRecord() *models.ExecutionRecord {
 
 func (w *basicChanEngine) WaitForResources(workflow *types.Workflow) error {
 	if !workflow.RegisterActionNodes() {
-		utils.SleepAndExit(time.Second, -1)
+		utils.SleepAndExit(time.Second*6, -1)
 	}
 	w.recordManager.Start()
 
@@ -283,6 +286,10 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 
 	actionInfo := node.Action.Info()
 
+	if actionInfo.Type == models.ActionType_WorkflowAction {
+		actionInfo.CallMode = models.CallMode_DuplexStreamCall
+	}
+
 	duplexStreamSender := func(request *types.ActionRequest) error {
 		return nil
 	}
@@ -339,6 +346,8 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 			}
 		}
 
+		//w.Logger.Info(inputData)
+
 		if !done {
 			requestId := fmt.Sprintf("%x", utils.SnowflakeID())
 			w.Logger.Debug(inputLog(node.Action.Info(), requestId, inputData))
@@ -363,10 +372,6 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				Inputs:   inputData,
 				Record:   processRecord,
 				TraceIds: utils.Int64ListDeduplicate(traceIds),
-			}
-
-			if actionInfo.Type == models.ActionType_WorkflowAction {
-				actionInfo.CallMode = models.CallMode_DuplexStreamCall
 			}
 
 			switch actionInfo.CallMode {
@@ -399,6 +404,7 @@ func (w *basicChanEngine) ExecNodeWithInput(node *types.Node) {
 				for _, output := range outputs {
 					//w.Logger.Debug(actionInfo.Name, " ", "done")
 					output.Done()
+					//time.Sleep(time.Second)
 				}
 			}
 		}
