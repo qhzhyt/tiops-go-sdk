@@ -122,15 +122,38 @@ func JsonPathLookup(ctx *actionTypes.BatchRequestContext) (actionTypes.ActionDat
 
 		res, err := jsonPath.Lookup(jsonObj)
 
+		//ctx.Logger.Info(jsonObj)
+
 		if err != nil {
 			ctx.Logger.Error(err.Error())
 			return item
 		}
-
 		resBytes, _ := json.Marshal(res)
-
-		return types.ActionDataItem{
-			buildin.Output: string(resBytes),
+		if resBytes != nil {
+			return types.ActionDataItem{
+				buildin.Output: string(resBytes),
+			}
 		}
+		return types.ActionDataItem{}
 	}), nil
+}
+
+// JsonUnpackList 将Json列表分成独立的条目
+func JsonUnpackList(ctx *actionTypes.BatchRequestContext) (actionTypes.ActionDataBatch, error) {
+
+	res := actionTypes.ActionDataBatch{}
+
+	ctx.Inputs[buildin.Input].Foreach(func(item interface{}) {
+		var list []interface{}
+
+		_ = json.Unmarshal([]byte(item.(string)), &list)
+		if len(list) > 0 {
+			for _, i := range list {
+				out, _ := json.Marshal(i)
+				res = append(res, types.ActionDataItem{buildin.Output: string(out)})
+			}
+		}
+	})
+
+	return res, nil
 }

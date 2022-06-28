@@ -22,6 +22,8 @@ const (
 const (
 	JsonSetFieldID   = "buildin---json-set-field"
 	JsonPathLookupID = "buildin---json-path-lookup"
+	JsonUnpackListID = "buildin---json-unpack-list"
+	LogStringID      = "buildin---log-string"
 )
 
 const (
@@ -243,6 +245,43 @@ var (
 			},
 			Options: []*models.ActionOption{
 				{Name: JsonPath, Type: String, Default: "$", Description: "JsonPath", Required: true},
+			},
+		},
+		{
+			XId:         LogStringID,
+			Name:        "log-string",
+			DisplayName: "输出日志",
+			IsPublic:    true,
+			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
+			CreatedTime: time.Date(2022, 6, 28, 20, 47, 0, 0, time.Local).UnixNano() / 1e6,
+			Source:      models.ActionSource_Buildin,
+			Type:        models.ActionType_BuildInAction,
+			CallMode:    models.CallMode_OnceCall,
+			Tags:        []string{"string"},
+			Description: "打印输入到日志",
+			Inputs: []*models.Parameter{
+				{Name: Input, Type: Json, Default: "", Description: "输入数据"},
+			},
+		},
+		{
+			XId:         JsonPathLookupID,
+			Name:        "json-unpack-list",
+			DisplayName: "解包Json列表",
+			IsPublic:    true,
+			CreatedBy:   "__system__",
+			Engine:      DefaultEngineName,
+			CreatedTime: time.Date(2022, 6, 28, 21, 12, 0, 0, time.Local).UnixNano() / 1e6,
+			Source:      models.ActionSource_Buildin,
+			Type:        models.ActionType_BuildInAction,
+			CallMode:    models.CallMode_OnceCall,
+			Tags:        []string{"json"},
+			Description: "将Json列表分成独立的条目",
+			Inputs: []*models.Parameter{
+				{Name: Input, Type: Json, Default: "", Description: "输入数据"},
+			},
+			Outputs: []*models.Parameter{
+				{Name: Output, Type: Json, Default: "", Description: "输出数据"},
 			},
 		},
 	}
