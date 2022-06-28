@@ -93,7 +93,7 @@ func (a *actionServer) getEngine(name string) engineTypes.WorkflowEngine {
 // afterEngineExec 处理流程执行完毕后执行的代码
 func (a *actionServer) afterEngineExec() {
 	record := a.getCurrentEngine().ExecutionRecord()
-	a.Logger.Info(record)
+	a.Logger.Debug(record)
 	a.updateExecutionRecord(context.TODO(), record)
 }
 
@@ -123,7 +123,7 @@ func (a *actionServer) RunEngine(ctx context.Context, request *services.RunEngin
 		return nil, err
 	}
 
-	a.Logger.Info("Get workflow info success: ", request.WorkflowId)
+	a.Logger.Debug("Get workflow info success: ", request.WorkflowId)
 
 	_workflow, err := workflow.New(wfi, &types.SystemVariables{
 		Workflow:  request.ActionOptions,

@@ -444,7 +444,7 @@ func (w *basicChanEngine) Exec(workflow *types.Workflow) error {
 
 	w.wg.Wait()
 
-	time.Sleep(time.Second * 6)
+	w.Logger.CloseAndWait()
 
 	return nil
 }

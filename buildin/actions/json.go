@@ -146,7 +146,7 @@ func JsonUnpackList(ctx *actionTypes.BatchRequestContext) (actionTypes.ActionDat
 	ctx.Inputs[buildin.Input].Foreach(func(item interface{}) {
 		var list []interface{}
 
-		_ = json.Unmarshal([]byte(item.(string)), &list)
+		_ = json.Unmarshal(item.([]byte), &list)
 		if len(list) > 0 {
 			for _, i := range list {
 				out, _ := json.Marshal(i)
