@@ -265,7 +265,7 @@ var (
 			},
 		},
 		{
-			XId:         JsonPathLookupID,
+			XId:         JsonUnpackListID,
 			Name:        "json-unpack-list",
 			DisplayName: "解包Json列表",
 			IsPublic:    true,
