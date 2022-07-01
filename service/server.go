@@ -200,6 +200,7 @@ func newActionServer() *actionServer {
 		logger.StringToLogLevel(tiopsConfigs.LogLevel),
 		tiopsApiClient,
 	)
+	// Make sure that log statements internal to gRPC library are logged using the zapLogger as well.
 
 	var options = []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(math.MaxInt32),

@@ -100,6 +100,9 @@ func (a *actionServer) afterEngineExec() {
 // updateExecutionRecord 更新执行记录
 func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
 	//if !a.updatingExecutionRecord {
+	record.XId = tiopsConfigs.ExecutionId
+	record.ExecutionId = tiopsConfigs.ExecutionId
+
 	a.updatingExecutionRecord = true
 	_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
 	if err != nil {
@@ -163,8 +166,6 @@ func (a *actionServer) GetEngineStatus(ctx context.Context, request *services.En
 // GetExecutionRecord 获取执行记录
 func (a *actionServer) GetExecutionRecord(ctx context.Context, request *services.EmptyRequest) (*models.ExecutionRecord, error) {
 	record := a.getCurrentEngine().ExecutionRecord()
-	record.XId = tiopsConfigs.ExecutionId
-	record.ExecutionId = tiopsConfigs.ExecutionId
 	go a.updateExecutionRecord(context.TODO(), record)
 	return record, nil
 }

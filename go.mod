@@ -12,6 +12,7 @@ require (
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/robfig/cron/v3 v3.0.1
 	go.uber.org/atomic v1.4.0
+	go.uber.org/zap v1.10.0
 	google.golang.org/grpc v1.37.0
 	google.golang.org/protobuf v1.28.0
 	tiops v0.0.0
