@@ -99,14 +99,14 @@ func (a *actionServer) afterEngineExec() {
 
 // updateExecutionRecord 更新执行记录
 func (a *actionServer) updateExecutionRecord(ctx context.Context, record *models.ExecutionRecord) {
-	if !a.updatingExecutionRecord {
-		a.updatingExecutionRecord = true
-		_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
-		if err != nil {
-			a.Logger.Error(err.Error())
-		}
-		a.updatingExecutionRecord = false
+	//if !a.updatingExecutionRecord {
+	a.updatingExecutionRecord = true
+	_, err := a.apiClient.CreateOrUpdateExecutionRecord(ctx, record)
+	if err != nil {
+		a.Logger.Error(err.Error())
 	}
+	a.updatingExecutionRecord = false
+	//}
 }
 
 // RunEngine 执行引擎，非主流程引擎需要用户调用
