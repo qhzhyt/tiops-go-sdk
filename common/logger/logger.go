@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 	client "tiops/common/api-client"
 	tiopsApiClient "tiops/common/api-client"
 	tiopsConfigs "tiops/common/config"
@@ -95,6 +96,7 @@ func (l *Logger) start() {
 			sn++
 			l.processLog(log)
 		}
+		time.Sleep(time.Second)
 		l.working.Done()
 	}()
 }

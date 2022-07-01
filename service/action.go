@@ -112,7 +112,7 @@ func (a *actionServer) CallAction(ctx context.Context, request *services.ActionR
 				a.Logger.Error(errorLog(actionName, request.Inputs, err1))
 			}
 		} else {
-			//a.Logger.Info(successLog(actionName, request.Inputs, res.Outputs))
+			// a.Logger.Info(successLog(actionName, request.Inputs, res.Outputs))
 		}
 	}()
 
